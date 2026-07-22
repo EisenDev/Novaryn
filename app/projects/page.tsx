@@ -18,32 +18,32 @@ const PADDLEYARD_SCREENSHOTS: ScreenshotItem[] = [
   {
     src: "/paddleyard/LANDING.png",
     title: "Client Landing Page",
-    desc: "The public-facing portal for PaddleYard where players can check live court availability, read rules, view branch schedules, and immediately launch bookings."
+    desc: "The public-facing portal for PaddleYard where players check live court availability, register for events, and manage booking sessions."
   },
   {
     src: "/paddleyard/LOGIN.png",
-    title: "Customer Login Screen",
-    desc: "Clean, fast, and secure customer authentication panel. Supports quick onboarding, keeping bookings linked to verified GCash mobile wallets."
+    title: "Secure Login Modal",
+    desc: "Client authentication panel powered by Auth.js (NextAuth) and credentials validation with hashed bcryptjs password checks."
   },
   {
     src: "/paddleyard/SIGNUP.png",
-    title: "Onboarding & Signup Portal",
-    desc: "Detailed customer registration form matching sports center requirements, capturing GCash accounts, skill levels, and membership waivers."
+    title: "User Onboarding Page",
+    desc: "Customer registration form integrated with DUPR rating scales and user onboarding waivers to match PH sports regulations."
   },
   {
     src: "/paddleyard/ANALYTICS.png",
     title: "Admin Analytics Dashboard",
-    desc: "Live operational intelligence for facility owners. Visualizes court occupancy rates, peaks hours, daily revenue breakdowns, and new member trends."
+    desc: "Business intelligence panel showing hourly court occupancy rates, transactions breakdown, wallet balance sums, and player logs."
   },
   {
     src: "/paddleyard/BOOKING-MONITOR.png",
-    title: "Front-Desk Booking Monitor",
-    desc: "Real-time calendar view utilized by reception staffs. Highlights hourly court statuses, check-ins, active memberships, and walk-in rentals."
+    title: "Booking Operations Calendar",
+    desc: "Interactive schedule grid mapping live court allocations, active sessions (Indoor/Outdoor/Rooftop), and walk-in cash payments."
   },
   {
     src: "/paddleyard/PADDLESTACK.png",
-    title: "System Architecture (PaddleStack)",
-    desc: "Technical diagram of the custom-built infrastructure. Demonstrates how Next.js orchestration connects with payment databases and automated check-ins."
+    title: "System Infrastructure (PaddleStack)",
+    desc: "Conceptual mapping of the digital queue system, showing how players stack paddles digitally using QR code scans at the court gate."
   }
 ];
 
@@ -125,14 +125,20 @@ export default function Projects() {
           {/* Details & Copy (Right) */}
           <div className="flex-1 p-8 sm:p-10 lg:p-12 flex flex-col justify-between text-left">
             <div className="flex flex-col gap-6">
-              <div>
-                <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest block">CLIENT PREVIEW</span>
+              <div className="flex flex-col gap-1.5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest">CLIENT PREVIEW</span>
+                  <div className="flex items-center gap-1.5 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100/50">
+                    <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                    <span className="text-[9px] font-mono font-bold text-emerald-600 uppercase tracking-wider">DEPLOYED & IN PRODUCTION</span>
+                  </div>
+                </div>
                 <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight mt-1">PaddleYard Platform</h2>
-                <p className="text-xs text-slate-400 font-semibold mt-1">PH Sports Center Management Suite</p>
+                <p className="text-xs text-slate-400 font-semibold">PH Sports Center Management Suite</p>
               </div>
 
               <p className="text-sm sm:text-base text-slate-500 leading-relaxed">
-                PaddleYard is a custom-coded business orchestration system built specifically for premium badminton and pickleball clubs. The system automates hourly court allocations, GCash payment clearances, walk-in reception counters, and member wallets.
+                PaddleYard is a production-grade sports administration suite containerized with Docker and deployed via GitHub Actions CI/CD to cloud virtual machines. Backed by PostgreSQL and Prisma ORM, it incorporates NextAuth secure sessions, a digital DUPR rating system sync for player matching, credit transaction logs, and a unique QR-based Pickleball Paddle Queue (Paddle Stack).
               </p>
 
               <div className="h-[1px] bg-slate-100" />
@@ -142,12 +148,12 @@ export default function Projects() {
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-3">Key System Capabilities</span>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   {[
-                    "Live Roster Scheduler",
-                    "GCash API Payout Checkout",
-                    "Members Digital Wallets",
-                    "Integrated Point-of-Sale (POS)",
-                    "QR Attendance Access Gate",
-                    "Admin Revenue Analytics"
+                    "Live Court Scheduling",
+                    "NextAuth Security Gate",
+                    "DUPR Player Rating Sync",
+                    "Digital Wallet Credits",
+                    "QR Paddle Stack Queue",
+                    "Loyalty Point Shop"
                   ].map((feat) => (
                     <div key={feat} className="flex items-center gap-2">
                       <div className="w-4.5 h-4.5 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
@@ -165,15 +171,15 @@ export default function Projects() {
               <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-500">
                 <div className="flex items-center gap-1">
                   <Activity className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Next.js 15 & TS</span>
+                  <span>Next.js 16 & TS</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <Calendar className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Deployed in 8 weeks</span>
+                  <span>Azure VM CI/CD</span>
                 </div>
                 <div className="flex items-center gap-1">
                   <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>Serverless DB</span>
+                  <span>PostgreSQL & Prisma</span>
                 </div>
               </div>
             </div>
