@@ -1,0 +1,88 @@
+version: "3.8"
+
+services:
+  # Laravel API Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../docker/backend/Dockerfile
+    container_name: novaryn-backend
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/var/www/html
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_CONNECTION=pgsql
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=novaryn_db
+      - DB_USERNAME=novaryn_user
+      - DB_PASSWORD=novaryn_pass
+      - REDIS_HOST=redis
+    depends_on:
+      - db
+      - redis
+    networks:
+      - novaryn-network
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/frontend/Dockerfile
+    container_name: novaryn-frontend
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1
+    depends_on:
+      - backend
+    networks:
+      - novaryn-network
+
+  # PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: novaryn-db
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=novaryn_db
+      - POSTGRES_USER=novaryn_user
+      - POSTGRES_PASSWORD=novaryn_pass
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - novaryn-network
+
+  # Redis Cache
+  redis:
+    image: redis:alpine
+    container_name: novaryn-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - novaryn-network
+
+networks:
+  novaryn-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
+  redis-data:
+    driver: local
