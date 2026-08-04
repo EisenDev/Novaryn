@@ -121,9 +121,10 @@ jobs:
             # Wait for DB connections to be ready
             sleep 10
 
-            # Run migrations
-            echo "Running database migrations..."
+            # Run migrations & seeders
+            echo "Running database migrations and plan seeders..."
             sudo docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T backend php artisan migrate --force
+            sudo docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T backend php artisan db:seed --class=PlanSeeder --force
 
             # Clear caches after deploy
             echo "Clearing application caches..."
