@@ -194,12 +194,6 @@ export default function PricingEnginePage() {
     }
   }, []);
 
-  const handleDownpaymentChange = (val: string) => {
-    const cleaned = val.replace(/,/g, "").replace(/\D/g, "");
-    const num = cleaned ? parseInt(cleaned, 10) : 0;
-    setDownpayment(num);
-    setDownpaymentInput(cleaned ? Number(cleaned).toLocaleString("en-PH") : "");
-  };
 
   // Group Expand states
   const [starterOpen, setStarterOpen] = useState(true);
