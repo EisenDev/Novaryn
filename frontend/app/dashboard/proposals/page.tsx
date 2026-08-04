@@ -754,15 +754,24 @@ export default function ContractBuilderPage() {
                   </p>
 
                   {enabledBuildModules.length > 0 ? (
-                    <div className="flex flex-col gap-2 pl-2 mb-2">
+                    <div className="flex flex-col gap-2.5 pl-2 mb-2">
                       {enabledBuildModules.map((m) => {
-                        const feats = (MODULE_FEATURES[m.name] || []).filter(f => !f.startsWith("—"));
+                        const feats = MODULE_FEATURES[m.name] || [];
                         return (
                           <div key={m.id} className="border-l-2 border-slate-300 pl-2.5">
                             <p className="text-[10px] font-bold text-slate-900 leading-tight">{m.name}</p>
                             {feats.length > 0 && (
-                              <ul className="list-disc pl-3.5 mt-0.5 text-[9px] text-slate-600 flex flex-col gap-0.5">
-                                {feats.slice(0, 5).map((f, i) => <li key={i}>{f}</li>)}
+                              <ul className="list-disc pl-3.5 mt-0.5 text-[8.5px] text-slate-600 flex flex-col gap-0.5">
+                                {feats.map((f, i) => {
+                                  if (f.startsWith("—")) {
+                                    return (
+                                      <p key={i} className="font-bold text-[8px] uppercase tracking-wider text-slate-800 mt-1 mb-0.5 font-sans -ml-3.5">
+                                        {f.replace(/—/g, "").trim()}
+                                      </p>
+                                    );
+                                  }
+                                  return <li key={i}>{f}</li>;
+                                })}
                               </ul>
                             )}
                           </div>
@@ -1078,8 +1087,8 @@ export default function ContractBuilderPage() {
                 <th className="px-6 py-4 font-sans rounded-tl-2xl">Client Name</th>
                 <th className="px-6 py-4 font-sans">System Plan</th>
                 <th className="px-6 py-4 font-sans text-right">One-time Build</th>
-                <th className="px-6 py-4 font-sans text-right">Monthly Support</th>
-                <th className="px-6 py-4 font-sans text-center">Maintenance SLA</th>
+                <th className="px-6 py-4 font-sans text-right">Monthly Installment</th>
+                <th className="px-6 py-4 font-sans text-center">Installment Progress</th>
                 <th className="px-6 py-4 font-sans">Saved Date</th>
                 <th className="px-6 py-4 text-right font-sans rounded-tr-2xl">Actions</th>
               </tr>
@@ -1106,22 +1115,19 @@ export default function ContractBuilderPage() {
                   <td className="px-6 py-4">
                     <span className="font-medium text-slate-600">Custom System</span>
                   </td>
-                  <td className="px-6 py-4 text-right font-mono font-semibold text-slate-900">
-                    {peso(quote.build_total)}
+                  <td className="px-6 py-4 text-right font-sans">
+                    <div className="font-mono font-semibold text-slate-900">{peso(quote.build_total)}</div>
+                    <div className="text-[9.5px] text-slate-400 font-normal">50% Launch: {peso(Math.round(quote.build_total * 0.5))}</div>
                   </td>
-                  <td className="px-6 py-4 text-right font-mono font-semibold text-slate-900">
-                    {peso(quote.monthly_total)}
+                  <td className="px-6 py-4 text-right font-sans">
+                    <div className="font-mono font-semibold text-slate-900">{peso(Math.round((quote.build_total * 0.5) / 12))}/mo</div>
+                    <div className="text-[9.5px] text-slate-400 font-normal">50% spread over 12 mos</div>
                   </td>
                   <td className="px-6 py-4 text-center">
-                    {quote.include_maintenance ? (
-                      <span className="inline-flex items-center gap-1 text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                        Included
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-[9px] font-bold bg-red-50 text-red-700 border border-red-100 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                        Declined
-                      </span>
-                    )}
+                    <span className="inline-flex items-center gap-1 text-[9.5px] font-bold bg-blue-50 text-blue-700 border border-blue-100 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                      0 / 12 Months Paid
+                    </span>
+                    <p className="text-[9px] text-slate-400 mt-0.5 font-sans font-normal">12 Months Term Remaining</p>
                   </td>
                   <td className="px-6 py-4 text-slate-400">
                     {formatDate(quote.created_at)}
