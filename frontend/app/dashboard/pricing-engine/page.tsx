@@ -156,9 +156,49 @@ export default function PricingEnginePage() {
   const [selectedHostId, setSelectedHostId] = useState<string>("none");
   const [includeMaintenance, setIncludeMaintenance] = useState(true);
 
-  // Launch Payment Percentage (configurable, default 50%)
-  const [launchPct, setLaunchPct] = useState(50);
-  const [customPctInput, setCustomPctInput] = useState("");
+  // Launch Payment Percentage — fixed at 50%
+  const launchPct = 50;
+
+  // USD → PHP Exchange Rate (fetched daily, cached in localStorage)
+  const [usdRate, setUsdRate] = useState<number>(57); // safe default
+  const [rateDate, setRateDate] = useState<string>("");
+  const [rateFetching, setRateFetching] = useState(false);
+
+  useEffect(() => {
+    const CACHE_KEY = "novaryn_usd_php_rate";
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+      try {
+        const { rate, date } = JSON.parse(cached);
+        const cachedDate = new Date(date).toDateString();
+        const today = new Date().toDateString();
+        if (cachedDate === today) {
+          setUsdRate(rate);
+          setRateDate(date);
+          return;
+        }
+      } catch {}
+    }
+    // Fetch fresh rate
+    setRateFetching(true);
+    fetch("https://open.er-api.com/v6/latest/USD")
+      .then((r) => r.json())
+      .then((data) => {
+        const rate = data?.rates?.PHP;
+        if (rate) {
+          const date = new Date().toISOString();
+          setUsdRate(rate);
+          setRateDate(date);
+          localStorage.setItem(CACHE_KEY, JSON.stringify({ rate, date }));
+        }
+      })
+      .catch(() => {})
+      .finally(() => setRateFetching(false));
+  }, []);
+
+  const usd = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: 0 })}`;
+  const hostPhp = (usdAmt: number) => Math.round(usdAmt * usdRate);
+  const rateDateLabel = rateDate ? new Date(rateDate).toLocaleDateString("en-PH", { month: "short", day: "numeric", year: "numeric" }) : "...";
 
   // Client Details Form
   const [clientName, setClientName] = useState("");
@@ -311,8 +351,6 @@ export default function PricingEnginePage() {
   const handleReset = () => {
     setEnabledModuleIds(new Set());
     setSelectedHostId("none");
-    setLaunchPct(50);
-    setCustomPctInput("");
   };
 
   // Calculations
@@ -332,9 +370,11 @@ export default function PricingEnginePage() {
     });
 
     const hostMod = hostingModules.find((h) => h.id === selectedHostId);
-    const hostCost = hostMod ? hostMod.monthly_price : 0;
+    // hostMod.monthly_price is in USD — convert to PHP for total calculations
+    const hostCostUsd = hostMod ? hostMod.monthly_price : 0;
+    const hostCostPhp = Math.round(hostCostUsd * usdRate);
     const rawMaintenanceTotal = maintenanceTotal;
-    const monthlyTotal = (includeMaintenance ? rawMaintenanceTotal : 0) + hostCost;
+    const monthlyTotal = (includeMaintenance ? rawMaintenanceTotal : 0) + hostCostPhp;
 
     const complexityAvg =
       activeBuildModulesCount > 0 ? Math.round(complexitySum / activeBuildModulesCount) : 0;
@@ -343,13 +383,14 @@ export default function PricingEnginePage() {
       buildTotal,
       rawMaintenanceTotal,
       maintenanceTotal: includeMaintenance ? rawMaintenanceTotal : 0,
-      hostCost,
+      hostCostUsd,
+      hostCostPhp,
       monthlyTotal,
       complexityAvg,
       activeCount: activeBuildModulesCount,
       totalCount: buildModules.length
     };
-  }, [buildModules, hostingModules, enabledModuleIds, selectedHostId]);
+  }, [buildModules, hostingModules, enabledModuleIds, selectedHostId, usdRate]);
 
   // Submit Quotation
   const handleSaveQuotation = async () => {
@@ -508,16 +549,18 @@ export default function PricingEnginePage() {
         <div className="bg-white border border-slate-200/70 rounded-xl p-3 sm:p-4 shadow-sm text-left">
           <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest text-slate-400">Cloud Hosting / Mo</p>
           <p className="text-lg sm:text-2xl font-semibold text-slate-900 mt-1 tracking-tight">
-            {peso(calculations.hostCost)}<span className="text-xs text-slate-400 font-normal">/mo</span>
+            {usd(calculations.hostCostUsd)}<span className="text-xs text-slate-400 font-normal">/mo</span>
           </p>
-          <p className="text-[9px] sm:text-[10px] text-slate-405 mt-1">Pass-through cloud costs</p>
+          <p className="text-[9px] sm:text-[10px] text-slate-500 mt-1">
+            ≈ {peso(calculations.hostCostPhp)}/mo · ₱{usdRate.toFixed(2)}/$
+          </p>
         </div>
         <div className="bg-white border border-slate-200/70 rounded-xl p-3 sm:p-4 shadow-sm bg-emerald-50/20 border-emerald-100 text-left">
           <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest text-emerald-700">Monthly Installment</p>
           <p className="text-lg sm:text-2xl font-semibold text-emerald-600 mt-1 tracking-tight">
-            {peso(Math.round(calculations.buildTotal * (1 - launchPct / 100) / 12) + calculations.hostCost)}<span className="text-xs text-emerald-700 font-normal">/mo</span>
+            {peso(Math.round(calculations.buildTotal * 0.5 / 12) + calculations.hostCostPhp)}<span className="text-xs text-emerald-700 font-normal">/mo</span>
           </p>
-          <p className="text-[9px] sm:text-[10px] text-slate-500 mt-1">Remaining {100 - launchPct}% / 12mo + Cloud</p>
+          <p className="text-[9px] sm:text-[10px] text-slate-500 mt-1">50% / 12mo (₱) + Cloud ($)</p>
         </div>
       </div>
 
@@ -558,9 +601,11 @@ export default function PricingEnginePage() {
                 </button>
                 {starterOpen && (
                   <div className="flex flex-col gap-2 mt-1">
-                    {categorizedModules.starter.map((mod) => (
-                      <ModuleRow key={mod.id} mod={mod} enabled={enabledModuleIds.has(mod.id)} onToggle={handleToggleModule} onViewFeatures={setMobileDrawerModule} launchPct={launchPct} />
-                    ))}
+                    {categorizedModules.starter
+                      .filter((mod) => mod.name !== "Custom Brand Website / CMS")
+                      .map((mod) => (
+                        <ModuleRow key={mod.id} mod={mod} enabled={enabledModuleIds.has(mod.id)} onToggle={handleToggleModule} onViewFeatures={setMobileDrawerModule} launchPct={50} />
+                      ))}
                   </div>
                 )}
               </div>
@@ -579,7 +624,7 @@ export default function PricingEnginePage() {
                 {proOpen && (
                   <div className="flex flex-col gap-2 mt-1">
                     {categorizedModules.pro.map((mod) => (
-                      <ModuleRow key={mod.id} mod={mod} enabled={enabledModuleIds.has(mod.id)} onToggle={handleToggleModule} onViewFeatures={setMobileDrawerModule} launchPct={launchPct} />
+                      <ModuleRow key={mod.id} mod={mod} enabled={enabledModuleIds.has(mod.id)} onToggle={handleToggleModule} onViewFeatures={setMobileDrawerModule} launchPct={50} />
                     ))}
                   </div>
                 )}
@@ -599,7 +644,7 @@ export default function PricingEnginePage() {
                 {enterpriseOpen && (
                   <div className="flex flex-col gap-2 mt-1">
                     {categorizedModules.ent.map((mod) => (
-                      <ModuleRow key={mod.id} mod={mod} enabled={enabledModuleIds.has(mod.id)} onToggle={handleToggleModule} onViewFeatures={setMobileDrawerModule} launchPct={launchPct} />
+                      <ModuleRow key={mod.id} mod={mod} enabled={enabledModuleIds.has(mod.id)} onToggle={handleToggleModule} onViewFeatures={setMobileDrawerModule} launchPct={50} />
                     ))}
                   </div>
                 )}
@@ -677,7 +722,10 @@ export default function PricingEnginePage() {
                           <p className="text-[10px] text-slate-400 mt-0.5">Managed deployment with regular monitoring and DB backups.</p>
                         </div>
                       </div>
-                      <span className="text-[12px] font-bold text-slate-800">{peso(host.monthly_price)}<span className="text-[9px] text-slate-400 font-normal">/mo</span></span>
+                      <div className="text-right shrink-0 ml-3">
+                        <p className="text-[12px] font-bold text-slate-800">{usd(host.monthly_price)}<span className="text-[9px] text-slate-400 font-normal">/mo</span></p>
+                        <p className="text-[9px] text-slate-400">≈ {peso(hostPhp(host.monthly_price))}/mo</p>
+                      </div>
                     </label>
                   ))}
                 </div>
@@ -748,45 +796,16 @@ export default function PricingEnginePage() {
               </div>
               <div className="col-span-2">
                 <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block mb-1.5">
-                  Production Launch Payment (%)
+                  Production Launch Payment
                 </label>
-                {/* Preset Percentage Pills */}
-                <div className="flex flex-wrap gap-1.5 mb-2">
-                  {[30, 40, 50, 60, 70].map((pct) => (
-                    <button
-                      key={pct}
-                      type="button"
-                      onClick={() => { setLaunchPct(pct); setCustomPctInput(""); }}
-                      className={`px-3 py-1 rounded-full text-[11px] font-bold border transition-all cursor-pointer ${
-                        launchPct === pct && !customPctInput
-                          ? "bg-emerald-600 text-white border-emerald-600"
-                          : "bg-white text-slate-600 border-slate-200 hover:border-emerald-400 hover:text-emerald-700"
-                      }`}
-                    >
-                      {pct}%
-                    </button>
-                  ))}
-                  {/* Custom % input */}
-                  <div className="flex items-center gap-1">
-                    <input
-                      type="number"
-                      min="1" max="99"
-                      value={customPctInput}
-                      onChange={(e) => {
-                        setCustomPctInput(e.target.value);
-                        const v = parseInt(e.target.value, 10);
-                        if (!isNaN(v) && v >= 1 && v <= 99) setLaunchPct(v);
-                      }}
-                      placeholder="Custom"
-                      className="w-16 border border-slate-200 rounded-lg px-2 py-1 text-[11px] text-slate-800 font-bold focus:outline-none focus:ring-1 focus:ring-emerald-400 focus:border-emerald-400 transition-all"
-                    />
-                    <span className="text-[11px] text-slate-400 font-bold">%</span>
-                  </div>
+                <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-2.5">
+                  <Lock className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span className="text-[13px] font-black text-emerald-700">50% upon go-live</span>
+                  <span className="text-[10px] text-emerald-500 ml-auto">Fixed — non-negotiable</span>
                 </div>
-                {/* Breakdown preview chip */}
                 {calculations.buildTotal > 0 && (
-                  <div className="text-[10px] text-slate-500 bg-slate-50 border border-slate-150 rounded-lg px-3 py-1.5 leading-relaxed">
-                    <span className="font-semibold text-emerald-700">{peso(Math.round(calculations.buildTotal * launchPct / 100))}</span> upon go-live · <span className="font-semibold text-slate-700">{peso(Math.round(calculations.buildTotal * (1 - launchPct / 100) / 12))}/mo</span> for 12 months
+                  <div className="text-[10px] text-slate-500 bg-slate-50 border border-slate-150 rounded-lg px-3 py-1.5 leading-relaxed mt-2">
+                    <span className="font-semibold text-emerald-700">{peso(Math.round(calculations.buildTotal * 0.5))}</span> upon go-live · <span className="font-semibold text-slate-700">{peso(Math.round(calculations.buildTotal * 0.5 / 12))}/mo</span> for 12 months
                   </div>
                 )}
               </div>
@@ -825,24 +844,27 @@ export default function PricingEnginePage() {
             {/* Price Preview */}
             <div className="bg-slate-50 border border-slate-200/60 rounded-xl p-4 flex flex-col gap-2">
               <div className="flex justify-between items-center text-[12px]">
-                <span className="text-slate-500">Total Contract Value</span>
+                <span className="text-slate-500">Total Contract Value (PHP)</span>
                 <span className="font-semibold text-slate-900">{peso(calculations.buildTotal)}</span>
               </div>
               <div className="flex justify-between items-center text-[12px] text-slate-700">
-                <span>Production Launch Payment ({launchPct}%)</span>
-                <span className="font-semibold">{peso(Math.round(calculations.buildTotal * launchPct / 100))}</span>
+                <span>Production Launch (50%)</span>
+                <span className="font-semibold">{peso(Math.round(calculations.buildTotal * 0.5))}</span>
               </div>
               <div className="flex justify-between items-center text-[12px] border-b border-dashed border-slate-200 pb-2">
-                <span className="text-slate-500">Monthly Installment ({100 - launchPct}% / 12mo)</span>
-                <span className="font-semibold text-slate-900">{peso(Math.round(calculations.buildTotal * (1 - launchPct / 100) / 12))}/mo</span>
+                <span className="text-slate-500">Monthly Installment (50% / 12mo)</span>
+                <span className="font-semibold text-slate-900">{peso(Math.round(calculations.buildTotal * 0.5 / 12))}/mo</span>
               </div>
               <div className="flex justify-between items-center text-[12px] border-b border-dashed border-slate-200 pb-2">
-                <span className="text-slate-500">Cloud Hosting Fee</span>
-                <span className="font-semibold text-slate-900">{peso(calculations.hostCost)}/mo</span>
+                <span className="text-slate-500">Cloud Hosting Fee (USD)</span>
+                <div className="text-right">
+                  <p className="font-semibold text-slate-900">{usd(calculations.hostCostUsd)}/mo</p>
+                  <p className="text-[9px] text-slate-400">≈ {peso(calculations.hostCostPhp)}/mo</p>
+                </div>
               </div>
               <div className="flex justify-between items-center text-[13px] pt-1">
-                <span className="font-semibold text-emerald-800">Total Monthly (Installment + Cloud)</span>
-                <span className="font-bold text-emerald-600">{peso(Math.round(calculations.buildTotal * (1 - launchPct / 100) / 12) + calculations.hostCost)}<span className="text-[9px] text-slate-400 font-normal">/mo</span></span>
+                <span className="font-semibold text-emerald-800">Total Monthly (₱ Installment + $ Cloud)</span>
+                <span className="font-bold text-emerald-600">{peso(Math.round(calculations.buildTotal * 0.5 / 12) + calculations.hostCostPhp)}<span className="text-[9px] text-slate-400 font-normal">/mo</span></span>
               </div>
             </div>
 
@@ -966,42 +988,15 @@ export default function PricingEnginePage() {
                   </div>
                   <div>
                     <label className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide block mb-1">
-                      Production Launch Payment (%)
+                      Production Launch Payment
                     </label>
-                    <div className="flex flex-wrap gap-1.5 mb-2">
-                      {[30, 40, 50, 60, 70].map((pct) => (
-                        <button
-                          key={pct}
-                          type="button"
-                          onClick={() => { setLaunchPct(pct); setCustomPctInput(""); }}
-                          className={`px-3 py-1 rounded-full text-[11px] font-bold border transition-all cursor-pointer ${
-                            launchPct === pct && !customPctInput
-                              ? "bg-emerald-600 text-white border-emerald-600"
-                              : "bg-white text-slate-600 border-slate-200 hover:border-emerald-400"
-                          }`}
-                        >
-                          {pct}%
-                        </button>
-                      ))}
-                      <div className="flex items-center gap-1">
-                        <input
-                          type="number"
-                          min="1" max="99"
-                          value={customPctInput}
-                          onChange={(e) => {
-                            setCustomPctInput(e.target.value);
-                            const v = parseInt(e.target.value, 10);
-                            if (!isNaN(v) && v >= 1 && v <= 99) setLaunchPct(v);
-                          }}
-                          placeholder="?"
-                          className="w-12 border border-slate-200 rounded-lg px-2 py-1 text-[11px] text-slate-800 font-bold focus:outline-none focus:ring-1 focus:ring-emerald-400 transition-all"
-                        />
-                        <span className="text-[11px] text-slate-400 font-bold">%</span>
-                      </div>
+                    <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2">
+                      <Lock className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <span className="text-[13px] font-black text-emerald-700">50% upon go-live</span>
                     </div>
                     {calculations.buildTotal > 0 && (
-                      <div className="text-[10px] text-slate-500 bg-slate-50 border border-slate-150 rounded-lg px-2.5 py-1.5 leading-relaxed">
-                        <span className="font-semibold text-emerald-700">{peso(Math.round(calculations.buildTotal * launchPct / 100))}</span> on go-live · <span className="font-semibold text-slate-700">{peso(Math.round(calculations.buildTotal * (1 - launchPct / 100) / 12))}/mo</span> for 12 months
+                      <div className="text-[10px] text-slate-500 bg-slate-50 border border-slate-150 rounded-lg px-2.5 py-1.5 leading-relaxed mt-2">
+                        <span className="font-semibold text-emerald-700">{peso(Math.round(calculations.buildTotal * 0.5))}</span> on go-live · <span className="font-semibold text-slate-700">{peso(Math.round(calculations.buildTotal * 0.5 / 12))}/mo</span> for 12 months
                       </div>
                     )}
                   </div>
@@ -1040,24 +1035,27 @@ export default function PricingEnginePage() {
                 {/* Price Preview */}
                 <div className="bg-slate-50 border border-slate-200/60 rounded-xl p-3 flex flex-col gap-1.5 font-medium text-slate-650">
                   <div className="flex justify-between items-center">
-                    <span className="text-slate-500">Total Contract Value</span>
+                    <span className="text-slate-500">Total Contract Value (PHP)</span>
                     <span className="font-semibold text-slate-800">{peso(calculations.buildTotal)}</span>
                   </div>
                   <div className="flex justify-between items-center text-slate-700">
-                    <span>Production Launch ({launchPct}%)</span>
-                    <span className="font-semibold">{peso(Math.round(calculations.buildTotal * launchPct / 100))}</span>
+                    <span>Production Launch (50%)</span>
+                    <span className="font-semibold">{peso(Math.round(calculations.buildTotal * 0.5))}</span>
                   </div>
                   <div className="flex justify-between items-center border-b border-dashed border-slate-200 pb-1.5">
-                    <span className="text-slate-500">Monthly Installment ({100 - launchPct}%/12mo)</span>
-                    <span className="font-semibold text-slate-800">{peso(Math.round(calculations.buildTotal * (1 - launchPct / 100) / 12))}/mo</span>
+                    <span className="text-slate-500">Monthly Installment (50%/12mo)</span>
+                    <span className="font-semibold text-slate-800">{peso(Math.round(calculations.buildTotal * 0.5 / 12))}/mo</span>
                   </div>
-                  <div className="flex justify-between items-center border-b border-dashed border-slate-200 pb-1.5">
-                    <span className="text-slate-500">Cloud Hosting Fee</span>
-                    <span className="font-semibold text-slate-800">{peso(calculations.hostCost)}/mo</span>
+                  <div className="flex justify-between items-start border-b border-dashed border-slate-200 pb-1.5">
+                    <span className="text-slate-500">Cloud Hosting (USD)</span>
+                    <div className="text-right">
+                      <p className="font-semibold text-slate-800">{usd(calculations.hostCostUsd)}/mo</p>
+                      <p className="text-[9px] text-slate-400">≈ {peso(calculations.hostCostPhp)}/mo</p>
+                    </div>
                   </div>
                   <div className="flex justify-between items-center text-emerald-800 pt-1">
-                    <span className="font-semibold">Total Monthly (Installment + Cloud)</span>
-                    <span className="font-bold text-emerald-650">{peso(Math.round(calculations.buildTotal * (1 - launchPct / 100) / 12) + calculations.hostCost)}<span className="text-[9px] text-slate-400 font-normal">/mo</span></span>
+                    <span className="font-semibold">Total Monthly (₱ + $ Cloud)</span>
+                    <span className="font-bold text-emerald-650">{peso(Math.round(calculations.buildTotal * 0.5 / 12) + calculations.hostCostPhp)}<span className="text-[9px] text-slate-400 font-normal">/mo</span></span>
                   </div>
                 </div>
               </div>

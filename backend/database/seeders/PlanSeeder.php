@@ -25,17 +25,8 @@ class PlanSeeder extends Seeder
         $buildModules = [
             // Starter modules
             [
-                'name' => 'Custom Brand Website / CMS',
-                'build_price' => 50000,
-                'monthly_price' => 3000,
-                'complexity_score' => 3,
-                'is_required' => false,
-                'enabled_by_default' => false,
-                'sort_order' => 10,
-            ],
-            [
                 'name' => 'Appointment & Slot Booking',
-                'build_price' => 60000,
+                'build_price' => 85000,
                 'monthly_price' => 3500,
                 'complexity_score' => 5,
                 'is_required' => false,
@@ -44,7 +35,7 @@ class PlanSeeder extends Seeder
             ],
             [
                 'name' => 'Standalone POS (Point of Sale)',
-                'build_price' => 75000,
+                'build_price' => 100000,
                 'monthly_price' => 4000,
                 'complexity_score' => 5,
                 'is_required' => false,
@@ -131,12 +122,13 @@ class PlanSeeder extends Seeder
             $customPlan->modules()->create(array_merge($module, ['category' => 'build']));
         }
 
-        // 3. Support Modules (Representing Hosting & DB Infrastructure Tiers)
+        // 3. Support Modules — stored in USD (monthly_price = USD amount)
+        //    Display layer converts to PHP using live exchange rate
         $supportModules = [
             [
                 'name' => 'Basic Server & DB (Starter Host)',
                 'build_price' => 0,
-                'monthly_price' => 2000,
+                'monthly_price' => 35,   // $35 USD/mo
                 'complexity_score' => 1,
                 'is_required' => false,
                 'enabled_by_default' => false,
@@ -145,7 +137,7 @@ class PlanSeeder extends Seeder
             [
                 'name' => 'Advanced Server & DB (Pro Host)',
                 'build_price' => 0,
-                'monthly_price' => 6000,
+                'monthly_price' => 105,  // $105 USD/mo
                 'complexity_score' => 1,
                 'is_required' => false,
                 'enabled_by_default' => false,
@@ -154,7 +146,7 @@ class PlanSeeder extends Seeder
             [
                 'name' => 'High-Availability Cloud Network (Enterprise Host)',
                 'build_price' => 0,
-                'monthly_price' => 20000,
+                'monthly_price' => 350,  // $350 USD/mo
                 'complexity_score' => 1,
                 'is_required' => false,
                 'enabled_by_default' => false,
