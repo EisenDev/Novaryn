@@ -15,8 +15,8 @@ const FAQS: FAQItem[] = [
     answer: "We design and build custom web applications, portals, and internal management systems. This includes reservation engines, sports scheduling systems, medical clinic portals, custom membership portals, inventory managers, and custom CRM systems. If your business has unique workflows, we build a platform that matches them exactly."
   },
   {
-    question: "Who owns the code once the project is finished?",
-    answer: "You do. Unlike SaaS products where you rent the service, Novaryn builds custom software that you own entirely. Once development is complete and the final payment is cleared, the intellectual property rights and full codebase repository are transferred to your company."
+    question: "Who owns the software after the project is finished?",
+    answer: "You fully own your business data, branding, and any custom features developed specifically for your company. Novaryn retains ownership of its proprietary platform, frameworks, reusable components, and development tools, allowing us to continue improving and maintaining the software. If your project includes a negotiated source code transfer or buyout, ownership terms will be clearly defined in the contract."
   },
   {
     question: "How long does a typical custom platform build take?",

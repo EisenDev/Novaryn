@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Menu, X, ChevronDown, Check, Copy, Mail } from "lucide-react";
+import { Menu, X, ChevronDown, Check, Mail } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface FloatingHeaderProps {
   email: string;
@@ -14,22 +15,50 @@ export default function FloatingHeader({ email, onCopySuccess, onOpenConsultatio
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>("");
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
-  const handleCopyEmail = (e: React.MouseEvent) => {
-    e.preventDefault();
-    navigator.clipboard.writeText(email);
-    setCopied(true);
-    onCopySuccess();
-    setTimeout(() => setCopied(false), 2000);
-  };
+      // Scroll section detection on landing page
+      if (pathname === "/") {
+        const sections = ["capabilities", "process", "pricing", "faq"];
+        let currentSection = "";
+
+        for (const sectionId of sections) {
+          const el = document.getElementById(sectionId);
+          if (el) {
+            const rect = el.getBoundingClientRect();
+            // Trigger when the top of the section is near the upper middle of the viewport
+            if (rect.top <= 160 && rect.bottom >= 160) {
+              currentSection = sectionId;
+              break;
+            }
+          }
+        }
+        setActiveSection(currentSection);
+      } else {
+        setActiveSection("");
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    handleScroll(); // Initial check
+
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [pathname]);
+
+  const getLinkClass = (isActive: boolean) => 
+    `text-sm font-semibold transition-colors cursor-pointer ${
+      isActive ? "text-emerald-600 font-bold" : "text-slate-650 hover:text-slate-950"
+    }`;
+
+  const getMobileLinkClass = (isActive: boolean) => 
+    `text-base font-bold transition-colors py-1 ${
+      isActive ? "text-emerald-600" : "text-slate-850 hover:text-emerald-600"
+    }`;
 
   return (
     <>
@@ -59,7 +88,8 @@ export default function FloatingHeader({ email, onCopySuccess, onOpenConsultatio
               <button className="flex items-center gap-1 text-sm font-medium text-slate-650 hover:text-slate-950 transition-colors py-1 cursor-pointer">
                 Solutions <ChevronDown className="w-4 h-4 text-slate-400 group-hover/menu:rotate-180 transition-transform duration-200" />
               </button>
-              <div className="absolute top-full -left-4 mt-2 w-56 rounded-xl bg-white border border-slate-200 shadow-xl opacity-0 translate-y-2 pointer-events-none group-hover/menu:opacity-100 group-hover/menu:translate-y-0 group-hover/menu:pointer-events-auto transition-all duration-200 p-2 z-50">
+              {/* Dropdown Menu - Added before pseudo-element hover bridge to eliminate gap auto-close issue */}
+              <div className="absolute top-full -left-4 mt-2 w-56 rounded-xl bg-white border border-slate-200 shadow-xl opacity-0 translate-y-2 pointer-events-none group-hover/menu:opacity-100 group-hover/menu:translate-y-0 group-hover/menu:pointer-events-auto transition-all duration-200 p-2 z-50 before:content-[''] before:absolute before:-top-4 before:left-0 before:right-0 before:h-4">
                 <span className="block px-4 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Vertical Case Study</span>
                 <Link href="/projects" className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 hover:text-emerald-600 rounded-lg transition-colors font-medium">
                   PaddleYard Platform
@@ -72,23 +102,23 @@ export default function FloatingHeader({ email, onCopySuccess, onOpenConsultatio
               </div>
             </div>
 
-            <Link href="/projects" className="text-sm font-medium text-slate-650 hover:text-slate-950 transition-colors">
+            <Link href="/projects" className={getLinkClass(pathname === "/projects")}>
               Projects
             </Link>
 
-            <Link href="/#capabilities" className="text-sm font-medium text-slate-650 hover:text-slate-950 transition-colors">
+            <Link href="/#capabilities" className={getLinkClass(pathname === "/" && activeSection === "capabilities")}>
               Capabilities
             </Link>
             
-            <Link href="/#process" className="text-sm font-medium text-slate-650 hover:text-slate-950 transition-colors">
+            <Link href="/#process" className={getLinkClass(pathname === "/" && activeSection === "process")}>
               Process
             </Link>
 
-            <Link href="/#pricing" className="text-sm font-medium text-slate-650 hover:text-slate-950 transition-colors">
+            <Link href="/#pricing" className={getLinkClass(pathname === "/" && activeSection === "pricing")}>
               Pricing
             </Link>
 
-            <Link href="/#faq" className="text-sm font-medium text-slate-650 hover:text-slate-950 transition-colors">
+            <Link href="/#faq" className={getLinkClass(pathname === "/" && activeSection === "faq")}>
               FAQ
             </Link>
           </nav>
@@ -106,7 +136,7 @@ export default function FloatingHeader({ email, onCopySuccess, onOpenConsultatio
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 text-slate-600 hover:text-slate-950 transition-colors rounded-lg hover:bg-slate-100 cursor-pointer"
+            className="md:hidden p-2 text-slate-650 hover:text-slate-950 transition-colors rounded-lg hover:bg-slate-100 cursor-pointer"
             aria-label="Toggle menu"
           >
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -151,35 +181,35 @@ export default function FloatingHeader({ email, onCopySuccess, onOpenConsultatio
             <Link
               href="/projects"
               onClick={() => setIsOpen(false)}
-              className="text-base font-bold text-slate-850 hover:text-emerald-600 py-1"
+              className={getMobileLinkClass(pathname === "/projects")}
             >
               Projects Page
             </Link>
             <Link
               href="/#capabilities"
               onClick={() => setIsOpen(false)}
-              className="text-base font-bold text-slate-850 hover:text-emerald-600 py-1"
+              className={getMobileLinkClass(pathname === "/" && activeSection === "capabilities")}
             >
               Capabilities
             </Link>
             <Link
               href="/#process"
               onClick={() => setIsOpen(false)}
-              className="text-base font-bold text-slate-850 hover:text-emerald-600 py-1"
+              className={getMobileLinkClass(pathname === "/" && activeSection === "process")}
             >
               Our Process
             </Link>
             <Link
               href="/#pricing"
               onClick={() => setIsOpen(false)}
-              className="text-base font-bold text-slate-850 hover:text-emerald-600 py-1"
+              className={getMobileLinkClass(pathname === "/" && activeSection === "pricing")}
             >
               Pricing
             </Link>
             <Link
               href="/#faq"
               onClick={() => setIsOpen(false)}
-              className="text-base font-bold text-slate-850 hover:text-emerald-600 py-1"
+              className={getMobileLinkClass(pathname === "/" && activeSection === "faq")}
             >
               FAQ
             </Link>

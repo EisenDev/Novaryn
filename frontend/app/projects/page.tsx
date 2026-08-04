@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import FloatingHeader from "../components/FloatingHeader";
 import Footer from "../components/Footer";
-import { Check, ArrowRight, Eye, X, ChevronLeft, ChevronRight, Activity, Calendar, ShieldCheck, CreditCard } from "lucide-react";
+import { Check, ArrowRight, Eye, X, ChevronLeft, ChevronRight, Activity, Calendar, ShieldCheck, CreditCard, ExternalLink } from "lucide-react";
 import Link from "next/link";
 import ConsultationModal from "../components/ConsultationModal";
 
@@ -77,7 +77,7 @@ export default function Projects() {
   return (
     <div className="flex flex-col min-h-screen bg-slate-50 antialiased overflow-x-hidden">
       {/* Floating Header */}
-      <FloatingHeader email={EMAIL} onCopySuccess={triggerToast} onOpenConsultation={() => {}} />
+      <FloatingHeader email={EMAIL} onCopySuccess={triggerToast} onOpenConsultation={() => setConsultationOpen(true)} />
 
       {/* Hero Header */}
       <section className="pt-32 pb-16 md:pt-40 md:pb-20 max-w-6xl mx-auto px-6 w-full text-left">
@@ -194,6 +194,15 @@ export default function Projects() {
                 <Eye className="w-4 h-4" />
                 <span>Explore Screenshots</span>
               </button>
+              <a
+                href="https://paddleyard.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold text-xs px-5 py-3 rounded-xl transition-all duration-200 active:scale-98 cursor-pointer"
+              >
+                <span>View Live Website</span>
+                <ExternalLink className="w-3.5 h-3.5 text-slate-400" />
+              </a>
               <button
                 onClick={() => setConsultationOpen(true)}
                 className="flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-850 text-white font-bold text-xs px-5 py-3 rounded-xl transition-all duration-200 active:scale-98 cursor-pointer"
