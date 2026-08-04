@@ -1090,7 +1090,7 @@ export default function PricingEnginePage() {
 
       {/* SLA Scope Modal */}
       {isSlaModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-50 animate-fade-in p-4">
+        <div className="fixed inset-0 bg-slate-900/25 backdrop-blur-[2px] flex items-center justify-center z-[80] animate-fade-in p-4">
           <div className="bg-white rounded-2xl border border-slate-250 max-w-[500px] w-full p-6 shadow-xl flex flex-col gap-4 animate-scale-up text-left">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <h3 className="text-sm font-bold text-slate-800 flex items-center gap-2">
