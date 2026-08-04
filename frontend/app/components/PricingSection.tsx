@@ -11,8 +11,8 @@ interface Blueprint {
   name: string;
   tagline: string;
   icon: React.ComponentType<{ className?: string }>;
-  setupPrice: string;
-  monthlyPrice: string;
+  setupPrice: number;
+  cloudCost: number;
   description: string;
   modulesIncluded: string[];
   slaFeatures: string[];
@@ -25,8 +25,8 @@ const BLUEPRINTS: Blueprint[] = [
     name: "Sports & Fitness Arena Suite",
     tagline: "Custom scheduling platform for sports centers & clubs.",
     icon: Rocket,
-    setupPrice: "₱185,000",
-    monthlyPrice: "₱15,000",
+    setupPrice: 185000,
+    cloudCost: 2500,
     description: "Fully automated facilities scheduling, QR queues, and player wallets.",
     modulesIncluded: [
       "Live Booking Calendar",
@@ -48,8 +48,8 @@ const BLUEPRINTS: Blueprint[] = [
     name: "Healthcare Clinic Suite",
     tagline: "EHR CRM records for medical and clinic groups.",
     icon: Gem,
-    setupPrice: "₱320,000",
-    monthlyPrice: "₱20,000",
+    setupPrice: 320000,
+    cloudCost: 4000,
     description: "Centralized EHR records, cross-branch calendar coordination, and SMS integrations.",
     modulesIncluded: [
       "Centralized Patient CRM",
@@ -72,8 +72,8 @@ const BLUEPRINTS: Blueprint[] = [
     name: "Enterprise Multi-Branch ERP",
     tagline: "HQ orchestration for franchises and networks.",
     icon: Building2,
-    setupPrice: "₱650,000",
-    monthlyPrice: "₱35,000",
+    setupPrice: 650000,
+    cloudCost: 8000,
     description: "Full supply chain trackers, headquarters operational dashboards, and database nodes.",
     modulesIncluded: [
       "HQ Central Administration",
@@ -217,24 +217,49 @@ export default function PricingSection({ email, onOpenConsultation }: PricingSec
 
                     <div className="h-[1px] bg-slate-100" />
 
-                    {/* Pricing details */}
-                    <div className="grid grid-cols-2 gap-2 text-left relative py-1">
-                      <div className="pr-2.5">
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">One-time Setup</span>
-                        <span className="text-lg font-extrabold text-slate-950 tracking-tight block mt-1 leading-tight">
-                          {blueprint.setupPrice}
-                        </span>
-                      </div>
+                    {/* Pricing breakdown */}
+                    {(() => {
+                      const downpayment = Math.round(blueprint.setupPrice * 0.30);
+                      const remaining   = blueprint.setupPrice - downpayment;
+                      const installment = Math.round(remaining / 12) + blueprint.cloudCost;
+                      return (
+                        <div className="flex flex-col gap-2.5">
+                          {/* Row 1: System Price + Downpayment */}
+                          <div className="grid grid-cols-2 gap-2 relative py-1">
+                            <div className="pr-2.5">
+                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">System Price</span>
+                              <span className="text-lg font-extrabold text-slate-950 tracking-tight block mt-1 leading-tight">
+                                {peso(blueprint.setupPrice)}
+                              </span>
+                            </div>
+                            <div className="absolute top-1 bottom-1 left-1/2 w-[1px] bg-slate-150" />
+                            <div className="pl-4">
+                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Downpayment (30%)</span>
+                              <span className="text-lg font-extrabold text-slate-800 tracking-tight block mt-1 leading-tight">
+                                {peso(downpayment)}
+                              </span>
+                            </div>
+                          </div>
 
-                      <div className="absolute top-1 bottom-1 left-1/2 w-[1px] bg-slate-150" />
-
-                      <div className="pl-4">
-                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Monthly Support SLA</span>
-                        <span className="text-lg font-extrabold text-emerald-600 tracking-tight block mt-1 leading-tight">
-                          {blueprint.monthlyPrice} <span className="text-[10px] text-slate-400 font-normal">/mo</span>
-                        </span>
-                      </div>
-                    </div>
+                          {/* Row 2: Cloud Hosting + Monthly Installment */}
+                          <div className="grid grid-cols-2 gap-2 relative py-1 bg-emerald-50/60 border border-emerald-100/70 rounded-xl px-3">
+                            <div className="pr-2.5 py-1">
+                              <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block">Cloud Hosting</span>
+                              <span className="text-sm font-extrabold text-slate-600 tracking-tight block mt-1 leading-tight">
+                                {peso(blueprint.cloudCost)}<span className="text-[9px] text-slate-400 font-normal">/mo</span>
+                              </span>
+                            </div>
+                            <div className="absolute top-2 bottom-2 left-1/2 w-[1px] bg-emerald-200/60" />
+                            <div className="pl-4 py-1">
+                              <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-wider block">Monthly Installment</span>
+                              <span className="text-sm font-extrabold text-emerald-600 tracking-tight block mt-1 leading-tight">
+                                {peso(installment)}<span className="text-[9px] text-slate-400 font-normal">/mo × 12</span>
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
 
                     <div className="h-[1px] bg-slate-100" />
 
@@ -350,13 +375,18 @@ export default function PricingSection({ email, onOpenConsultation }: PricingSec
               <div className="flex flex-col gap-4 text-xs font-semibold">
                 
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500 font-bold">One-Time Setup Fee</span>
+                  <span className="text-slate-500 font-bold">System Price</span>
                   <span className="text-base font-black text-slate-900">{peso(estimatorTotals.setup)}</span>
                 </div>
 
                 <div className="flex justify-between items-center">
-                  <span className="text-slate-500 font-bold">Monthly Service SLA</span>
-                  <span className="text-base font-black text-emerald-600">{peso(estimatorTotals.monthly)}<span className="text-[10px] text-slate-400 font-normal">/mo</span></span>
+                  <span className="text-slate-500 font-bold">Downpayment (30%)</span>
+                  <span className="text-base font-black text-slate-800">{peso(Math.round(estimatorTotals.setup * 0.30))}</span>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-500 font-bold">Monthly Installment</span>
+                  <span className="text-base font-black text-emerald-600">{peso(Math.round(estimatorTotals.setup * 0.70 / 12))}<span className="text-[10px] text-slate-400 font-normal">/mo × 12</span></span>
                 </div>
 
                 <div className="h-[1px] bg-slate-100 my-1" />
