@@ -80,8 +80,11 @@ jobs:
               git fetch origin main
               git reset --hard origin/main
             else
-              echo "📥 Cloning repository..."
-              git clone https://github.com/EisenDev/Novaryn.git .
+              echo "📥 Initializing repository in non-empty directory..."
+              git init
+              git remote add origin https://github.com/EisenDev/Novaryn.git
+              git fetch origin main
+              git checkout -f -B main origin/main
             fi
 
             # Log in to GitHub Container Registry on the VM
