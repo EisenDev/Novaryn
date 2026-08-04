@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, Mail, Copy, ArrowRight, Star, Code2, HeartPulse, ShieldCheck, TrendingUp } from "lucide-react";
+import { Check, Mail, Copy, ArrowRight, Star } from "lucide-react";
 import FloatingHeader from "./components/FloatingHeader";
 import InteractiveDashboard from "./components/InteractiveDashboard";
 import CapabilitiesSection from "./components/CapabilitiesSection";
@@ -40,122 +40,51 @@ export default function Home() {
       />
 
       {/* Hero Section */}
-      <section className="pt-32 pb-20 md:pt-36 md:pb-28 max-w-6xl mx-auto px-6 w-full text-center md:text-left flex flex-col md:flex-row items-center gap-12 lg:gap-16">
+      <section className="pt-32 pb-20 md:pt-40 md:pb-28 max-w-6xl mx-auto px-6 w-full text-center md:text-left flex flex-col md:flex-row items-center gap-12 lg:gap-16">
         {/* Hero Left Column */}
         <div className="flex-1 flex flex-col gap-6 items-center md:items-start max-w-xl">
           <div className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            <span className="w-6 h-[1px] bg-emerald-500 hidden md:block"></span>
             <span className="text-xs font-bold text-emerald-600 uppercase tracking-widest">
-              CUSTOM BUSINESS SOFTWARE
+              BUSINESS SOFTWARE FOR MODERN FACILITIES
             </span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl lg:text-[54px] font-extrabold text-slate-900 tracking-tight leading-[1.15] text-center md:text-left">
-            Software Built <br />
-            Around Your Business— <br />
-            <span className="text-emerald-600">Not the Other Way Around.</span>
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 tracking-tight leading-[1.1] text-center md:text-left">
+            Run Your Facility. <br />
+            Grow Your Business. <br />
+            All in <span className="text-emerald-600">One Platform.</span>
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-550 leading-relaxed text-center md:text-left">
-            Novaryn builds custom platforms for modern businesses. From bookings and operations to payments and analytics—everything works together, the way you need it to.
+          <p className="text-base sm:text-lg text-slate-550 leading-relaxed text-center md:text-left">
+            From online bookings and payments to memberships, tournaments, and analytics — Novaryn helps you automate operations and deliver exceptional experiences that keep customers coming back.
           </p>
 
-          {/* Advantages Grid */}
-          <div className="grid grid-cols-2 gap-x-6 gap-y-4 w-full mt-2 text-left">
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2 text-emerald-600">
-                <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center">
-                  <Code2 className="w-4 h-4" />
-                </div>
-                <span className="text-xs font-bold text-slate-800">Built for</span>
-              </div>
-              <span className="text-[11px] text-slate-500 pl-9">Your Industry</span>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2 text-emerald-600">
-                <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center">
-                  <HeartPulse className="w-4 h-4" />
-                </div>
-                <span className="text-xs font-bold text-slate-800">Designed Around</span>
-              </div>
-              <span className="text-[11px] text-slate-500 pl-9">Your Workflow</span>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2 text-emerald-600">
-                <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center">
-                  <ShieldCheck className="w-4 h-4" />
-                </div>
-                <span className="text-xs font-bold text-slate-800">Secure, Scalable</span>
-              </div>
-              <span className="text-[11px] text-slate-500 pl-9">& Reliable</span>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center gap-2 text-emerald-600">
-                <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center">
-                  <TrendingUp className="w-4 h-4" />
-                </div>
-                <span className="text-xs font-bold text-slate-800">Real-time Insights</span>
-              </div>
-              <span className="text-[11px] text-slate-500 pl-9">That Drive Growth</span>
-            </div>
-          </div>
-
           {/* Action CTAs */}
-          <div className="flex flex-col sm:flex-row items-center gap-3.5 w-full sm:w-auto mt-4">
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto mt-2">
             <button
               onClick={() => setConsultationOpen(true)}
-              className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-6 py-4 rounded-xl transition-all duration-200 shadow-md shadow-emerald-600/10 hover:shadow-emerald-600/20 active:scale-98 w-full sm:w-auto cursor-pointer"
+              className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm px-6 py-3.5 rounded-xl transition-all duration-200 shadow-md shadow-emerald-600/10 hover:shadow-emerald-600/20 active:scale-98 w-full sm:w-auto cursor-pointer"
             >
               <span>Book a Free Demo</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-4 h-4" />
             </button>
             <a
               href="#capabilities"
-              className="flex items-center justify-center bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs px-6 py-4 rounded-xl border border-slate-205 shadow-sm transition-all duration-200 w-full sm:w-auto hover:border-slate-300"
+              className="flex items-center justify-center bg-white hover:bg-slate-50 text-slate-700 font-semibold text-sm px-6 py-3.5 rounded-xl border border-slate-200 shadow-sm transition-all duration-200 w-full sm:w-auto"
             >
               Explore Features
             </a>
           </div>
 
-          {/* Trust proof logos strip */}
-          <div className="flex flex-col gap-2.5 w-full mt-6 text-center md:text-left border-t border-slate-100 pt-5">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-              Trusted by businesses across industries
-            </span>
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-6 gap-y-3 opacity-45 grayscale hover:opacity-75 transition-opacity duration-300">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 tracking-tight">
-                <span className="w-4 h-4 rounded bg-slate-800 text-white flex items-center justify-center text-[10px]">P</span>
-                PICKLEYARD
-              </div>
-              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 tracking-tight">
-                <span className="w-4 h-4 rounded bg-slate-800 text-white flex items-center justify-center text-[10px] font-serif">A</span>
-                ACTIVECARE CLINIC
-              </div>
-              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 tracking-tight">
-                <span className="w-4 h-4 rounded bg-slate-800 text-white flex items-center justify-center text-[10px]">G</span>
-                GRILLHOUSE
-              </div>
-              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 tracking-tight">
-                <span className="w-4 h-4 rounded bg-slate-800 text-white flex items-center justify-center text-[10px]">S</span>
-                STORVYN WAREHOUSE
-              </div>
-              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 tracking-tight">
-                <span className="w-4 h-4 rounded bg-slate-800 text-white flex items-center justify-center text-[10px]">F</span>
-                FITNEX GYM
-              </div>
-            </div>
-          </div>
+
         </div>
 
-        {/* Hero Right Column (Interactive Demo Dashboard) */}
-        <div className="flex-1 w-full max-w-2xl relative">
+        {/* Hero Right Column (Dashboard Preview) */}
+        <div className="flex-1 w-full max-w-2xl">
           <InteractiveDashboard />
         </div>
       </section>
-
 
       {/* Industries Row (Built for all types of sports facilities / industries) */}
       <section id="sports" className="py-12 bg-white border-y border-slate-100 w-full">
