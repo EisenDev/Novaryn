@@ -26,10 +26,15 @@ interface ProjectItem {
   client_name: string | null;
 }
 
+// Module-level cache
+let _cachedInvoices: InvoiceItem[] = [];
+let _cachedProjects: ProjectItem[] = [];
+let _billingLoaded = false;
+
 export default function BillingPage() {
-  const [invoices, setInvoices] = useState<InvoiceItem[]>([]);
-  const [projects, setProjects] = useState<ProjectItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [invoices, setInvoices] = useState<InvoiceItem[]>(_cachedInvoices);
+  const [projects, setProjects] = useState<ProjectItem[]>(_cachedProjects);
+  const [loading, setLoading] = useState(!_billingLoaded);
   const [error, setError] = useState("");
 
   // Filters
@@ -79,7 +84,9 @@ export default function BillingPage() {
       }
 
       const invJson = await invRes.json();
-      setInvoices(invJson.data?.data || invJson.data || []);
+      const inv = invJson.data?.data || invJson.data || [];
+      _cachedInvoices = inv;
+      setInvoices(inv);
 
       // 2. Fetch projects (for invoice binding selection dropdown)
       const projRes = await fetch(`${apiUrl}/projects`, {
@@ -92,7 +99,10 @@ export default function BillingPage() {
 
       if (projRes.ok) {
         const projJson = await projRes.json();
-        setProjects(projJson.data || []);
+        const proj = projJson.data || [];
+        _cachedProjects = proj;
+        _billingLoaded = true;
+        setProjects(proj);
       }
     } catch (err: any) {
       console.error(err);

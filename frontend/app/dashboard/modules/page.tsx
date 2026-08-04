@@ -19,10 +19,14 @@ interface ProjectItem {
   } | null;
 }
 
+// Module-level cache
+let _cachedModuleProjects: ProjectItem[] = [];
+let _moduleProjectsLoaded = false;
+
 export default function ProjectCostingPage() {
-  const [projects, setProjects] = useState<ProjectItem[]>([]);
+  const [projects, setProjects] = useState<ProjectItem[]>(_cachedModuleProjects);
   const [selectedProjectId, setSelectedProjectId] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!_moduleProjectsLoaded);
   const [saveLoading, setSaveLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -62,6 +66,8 @@ export default function ProjectCostingPage() {
 
       const json = await res.json();
       const list: ProjectItem[] = json.data || [];
+      _cachedModuleProjects = list;
+      _moduleProjectsLoaded = true;
       setProjects(list);
 
       if (list.length > 0) {

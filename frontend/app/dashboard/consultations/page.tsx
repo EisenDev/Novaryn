@@ -18,9 +18,13 @@ interface Lead {
   created_at: string;
 }
 
+// Module-level cache
+let _cachedLeads: Lead[] = [];
+let _consultLoaded = false;
+
 export default function SchedulerPage() {
-  const [leads, setLeads] = useState<Lead[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [leads, setLeads] = useState<Lead[]>(_cachedLeads);
+  const [loading, setLoading] = useState(!_consultLoaded);
   const [error, setError] = useState("");
   
   // Tab control
@@ -65,7 +69,10 @@ export default function SchedulerPage() {
       }
 
       const json = await res.json();
-      setLeads(json.data?.data || []);
+      const data = json.data?.data || [];
+      _cachedLeads = data;
+      _consultLoaded = true;
+      setLeads(data);
     } catch (err: any) {
       console.error(err);
       setError(err.message || "Failed to load consultations.");

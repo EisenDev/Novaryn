@@ -64,10 +64,15 @@ const getStatusBadge = (status: string) => {
   }
 };
 
+// Module-level cache
+let _cachedLeadsList: LeadItem[] = [];
+let _cachedQuotations: Quotation[] = [];
+let _leadsLoaded = false;
+
 export default function LeadsPage() {
-  const [leadsList, setLeadsList] = useState<LeadItem[]>([]);
-  const [quotations, setQuotations] = useState<Quotation[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [leadsList, setLeadsList] = useState<LeadItem[]>(_cachedLeadsList);
+  const [quotations, setQuotations] = useState<Quotation[]>(_cachedQuotations);
+  const [loading, setLoading] = useState(!_leadsLoaded);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [inviteLoading, setInviteLoading] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -114,7 +119,9 @@ export default function LeadsPage() {
       }
       
       const leadsJson = await leadsRes.json();
-      setLeadsList(leadsJson.data?.data || leadsJson.data || []);
+      const leads = leadsJson.data?.data || leadsJson.data || [];
+      _cachedLeadsList = leads;
+      setLeadsList(leads);
 
       // 2. Fetch quotations (to link proposals)
       const quotesRes = await fetch(`${apiUrl}/pricing/quotations`, {
@@ -127,7 +134,10 @@ export default function LeadsPage() {
 
       if (quotesRes.ok) {
         const quotesJson = await quotesRes.json();
-        setQuotations(quotesJson.data || []);
+        const quotes = quotesJson.data || [];
+        _cachedQuotations = quotes;
+        _leadsLoaded = true;
+        setQuotations(quotes);
       }
     } catch (err: any) {
       console.error(err);

@@ -147,9 +147,13 @@ const AUTHORIZED_SIGNATORIES = [
 // PAGE COMPONENT
 // ─────────────────────────────────────────────────────────────────
 
+// Module-level cache
+let _cachedQuotations: Quotation[] = [];
+let _proposalsLoaded = false;
+
 export default function ContractBuilderPage() {
-  const [quotations, setQuotations] = useState<Quotation[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [quotations, setQuotations] = useState<Quotation[]>(_cachedQuotations);
+  const [loading, setLoading] = useState(!_proposalsLoaded);
   const [error, setError] = useState("");
   const [selectedQuote, setSelectedQuote] = useState<Quotation | null>(null);
 
@@ -195,7 +199,10 @@ export default function ContractBuilderPage() {
       }
 
       const json = await res.json();
-      setQuotations(json.data || []);
+      const quotes = json.data || [];
+      _cachedQuotations = quotes;
+      _proposalsLoaded = true;
+      setQuotations(quotes);
     } catch (err: any) {
       console.error(err);
       setError(err.message || "Failed to load quotations list.");
@@ -240,11 +247,10 @@ export default function ContractBuilderPage() {
     window.print();
   };
 
-  if (loading) {
+  if (loading && quotations.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
-        <RefreshCw className="w-8 h-8 text-emerald-500 animate-spin" />
-        <p className="text-[12px] text-slate-500 font-medium">Loading saved database quotes...</p>
+        <div className="w-6 h-6 rounded-full border-2 border-emerald-500/20 border-t-emerald-500 animate-spin" />
       </div>
     );
   }

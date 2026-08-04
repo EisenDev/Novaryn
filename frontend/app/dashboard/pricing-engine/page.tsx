@@ -140,10 +140,13 @@ const peso = (n: number) =>
 // PAGE COMPONENT
 // ─────────────────────────────────────────────────────────────────
 
+// Module-level cache
+let _cachedPricingPlan: DBPlan | null = null;
+
 export default function PricingEnginePage() {
   // DB & State Loading
-  const [plan, setPlan] = useState<DBPlan | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [plan, setPlan] = useState<DBPlan | null>(_cachedPricingPlan);
+  const [loading, setLoading] = useState(!_cachedPricingPlan);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState("");
@@ -229,6 +232,7 @@ export default function PricingEnginePage() {
       const customPlan = json.data?.find((p: DBPlan) => p.slug === "custom") || json.data?.[0];
 
       if (customPlan) {
+        _cachedPricingPlan = customPlan;
         setPlan(customPlan);
         // Pre-fill defaults
         const defaults = new Set<string>();
@@ -411,11 +415,10 @@ export default function PricingEnginePage() {
     }
   };
 
-  if (loading) {
+  if (loading && !plan) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
-        <RefreshCw className="w-8 h-8 text-emerald-500 animate-spin" />
-        <p className="text-[12px] text-slate-500 font-medium">Connecting to pricing database...</p>
+        <div className="w-6 h-6 rounded-full border-2 border-emerald-500/20 border-t-emerald-500 animate-spin" />
       </div>
     );
   }

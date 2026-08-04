@@ -39,9 +39,12 @@ interface FinancialStats {
   recent_ledger: LedgerEntry[];
 }
 
+// Module-level cache: persists across navigations without a provider
+let _cachedStats: FinancialStats | null = null;
+
 export default function FinancialsPage() {
-  const [stats, setStats] = useState<FinancialStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<FinancialStats | null>(_cachedStats);
+  const [loading, setLoading] = useState(!_cachedStats);
   const [error, setError] = useState("");
 
   const fetchStats = useCallback(async () => {
@@ -71,6 +74,7 @@ export default function FinancialsPage() {
       }
 
       const json = await res.json();
+      _cachedStats = json.data;
       setStats(json.data);
     } catch (err: any) {
       console.error(err);
@@ -100,8 +104,7 @@ export default function FinancialsPage() {
   if (loading && !stats) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
-        <RefreshCw className="w-8 h-8 text-emerald-500 animate-spin" />
-        <p className="text-[12px] text-slate-500 font-medium font-sans">Analyzing revenue ledgers and MRR charts...</p>
+        <div className="w-6 h-6 rounded-full border-2 border-emerald-500/20 border-t-emerald-500 animate-spin" />
       </div>
     );
   }

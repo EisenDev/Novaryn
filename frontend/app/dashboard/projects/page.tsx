@@ -239,9 +239,13 @@ function ProjectCard({
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
+// Module-level cache
+let _cachedProjects: ProjectItem[] = [];
+let _projectsLoaded = false;
+
 export default function ProjectsPage() {
-  const [projects, setProjects]           = useState<ProjectItem[]>([]);
-  const [loading, setLoading]             = useState(true);
+  const [projects, setProjects]           = useState<ProjectItem[]>(_cachedProjects);
+  const [loading, setLoading]             = useState(!_projectsLoaded);
   const [error, setError]                 = useState("");
   const [isEditing, setIsEditing]         = useState(false);
   const [isCreating, setIsCreating]       = useState(false);
@@ -292,7 +296,10 @@ export default function ProjectsPage() {
       if (res.status === 401) { window.location.href = "/login"; return; }
       if (!res.ok) throw new Error("Unable to retrieve project records.");
       const json = await res.json();
-      setProjects(json.data || []);
+      const p = json.data || [];
+      _cachedProjects = p;
+      _projectsLoaded = true;
+      setProjects(p);
     } catch (e: any) {
       setError(e.message || "Failed to load projects.");
     } finally {
