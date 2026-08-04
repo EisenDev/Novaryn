@@ -12,14 +12,16 @@ class PlanSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Create a single Plan representing the Custom Software Builder
-        $customPlan = Plan::create([
-            'name' => 'Custom System Builder',
-            'slug' => 'custom',
-            'minimum_build_price' => 0,
-            'minimum_monthly_price' => 0,
-            'sort_order' => 1,
-        ]);
+        // 1. Create or Update the single Plan representing the Custom Software Builder
+        $customPlan = Plan::updateOrCreate(
+            ['slug' => 'custom'],
+            [
+                'name' => 'Custom System Builder',
+                'minimum_build_price' => 0,
+                'minimum_monthly_price' => 0,
+                'sort_order' => 1,
+            ]
+        );
 
         // 2. Build Modules (One-time build price + Monthly Maintenance cost)
         $buildModules = [
@@ -119,7 +121,10 @@ class PlanSeeder extends Seeder
         ];
 
         foreach ($buildModules as $module) {
-            $customPlan->modules()->create(array_merge($module, ['category' => 'build']));
+            $customPlan->modules()->updateOrCreate(
+                ['name' => $module['name']],
+                array_merge($module, ['category' => 'build'])
+            );
         }
 
         // 3. Support Modules — stored in USD (monthly_price = USD amount)
@@ -155,7 +160,10 @@ class PlanSeeder extends Seeder
         ];
 
         foreach ($supportModules as $module) {
-            $customPlan->modules()->create(array_merge($module, ['category' => 'support']));
+            $customPlan->modules()->updateOrCreate(
+                ['name' => $module['name']],
+                array_merge($module, ['category' => 'support'])
+            );
         }
     }
 }
