@@ -23,6 +23,13 @@ class DatabaseSeeder extends Seeder
     {
         // 1. Create Default Users (Admins)
         User::create([
+            'name' => 'Arjay Escabas',
+            'email' => 'eisen.dev@admin.com',
+            'password' => Hash::make('admin1234'),
+            'role' => 'super_admin'
+        ]);
+
+        User::create([
             'name' => 'Super Admin',
             'email' => 'admin@novaryn.tech',
             'password' => Hash::make('password123'),
