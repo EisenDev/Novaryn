@@ -113,7 +113,7 @@ jobs:
 
             # Pull, recreate, and run containers
             echo "Pulling latest images from GHCR..."
-            sudo docker compose -f docker-compose.prod.yml --env-file .env.prod pull
+            sudo docker compose -f docker-compose.prod.yml --env-file .env.prod pull --quiet
 
             echo "Starting containers..."
             sudo docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
