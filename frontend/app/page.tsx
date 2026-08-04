@@ -19,7 +19,7 @@ const TRUST_AVATARS = [
   "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&h=100&q=80"
 ];
 
-const EMAIL = "novaryntec@gmail.com";
+const EMAIL = "novarynph@gmail.com";
 
 export default function Home() {
   const [showToast, setShowToast] = useState(false);

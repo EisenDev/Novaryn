@@ -7,7 +7,7 @@ import { Check, ArrowRight, Eye, X, ChevronLeft, ChevronRight, Activity, Calenda
 import Link from "next/link";
 import ConsultationModal from "../components/ConsultationModal";
 
-const EMAIL = "novaryntec@gmail.com";
+const EMAIL = "novarynph@gmail.com";
 
 interface ScreenshotItem {
   src: string;
