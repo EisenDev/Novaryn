@@ -436,7 +436,8 @@ export default function ContractBuilderPage() {
             width: 210mm;
             height: 297mm;
             min-height: 297mm;
-            padding: 18mm 20mm;
+            max-height: 297mm;
+            padding: 16mm 20mm 14mm 20mm;
             margin: 0 auto;
             background: white;
             box-shadow: 0 4px 10px rgb(0 0 0 / 0.07), 0 2px 4px rgb(0 0 0 / 0.05);
@@ -445,10 +446,11 @@ export default function ContractBuilderPage() {
             font-family: 'Times New Roman', Times, serif;
             font-size: 12pt;
             color: #1e293b;
-            line-height: 1.6;
+            line-height: 1.5;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            overflow: hidden;
           }
 
           @media print {
@@ -481,18 +483,20 @@ export default function ContractBuilderPage() {
             .a4-page {
               border: none !important;
               box-shadow: none !important;
-              padding: 18mm 20mm !important;
+              padding: 16mm 20mm 14mm 20mm !important;
               margin: 0 !important;
               width: 210mm !important;
               height: 297mm !important;
               min-height: 297mm !important;
+              max-height: 297mm !important;
               page-break-after: always !important;
               box-sizing: border-box !important;
               font-family: 'Times New Roman', Times, serif !important;
               font-size: 12pt !important;
-              line-height: 1.6 !important;
+              line-height: 1.5 !important;
               color: black !important;
               background: white !important;
+              overflow: hidden !important;
             }
             /* Remove margins on last page to prevent blank sheet */
             .a4-page:last-child {
@@ -797,29 +801,29 @@ export default function ContractBuilderPage() {
               </div>
             </div>
 
-            {/* PAGE 2 — SCOPE OF WORK & RESPONSIBILITIES */}
+            {/* PAGE 2 — DEDICATED SCOPE OF WORK */}
             <div className="a4-page">
               <div className="flex flex-col justify-between h-full">
                 <div>
                   {/* 2. Scope of Work */}
                   <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2 mb-2 text-slate-900">2. Scope of Work</h3>
-                  <p className="mb-2 text-justify text-[12pt] leading-relaxed">
+                  <p className="mb-3 text-justify text-[12pt] leading-relaxed">
                     The Developer agrees to develop a custom business system with the following modules, core functionalities, and analytics engines:
                   </p>
 
                   {enabledBuildModules.length > 0 ? (
-                    <div className="flex flex-col gap-2.5 pl-1 mb-2">
+                    <div className="flex flex-col gap-3 pl-1 mb-3">
                       {enabledBuildModules.map((m) => {
                         const feats = MODULE_FEATURES[m.name] || [];
                         return (
                           <div key={m.id} className="border-l-2 border-slate-400 pl-3 py-0.5">
                             <p className="text-[12pt] font-bold text-slate-950 font-sans leading-tight">{m.name}</p>
                             {feats.length > 0 && (
-                              <ul className="list-disc pl-4 mt-0.5 text-[10.5pt] text-slate-800 flex flex-col gap-0.5">
+                              <ul className="list-disc pl-4 mt-1 text-[11pt] text-slate-800 flex flex-col gap-0.5">
                                 {feats.map((f, i) => {
                                   if (f.startsWith("—")) {
                                     return (
-                                      <p key={i} className="font-bold text-[9.5pt] uppercase tracking-wider text-slate-900 mt-1 mb-0.5 font-sans -ml-4">
+                                      <p key={i} className="font-bold text-[10pt] uppercase tracking-wider text-slate-900 mt-1.5 mb-0.5 font-sans -ml-4">
                                         {f.replace(/—/g, "").trim()}
                                       </p>
                                     );
@@ -833,7 +837,7 @@ export default function ContractBuilderPage() {
                       })}
                     </div>
                   ) : (
-                    <ul className="list-disc pl-5 text-[11pt] text-slate-800 flex flex-col gap-0.5 mb-2">
+                    <ul className="list-disc pl-5 text-[11.5pt] text-slate-800 flex flex-col gap-1 mb-3">
                       <li>User Login and Authentication</li>
                       <li>Dashboard &amp; Overview</li>
                       <li>Product / Service Management</li>
@@ -843,31 +847,9 @@ export default function ContractBuilderPage() {
                     </ul>
                   )}
 
-                  <p className="text-[10.5pt] text-slate-600 mb-3 text-justify italic font-serif">
+                  <p className="text-[11pt] text-slate-600 mb-2 text-justify italic font-serif">
                     Any features, third-party integrations, or customizations not explicitly listed above shall be considered outside the scope of this Agreement unless mutually agreed upon in writing via a formal change order.
                   </p>
-
-                  {/* 3. Responsibilities of the Developer */}
-                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1 text-slate-900">3. Responsibilities of the Developer</h3>
-                  <p className="mb-1 text-[11.5pt]">The Developer agrees to:</p>
-                  <ul className="list-disc pl-5 text-[11pt] text-slate-800 flex flex-col gap-0.5 mb-3">
-                    <li>Gather and analyze the Client&apos;s system requirements.</li>
-                    <li>Design, develop, test, and implement the system.</li>
-                    <li>Maintain the confidentiality of the Client&apos;s information.</li>
-                    <li>Provide user documentation or basic training upon project completion.</li>
-                    <li>Correct system errors discovered during the agreed warranty period.</li>
-                  </ul>
-
-                  {/* 4. Responsibilities of the Client */}
-                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1 text-slate-900">4. Responsibilities of the Client</h3>
-                  <p className="mb-1 text-[11.5pt]">The Client agrees to:</p>
-                  <ul className="list-disc pl-5 text-[11pt] text-slate-800 flex flex-col gap-0.5 mb-2">
-                    <li>Provide accurate and complete information needed for system development.</li>
-                    <li>Designate a representative to communicate with the Developer.</li>
-                    <li>Review deliverables and provide timely feedback.</li>
-                    <li>Participate in testing and final acceptance of the system.</li>
-                    <li>Use the system in accordance with the provided instructions.</li>
-                  </ul>
                 </div>
 
                 {/* Footer */}
@@ -878,20 +860,42 @@ export default function ContractBuilderPage() {
               </div>
             </div>
 
-            {/* PAGE 3 — TIMELINE, CONFIDENTIALITY & OWNERSHIP */}
+            {/* PAGE 3 — RESPONSIBILITIES, TIMELINE, CONFIDENTIALITY & OWNERSHIP */}
             <div className="a4-page">
               <div className="flex flex-col justify-between h-full">
                 <div>
+                  {/* 3. Responsibilities of the Developer */}
+                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2 mb-1 text-slate-900">3. Responsibilities of the Developer</h3>
+                  <p className="mb-1 text-[11.5pt]">The Developer agrees to:</p>
+                  <ul className="list-disc pl-5 text-[10.5pt] text-slate-800 flex flex-col gap-0.5 mb-2.5">
+                    <li>Gather and analyze the Client&apos;s system requirements.</li>
+                    <li>Design, develop, test, and implement the system.</li>
+                    <li>Maintain the confidentiality of the Client&apos;s information.</li>
+                    <li>Provide user documentation or basic training upon project completion.</li>
+                    <li>Correct system errors discovered during the agreed warranty period.</li>
+                  </ul>
+
+                  {/* 4. Responsibilities of the Client */}
+                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">4. Responsibilities of the Client</h3>
+                  <p className="mb-1 text-[11.5pt]">The Client agrees to:</p>
+                  <ul className="list-disc pl-5 text-[10.5pt] text-slate-800 flex flex-col gap-0.5 mb-2.5">
+                    <li>Provide accurate and complete information needed for system development.</li>
+                    <li>Designate a representative to communicate with the Developer.</li>
+                    <li>Review deliverables and provide timely feedback.</li>
+                    <li>Participate in testing and final acceptance of the system.</li>
+                    <li>Use the system in accordance with the provided instructions.</li>
+                  </ul>
+
                   {/* 5. Project Timeline */}
-                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2 mb-1.5 text-slate-900">5. Project Timeline</h3>
-                  <p className="mb-1.5 text-justify text-[12pt]">
+                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">5. Project Timeline</h3>
+                  <p className="mb-1 text-justify text-[11.5pt]">
                     The total estimated build timeframe is <strong>{timeframe}</strong>. The target schedule per milestone phase is structured as follows:
                   </p>
-                  <table className="w-full border-collapse text-[11pt] mt-1 mb-2 font-sans">
+                  <table className="w-full border-collapse text-[10.5pt] mt-1 mb-1.5 font-sans">
                     <thead>
                       <tr className="bg-slate-100 border-b border-slate-400">
-                        <th className="border border-slate-300 px-3 py-1.5 text-left font-bold font-sans">Activity / Milestone Phase</th>
-                        <th className="border border-slate-300 px-3 py-1.5 text-center font-bold font-sans w-44">Target Date</th>
+                        <th className="border border-slate-300 px-3 py-1 text-left font-bold font-sans">Activity / Milestone Phase</th>
+                        <th className="border border-slate-300 px-3 py-1 text-center font-bold font-sans w-44">Target Date</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -904,40 +908,40 @@ export default function ContractBuilderPage() {
                         "Final Turnover"
                       ].map((activity, i) => (
                         <tr key={i} className={i % 2 === 1 ? "bg-slate-50/70" : ""}>
-                          <td className="border border-slate-300 px-3 py-1 text-slate-900 font-medium">{activity}</td>
-                          <td className="border border-slate-300 px-3 py-1 text-center text-slate-800 font-semibold">
+                          <td className="border border-slate-300 px-3 py-0.5 text-slate-900 font-medium">{activity}</td>
+                          <td className="border border-slate-300 px-3 py-0.5 text-center text-slate-800 font-semibold">
                             {timelineDates[activity] || "TBD"}
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                  <p className="text-[10.5pt] text-slate-500 mb-3 font-serif">The timeline may be adjusted upon mutual written agreement if client requirement feedback or assets are delayed.</p>
+                  <p className="text-[10pt] text-slate-500 mb-2 font-serif">The timeline may be adjusted upon mutual written agreement if client requirement feedback or assets are delayed.</p>
 
                   {/* 6. Changes to the Project */}
-                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1 text-slate-900">6. Changes to the Project</h3>
-                  <p className="mb-3 text-justify text-[11.5pt] leading-relaxed">
+                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">6. Changes to the Project</h3>
+                  <p className="mb-2 text-justify text-[11pt] leading-relaxed">
                     Any request for additional features, major revisions, or changes beyond the agreed scope shall require the approval of both parties. Such changes may result in adjustments to the project schedule and, if applicable, additional costs.
                   </p>
 
                   {/* 7. Confidentiality */}
-                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1 text-slate-900">7. Confidentiality</h3>
-                  <p className="mb-1.5 text-justify text-[11.5pt] leading-relaxed">
+                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">7. Confidentiality</h3>
+                  <p className="mb-1 text-justify text-[11pt] leading-relaxed">
                     The Developer agrees to keep all business information, records, and data provided by the Client strictly confidential and shall not disclose such information to any third party without the Client&apos;s written consent, except as required by law.
                   </p>
-                  <p className="mb-3 text-justify text-[11.5pt] leading-relaxed">
+                  <p className="mb-2 text-justify text-[11pt] leading-relaxed">
                     The Client likewise agrees not to distribute, copy, or modify the Developer&apos;s source code without prior permission unless ownership of the source code has been transferred under this Agreement.
                   </p>
 
                   {/* 8. Ownership */}
-                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1 text-slate-900">8. Ownership</h3>
-                  <p className="mb-3 text-justify text-[11.5pt] leading-relaxed">
+                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">8. Ownership</h3>
+                  <p className="mb-2 text-justify text-[11pt] leading-relaxed">
                     Upon successful completion of the project and fulfillment of all agreed payment obligations, the Client shall own the completed system, including system documentation and database.
                   </p>
 
                   {/* 9. Testing and Acceptance */}
-                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1 text-slate-900">9. Testing and Acceptance</h3>
-                  <p className="mb-2 text-justify text-[11.5pt] leading-relaxed">
+                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">9. Testing and Acceptance</h3>
+                  <p className="mb-2 text-justify text-[11pt] leading-relaxed">
                     The completed system shall undergo User Acceptance Testing (UAT). If the system meets the agreed requirements, the Client shall formally accept the project.
                   </p>
                 </div>
@@ -956,37 +960,37 @@ export default function ContractBuilderPage() {
                 <div>
                   {/* 10. Warranty and Maintenance */}
                   <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2 mb-1 text-slate-900">10. Warranty and Maintenance</h3>
-                  <p className="mb-2 text-[11.5pt] leading-relaxed">
+                  <p className="mb-2 text-[11pt] leading-relaxed">
                     The Developer shall provide a warranty period of 30 days after official turnover to correct software bugs or errors related to agreed functionality.
                   </p>
 
                   {/* 11. Termination */}
                   <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">11. Termination</h3>
-                  <p className="mb-2 text-justify text-[11.5pt] leading-relaxed">
+                  <p className="mb-2 text-justify text-[11pt] leading-relaxed">
                     Either party may terminate this Agreement by providing written notice if the other party fails to fulfill its obligations.
                   </p>
 
                   {/* 12. Limitation of Liability */}
                   <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">12. Limitation of Liability</h3>
-                  <p className="mb-2 text-justify text-[11.5pt] leading-relaxed">
+                  <p className="mb-2 text-justify text-[11pt] leading-relaxed">
                     The Developer shall not be held responsible for data loss caused by Client actions, hardware failures, or unauthorized third-party modifications.
                   </p>
 
                   {/* 13. Governing Law */}
                   <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">13. Governing Law</h3>
-                  <p className="mb-2 text-justify text-[11.5pt] leading-relaxed">
+                  <p className="mb-2 text-justify text-[11pt] leading-relaxed">
                     This Agreement shall be governed by the applicable laws of the Republic of the Philippines.
                   </p>
 
                   {/* 14. Entire Agreement */}
                   <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">14. Entire Agreement</h3>
-                  <p className="mb-2.5 text-justify text-[11.5pt] leading-relaxed">
+                  <p className="mb-2 text-justify text-[11pt] leading-relaxed">
                     This document constitutes the complete agreement between the Client and the Developer and supersedes any prior verbal or written agreements.
                   </p>
 
                   {/* Source Code Buyout Clause (Optional) */}
                   {includeSourceCodeClause && (
-                    <div className="mt-1 mb-2.5 p-2 border-l-2 border-slate-500 bg-slate-50 text-[10.5pt] leading-relaxed font-sans">
+                    <div className="mt-1 mb-2 p-2 border-l-2 border-slate-500 bg-slate-50 text-[10.5pt] leading-relaxed font-sans">
                       <p className="font-bold text-slate-800">Source Code Transfer Addendum:</p>
                       <p className="text-slate-700 mt-0.5">
                         Upon full payment of all fees including buyout fee of ₱{Number(sourceCodeFee.replace(/,/g, '') || 0).toLocaleString('en-PH')}, source code access will be transferred to Client {sourceCodeReleaseDays || "30"} calendar days post-settlement.
@@ -995,8 +999,8 @@ export default function ContractBuilderPage() {
                   )}
 
                   {/* 15. Signatures */}
-                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-2.5 text-slate-900">15. Signatures</h3>
-                  <p className="mb-3 text-justify text-[11pt] leading-relaxed">
+                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-2 text-slate-900">15. Signatures</h3>
+                  <p className="mb-2.5 text-justify text-[11pt] leading-relaxed">
                     By signing below, both parties acknowledge that they have read, understood, and agreed to the terms and conditions of this Agreement.
                   </p>
 
