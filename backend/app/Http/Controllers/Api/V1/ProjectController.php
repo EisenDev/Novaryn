@@ -33,18 +33,24 @@ class ProjectController extends Controller
     {
         $validatedProject = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'industry' => 'required|string|max:100',
+            'description' => 'nullable|string',
+            'industry' => 'nullable|string|max:100',
             'cover_image' => 'nullable|string',
             'gallery' => 'nullable|array',
             'gallery.*' => 'string',
-            'tech_stack' => 'required|array',
+            'tech_stack' => 'nullable|array',
             'tech_stack.*' => 'string',
-            'features' => 'required|array',
+            'features' => 'nullable|array',
             'features.*' => 'string',
             'status' => 'nullable|string|in:draft,published,featured',
             'seo_title' => 'nullable|string|max:255',
             'seo_description' => 'nullable|string',
+            'client_name' => 'nullable|string|max:255',
+            'stage' => 'nullable|string|max:50',
+            'progress' => 'nullable|integer',
+            'repo_url' => 'nullable|string|max:255',
+            'dev_lead' => 'nullable|string|max:255',
+            'module_config' => 'nullable|array',
         ]);
 
         $validatedCaseStudy = $request->validate([
@@ -117,18 +123,24 @@ class ProjectController extends Controller
 
         $validatedProject = $request->validate([
             'title' => 'string|max:255',
-            'description' => 'string',
-            'industry' => 'string|max:100',
+            'description' => 'nullable|string',
+            'industry' => 'nullable|string|max:100',
             'cover_image' => 'nullable|string',
             'gallery' => 'nullable|array',
             'gallery.*' => 'string',
-            'tech_stack' => 'array',
+            'tech_stack' => 'nullable|array',
             'tech_stack.*' => 'string',
-            'features' => 'array',
+            'features' => 'nullable|array',
             'features.*' => 'string',
             'status' => 'string|in:draft,published,featured',
             'seo_title' => 'nullable|string|max:255',
             'seo_description' => 'nullable|string',
+            'client_name' => 'nullable|string|max:255',
+            'stage' => 'nullable|string|max:50',
+            'progress' => 'nullable|integer',
+            'repo_url' => 'nullable|string|max:255',
+            'dev_lead' => 'nullable|string|max:255',
+            'module_config' => 'nullable|array',
         ]);
 
         $validatedCaseStudy = $request->validate([

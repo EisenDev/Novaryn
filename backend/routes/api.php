@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\V1\BlogPostController;
 use App\Http\Controllers\Api\V1\SettingController;
 use App\Http\Controllers\Api\V1\AnalyticsController;
 use App\Http\Controllers\Api\V1\PricingEngineController;
+use App\Http\Controllers\Api\V1\InvoiceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,13 +31,22 @@ Route::prefix('v1')->group(function () {
     Route::post('/leads', [PublicController::class, 'submitLead']);
     Route::post('/contact', [PublicController::class, 'submitContact']);
     Route::post('/newsletter', [PublicController::class, 'subscribeNewsletter']);
+    
+    // Public Scheduler routes
+    Route::get('/public/leads/verify', [PublicController::class, 'verifyLead']);
+    Route::post('/public/leads/schedule', [PublicController::class, 'scheduleLead']);
 
     // 2. Admin Authentication
     Route::prefix('auth')->group(function () {
         Route::post('/login', [AuthController::class, 'login']);
         Route::middleware('auth:sanctum')->group(function () {
             Route::get('/me', [AuthController::class, 'me']);
+            Route::put('/profile', [AuthController::class, 'updateProfile']);
+            Route::post('/profile', [AuthController::class, 'updateProfile']); // FormData _method=PUT fallback
             Route::post('/logout', [AuthController::class, 'logout']);
+            Route::get('/users', [AuthController::class, 'usersList']);
+            Route::post('/users', [AuthController::class, 'createUserAccount']);
+            Route::put('/users/{id}', [AuthController::class, 'updateUserRole']);
         });
     });
 
@@ -57,12 +67,17 @@ Route::prefix('v1')->group(function () {
         Route::patch('leads/{lead}/status', [LeadController::class, 'updateStatus']);
         Route::patch('leads/{lead}/assign', [LeadController::class, 'assignUser']);
         Route::post('leads/{lead}/notes', [LeadController::class, 'addNote']);
+        Route::post('leads/{lead}/send-invite', [LeadController::class, 'sendInvite']);
 
         // Pricing packages
         Route::apiResource('pricing', PricingPackageController::class);
 
         // Projects & Case Studies
         Route::apiResource('projects', ProjectController::class);
+
+        // Billing & Invoices
+        Route::get('invoices/stats', [InvoiceController::class, 'stats']);
+        Route::apiResource('invoices', InvoiceController::class);
 
         // Testimonials
         Route::apiResource('testimonials', TestimonialController::class);

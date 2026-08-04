@@ -7,6 +7,7 @@ use App\Models\Lead;
 use App\Models\AuditLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class LeadController extends Controller
 {
@@ -114,9 +115,14 @@ class LeadController extends Controller
             'message' => 'nullable|string|max:5000',
             'notes' => 'nullable|string',
             'meeting_date' => 'nullable|date',
+            'status' => 'nullable|string|max:50',
         ]);
 
         $lead->update($validated);
+
+        if (isset($validated['status']) && $validated['status'] === 'won') {
+            $this->bootstrapProjectForLead($lead);
+        }
 
         AuditLog::create([
             'user_id' => $request->user()->id,
@@ -147,6 +153,10 @@ class LeadController extends Controller
 
         $oldValues = $lead->toArray();
         $lead->update(['status' => $validated['status']]);
+
+        if ($validated['status'] === 'won') {
+            $this->bootstrapProjectForLead($lead);
+        }
 
         AuditLog::create([
             'user_id' => $request->user()->id,
@@ -218,5 +228,131 @@ class LeadController extends Controller
             'status' => 'success',
             'message' => 'Lead deleted (archived) successfully.'
         ]);
+    }
+
+    /**
+     * Send meeting schedule invite link via Resend.
+     */
+    public function sendInvite(Request $request, Lead $lead): JsonResponse
+    {
+        $frontUrl = env('FRONTEND_URL', 'http://localhost:3002');
+        $scheduleLink = $frontUrl . '/schedule-meeting?email=' . urlencode($lead->email);
+
+        $subject = "Select your Consultation Schedule - Novaryn Tech";
+        $html = '
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #f0f0f0; border-radius: 10px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <h2 style="color: #047857; margin-top: 10px;">Book Your Consultation Call</h2>
+            </div>
+            <p>Dear <strong>\' . htmlspecialchars($lead->name) . \'</strong>,</p>
+            <p>We received your inquiry regarding your custom platform project. To align on requirements, let\'s set up a consultation call or physical meetup in Digos City.</p>
+            <p>Please click the button below to view our calendar availability and select your preferred slot:</p>
+            <div style="text-align: center; margin: 30px 0;">
+                <a href="' . $scheduleLink . '" style="background-color: #047857; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold; display: inline-block;">Choose Date & Time</a>
+            </div>
+            <p style="color: #6b7280; font-size: 11px; text-align: center; margin-top: 30px;">
+                Novaryn Tech Solutions · Digos City, Davao del Sur, Philippines
+            </p>
+        </div>';
+
+        // Send email helper
+        $this->sendResendEmail($lead->email, $subject, $html);
+
+        // Update lead status to contacted
+        $lead->update(['status' => 'contacted']);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Consultation booking invitation sent successfully.',
+            'link' => $scheduleLink
+        ]);
+    }
+
+    /**
+     * Send email via Resend API
+     */
+    protected function sendResendEmail(string $to, string $subject, string $htmlContent): bool
+    {
+        $apiKey = env('RESEND_API_KEY');
+        if (empty($apiKey) || $apiKey === 're_your_api_key_here') {
+            \Log::info("Resend API Key is empty or placeholder inside LeadController. Logging email content instead: To: $to, Subject: $subject");
+            return false;
+        }
+
+        $from = env('RESEND_FROM_EMAIL', 'onboarding@resend.dev');
+
+        try {
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Content-Type' => 'application/json',
+            ])->post('https://api.resend.com/emails', [
+                'from' => 'Novaryn Tech <' . $from . '>',
+                'to' => [$to],
+                'subject' => $subject,
+                'html' => $htmlContent,
+            ]);
+
+            if ($response->successful()) {
+                return true;
+            }
+
+            \Log::error("Resend API failed: " . $response->body());
+            return false;
+        } catch (\Exception $e) {
+            \Log::error("Exception when calling Resend API: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Bootstrap an active project build from a won lead.
+     */
+    protected function bootstrapProjectForLead(Lead $lead)
+    {
+        $exists = \App\Models\Project::where('client_name', $lead->name)->exists();
+        if (!$exists) {
+            $project = \App\Models\Project::create([
+                'title' => $lead->name . ' Custom System',
+                'slug' => \Illuminate\Support\Str::slug($lead->name . ' Custom System') . '-' . time(),
+                'description' => $lead->message ?? 'Custom system software platform developed by Novaryn.',
+                'industry' => $lead->industry ?? 'Technology',
+                'client_name' => $lead->name,
+                'stage' => 'Discovery',
+                'progress' => 0,
+                'status' => 'draft', // draft status makes it an active internal project (not showcase portfolio yet)
+                'tech_stack' => [],
+                'features' => []
+            ]);
+
+            // Query if there is a quotation matching this client's email
+            $quotation = \App\Models\Quotation::where('client_email', trim($lead->email))->first();
+            $invoiceAmount = 150000; // default standard pricing build cost
+            $invoiceType = 'full_payment';
+
+            if ($quotation) {
+                $downpayment = $quotation->downpayment ?? 0;
+                $buildTotal = $quotation->build_total ?? 150000;
+
+                if ($downpayment > 0) {
+                    $invoiceAmount = $downpayment;
+                    $invoiceType = 'downpayment';
+                } else {
+                    $invoiceAmount = $buildTotal;
+                    $invoiceType = 'full_payment';
+                }
+            }
+
+            // Create initial invoice
+            \App\Models\Invoice::create([
+                'invoice_number' => 'INV-' . date('Ymd') . '-' . strtoupper(\Illuminate\Support\Str::random(4)),
+                'client_name' => $lead->name,
+                'client_email' => $lead->email,
+                'amount' => $invoiceAmount,
+                'type' => $invoiceType,
+                'status' => 'unpaid',
+                'due_date' => now()->addDays(7)->toDateString(),
+                'project_id' => $project->id
+            ]);
+        }
     }
 }

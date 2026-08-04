@@ -29,9 +29,24 @@ class AnalyticsController extends Controller
         
         $wonDeadsCount = Lead::where('status', 'won')->count();
 
-        // Calculate estimated revenue from won leads budgets (e.g. summing budgets like "199,000" or similar)
-        // For simplicity, we can fetch a manually logged revenue target or estimate it
-        $revenue = Setting::getVal('manual_revenue', '₱845,000');
+        // Calculate real won revenue from paid invoices sum
+        $revenue = \App\Models\Invoice::where('status', 'paid')->sum('amount');
+
+        // Calculate MRR & hosting costs from active projects
+        $projects = Project::all();
+        $totalMRR = 0;
+        $totalServerCost = 0;
+        $totalDbCost = 0;
+        $totalOtherCost = 0;
+
+        foreach ($projects as $p) {
+            $cfg = $p->module_config ?? [];
+            $totalMRR += $cfg['monthly_revenue'] ?? 0;
+            $totalServerCost += $cfg['server_cost'] ?? 0;
+            $totalDbCost += $cfg['database_cost'] ?? 0;
+            $totalOtherCost += $cfg['other_cost'] ?? 0;
+        }
+        $totalHostingExpenses = $totalServerCost + $totalDbCost + $totalOtherCost;
 
         // Recent leads
         $recentLeads = Lead::orderBy('created_at', 'desc')
@@ -58,7 +73,12 @@ class AnalyticsController extends Controller
                     'total_projects' => $totalProjects,
                     'pending_consultations' => $pendingConsultations,
                     'won_deals' => $wonDeadsCount,
-                    'revenue' => $revenue
+                    'revenue' => (int) $revenue,
+                    'mrr' => (int) $totalMRR,
+                    'hosting_expenses' => (int) $totalHostingExpenses,
+                    'server_cost' => (int) $totalServerCost,
+                    'db_cost' => (int) $totalDbCost,
+                    'other_cost' => (int) $totalOtherCost,
                 ],
                 'recent_leads' => $recentLeads,
                 'industries_breakdown' => $industriesBreakdown,

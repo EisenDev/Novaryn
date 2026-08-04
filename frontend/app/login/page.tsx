@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Lock, Mail, ArrowRight, ShieldCheck, TrendingUp, Eye, EyeOff, ShieldAlert } from "lucide-react";
+import { Lock, Mail, ArrowRight, ShieldCheck, TrendingUp, Eye, EyeOff, ShieldAlert, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -64,6 +64,7 @@ export default function LoginPage() {
       <div className="hidden lg:flex lg:w-5/12 bg-slate-950 border-r border-slate-900 p-12 flex-col justify-between relative overflow-hidden select-none">
         {/* Subtle background glow matching landing page accent */}
         <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-80 h-80 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none" />
 
         <div className="flex items-center gap-3 z-10 text-left">
           <Link href="/" className="flex items-center gap-2.5">
@@ -85,18 +86,18 @@ export default function LoginPage() {
           <h2 className="text-3xl font-semibold text-white tracking-tight leading-[1.25]">
             The Central Operating System for <span className="text-emerald-500">Novaryn.</span>
           </h2>
-          <p className="text-sm text-slate-400 leading-relaxed font-medium">
+          <p className="text-sm text-slate-300 leading-relaxed font-medium">
             Securely manage leads, projects, and business operations from one unified platform.
           </p>
 
-          <div className="flex flex-col gap-4.5 mt-4">
+          <div className="flex flex-col gap-5 mt-4">
             <div className="flex items-start gap-3.5">
               <div className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-emerald-500 shrink-0">
                 <ShieldCheck className="w-4.5 h-4.5" />
               </div>
               <div>
-                <h4 className="text-xs font-semibold text-slate-200">Secure & Encrypted</h4>
-                <p className="text-[11px] text-slate-450 mt-0.5 leading-normal">Enterprise-grade security to protect your business and client data.</p>
+                <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider">Secure & Encrypted</h4>
+                <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">Enterprise-grade security to protect your business and client data.</p>
               </div>
             </div>
 
@@ -105,42 +106,47 @@ export default function LoginPage() {
                 <TrendingUp className="w-4.5 h-4.5" />
               </div>
               <div>
-                <h4 className="text-xs font-semibold text-slate-200">Real-time Insights</h4>
-                <p className="text-[11px] text-slate-450 mt-0.5 leading-normal">Monitor performance, track leads, and grow your business with data.</p>
+                <h4 className="text-xs font-bold text-slate-200 uppercase tracking-wider">Real-time Insights</h4>
+                <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">Monitor performance, track leads, and grow your business with data.</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="text-xs text-slate-500 font-mono z-10 flex justify-between">
+        <div className="text-xs text-slate-400 font-mono z-10 flex justify-between">
           <span>Protected System. Admins Only.</span>
-          <span>© 2026 Novaryn Technologies. All rights reserved.</span>
+          <span>© 2026 Novaryn. All rights reserved.</span>
         </div>
       </div>
 
       {/* 2. Right Workspace Column */}
-      <div className="flex-1 flex flex-col justify-center items-center p-6 bg-slate-50/50">
+      <div className="flex-1 flex flex-col justify-center items-center p-6 bg-slate-50/30 relative overflow-hidden">
+        {/* Soft emerald radial glow in top right */}
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-emerald-100/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/2 left-1/4 w-80 h-80 bg-slate-100/10 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Float "Back to Site" to top-right corner of screen */}
+        <Link
+          href="/"
+          className="absolute top-6 right-6 sm:right-8 text-[11px] font-bold text-slate-400 hover:text-slate-600 transition-all flex items-center gap-1.5 bg-white border border-slate-200/60 px-3.5 py-1.5 rounded-full shadow-xs hover:shadow-sm"
+        >
+          <span>←</span>
+          <span>Back to Site</span>
+        </Link>
+
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25 }}
-          className="w-full max-w-[460px] bg-white border border-slate-200 p-8 rounded-3xl shadow-[0_4px_30px_rgba(15,23,42,0.015)] relative"
+          className="w-full max-w-[460px] bg-white border border-slate-200/80 p-8 rounded-3xl shadow-[0_8px_30px_rgba(15,23,42,0.02)] relative"
         >
-          {/* Back to marketing */}
-          <Link
-            href="/"
-            className="absolute top-6 right-6 text-xs text-slate-400 hover:text-slate-650 font-bold transition-colors"
-          >
-            Back to Site
-          </Link>
-
           <div className="flex flex-col gap-2 text-center mb-8">
             <h1 className="text-xl font-semibold text-slate-900 tracking-tight">Welcome back</h1>
             <p className="text-xs text-slate-450 font-semibold">Sign in to your admin account to continue</p>
           </div>
 
           {error && (
-            <div className="bg-red-50 border border-red-100 rounded-xl p-3.5 text-xs text-red-700 flex items-start gap-2.5 mb-6 text-left leading-relaxed">
+            <div className="bg-red-50 border border-red-100 rounded-xl p-3.5 text-xs text-red-700 flex items-start gap-2.5 mb-6 text-left leading-relaxed animate-fade-in">
               <ShieldAlert className="w-4.5 h-4.5 shrink-0 text-red-650 mt-0.5" />
               <span>{error}</span>
             </div>
@@ -195,11 +201,11 @@ export default function LoginPage() {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded-md border-slate-350 accent-emerald-600 text-emerald-600 focus:ring-emerald-500/20"
+                  className="w-4 h-4 rounded-md border-slate-300 accent-emerald-600 text-emerald-600 focus:ring-emerald-500/20"
                 />
                 <span>Remember me</span>
               </label>
-              <a href="#" className="text-emerald-600 hover:text-emerald-700 font-bold transition-colors">
+              <a href="#" className="text-emerald-605 hover:text-emerald-700 font-bold transition-colors">
                 Forgot password?
               </a>
             </div>
@@ -234,14 +240,14 @@ export default function LoginPage() {
           </div>
 
           {/* Social Sign-in Buttons */}
-          <div className="grid grid-cols-2 gap-3.5">
-            <button className="flex items-center justify-center gap-2 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-700 transition-colors shadow-xs cursor-pointer">
+          <div className="grid grid-cols-2 gap-3">
+            <button className="flex items-center justify-center gap-2 py-3 rounded-xl border border-slate-200/80 hover:border-slate-300 hover:bg-slate-50/60 text-xs font-bold text-slate-700 transition-all shadow-xs cursor-pointer">
               <svg className="w-4 h-4" viewBox="0 0 24 24">
                 <path fill="#EA4335" d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-5.122 4.114a5.99 5.99 0 0 1-6-6c0-3.31 2.69-6 6-6 1.496 0 2.87.55 3.926 1.455l3.125-3.125C18.665 2.457 15.632 1.5 12.24 1.5a10.5 10.5 0 0 0 0 21c5.82 0 10.635-4.22 10.635-10.5 0-.715-.065-1.405-.18-2.072H12.24z"/>
               </svg>
               <span>Google</span>
             </button>
-            <button className="flex items-center justify-center gap-2 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-700 transition-colors shadow-xs cursor-pointer">
+            <button className="flex items-center justify-center gap-2 py-3 rounded-xl border border-slate-200/80 hover:border-slate-300 hover:bg-slate-50/60 text-xs font-bold text-slate-700 transition-all shadow-xs cursor-pointer">
               <svg className="w-4 h-4" viewBox="0 0 23 23" fill="none">
                 <path d="M0 0h11v11H0z" fill="#F25022"/>
                 <path d="M12 0h11v11H12z" fill="#7FBA00"/>

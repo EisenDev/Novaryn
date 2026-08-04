@@ -70,9 +70,8 @@ export default function HiringPage() {
         <p className="text-[13px] text-slate-500 mt-1.5 font-medium">Track developer candidates and designer partners through screening, code assessments, and interviews.</p>
       </div>
 
-      {/* Kanban Board — horizontal scroll on mobile */}
-      <div className="-mx-1 overflow-x-auto pb-2">
-      <div className="flex gap-3 md:grid md:grid-cols-4 min-w-[640px] md:min-w-0 mt-2">
+      {/* Kanban Board Columns */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-2">
         {/* Column 1: Applied */}
         <div className="bg-slate-50/50 border border-slate-200/50 rounded-2xl p-4 flex flex-col gap-4 min-h-[450px]">
           <div className="flex justify-between items-center px-1">

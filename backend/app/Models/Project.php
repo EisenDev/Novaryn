@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 
 #[Fillable([
     'title', 'slug', 'description', 'industry', 'cover_image',
-    'gallery', 'tech_stack', 'features', 'status', 'seo_title', 'seo_description'
+    'gallery', 'tech_stack', 'features', 'status', 'seo_title', 'seo_description',
+    'client_name', 'stage', 'progress', 'repo_url', 'dev_lead', 'module_config'
 ])]
 class Project extends Model
 {
@@ -27,6 +28,7 @@ class Project extends Model
             'gallery' => 'array',
             'tech_stack' => 'array',
             'features' => 'array',
+            'module_config' => 'array',
         ];
     }
 

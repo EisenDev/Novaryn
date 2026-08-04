@@ -15,10 +15,14 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->string('client_name');
             $table->string('client_email')->nullable();
+            $table->string('client_phone')->nullable();
+            $table->string('client_address')->nullable();
+            $table->unsignedBigInteger('downpayment')->default(0);
             $table->foreignUuid('plan_id')->constrained('plans');
             $table->unsignedBigInteger('build_total');
             $table->unsignedBigInteger('monthly_total');
             $table->text('notes')->nullable();
+            $table->boolean('include_maintenance')->default(true);
             $table->enum('status', ['draft', 'sent', 'accepted', 'declined'])->default('draft');
             $table->timestamps();
         });

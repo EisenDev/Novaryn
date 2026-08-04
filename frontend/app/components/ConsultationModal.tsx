@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Check, Loader2, Calendar, Target, Shield } from "lucide-react";
+import { X, Check, Loader2, Calendar, Shield } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ConsultationModalProps {
@@ -15,16 +15,12 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
   const [errors, setErrors] = useState<Record<string, string[]>>({});
   const [formData, setFormData] = useState({
     name: "",
-    company: "",
     email: "",
     phone: "",
-    industry: "Sports Facilities",
-    budget: "₱150,000 – ₱200,000",
-    timeline: "1-2 months",
     message: ""
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     if (errors[name]) {
@@ -65,12 +61,8 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
         setSuccess(true);
         setFormData({
           name: "",
-          company: "",
           email: "",
           phone: "",
-          industry: "Sports Facilities",
-          budget: "₱150,000 – ₱200,000",
-          timeline: "1-2 months",
           message: ""
         });
       }
@@ -101,13 +93,13 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl relative border border-slate-100 max-h-[90vh] flex flex-col z-10 text-left"
+            className="bg-white w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl relative border border-slate-100 max-h-[90vh] flex flex-col z-10 text-left"
           >
             {/* Header */}
             <div className="p-6 border-b border-slate-100 flex items-center justify-between shrink-0">
               <div>
-                <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">Book a Consultation</h3>
-                <p className="text-xs text-slate-400 font-semibold mt-0.5">Let's discuss how Novaryn can build your next platform.</p>
+                <h3 className="text-xl font-extrabold text-slate-900 tracking-tight font-sans">Book a Consultation</h3>
+                <p className="text-xs text-slate-400 font-semibold mt-0.5 font-sans">Submit your project details to schedule a meeting with our team.</p>
               </div>
               <button
                 onClick={onClose}
@@ -119,129 +111,58 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
             </div>
 
             {/* Content Scroll Area */}
-            <div className="p-6 overflow-y-auto flex-1">
+            <div className="p-6 overflow-y-auto flex-1 font-sans">
               {!success ? (
                 <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Name */}
-                    <div className="flex flex-col gap-1">
-                      <label htmlFor="name" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Your Name *</label>
-                      <input
-                        type="text"
-                        name="name"
-                        id="name"
-                        required
-                        value={formData.name}
-                        onChange={handleChange}
-                        className={`w-full px-4 py-3 rounded-xl border bg-slate-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all ${
-                          errors.name ? "border-red-500 focus:ring-red-500/20 focus:border-red-500" : "border-slate-200"
-                        }`}
-                        placeholder="e.g. John Doe"
-                      />
-                      {errors.name && <span className="text-[10px] text-red-500 font-bold mt-0.5">{errors.name[0]}</span>}
-                    </div>
-
-                    {/* Company */}
-                    <div className="flex flex-col gap-1">
-                      <label htmlFor="company" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Company / Organization</label>
-                      <input
-                        type="text"
-                        name="company"
-                        id="company"
-                        value={formData.company}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
-                        placeholder="e.g. Acme Corp"
-                      />
-                    </div>
+                  
+                  {/* Name */}
+                  <div className="flex flex-col gap-1">
+                    <label htmlFor="name" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Your Name *</label>
+                    <input
+                      type="text"
+                      name="name"
+                      id="name"
+                      required
+                      value={formData.name}
+                      onChange={handleChange}
+                      className={`w-full px-4 py-3 rounded-xl border bg-slate-55/50 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all ${
+                        errors.name ? "border-red-500 focus:ring-red-500/20 focus:border-red-500" : "border-slate-200"
+                      }`}
+                      placeholder="e.g. John Doe"
+                    />
+                    {errors.name && <span className="text-[10px] text-red-500 font-bold mt-0.5">{errors.name[0]}</span>}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {/* Email */}
-                    <div className="flex flex-col gap-1">
-                      <label htmlFor="email" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Email Address *</label>
-                      <input
-                        type="email"
-                        name="email"
-                        id="email"
-                        required
-                        value={formData.email}
-                        onChange={handleChange}
-                        className={`w-full px-4 py-3 rounded-xl border bg-slate-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all ${
-                          errors.email ? "border-red-500 focus:ring-red-500/20 focus:border-red-500" : "border-slate-200"
-                        }`}
-                        placeholder="e.g. john@company.com"
-                      />
-                      {errors.email && <span className="text-[10px] text-red-500 font-bold mt-0.5">{errors.email[0]}</span>}
-                    </div>
-
-                    {/* Phone */}
-                    <div className="flex flex-col gap-1">
-                      <label htmlFor="phone" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Phone / Mobile</label>
-                      <input
-                        type="tel"
-                        name="phone"
-                        id="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
-                        placeholder="e.g. 0917 123 4567"
-                      />
-                    </div>
+                  {/* Email */}
+                  <div className="flex flex-col gap-1">
+                    <label htmlFor="email" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Email Address *</label>
+                    <input
+                      type="email"
+                      name="email"
+                      id="email"
+                      required
+                      value={formData.email}
+                      onChange={handleChange}
+                      className={`w-full px-4 py-3 rounded-xl border bg-slate-55/50 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all ${
+                        errors.email ? "border-red-500 focus:ring-red-500/20 focus:border-red-500" : "border-slate-200"
+                      }`}
+                      placeholder="e.g. john@company.com"
+                    />
+                    {errors.email && <span className="text-[10px] text-red-500 font-bold mt-0.5">{errors.email[0]}</span>}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {/* Industry */}
-                    <div className="flex flex-col gap-1">
-                      <label htmlFor="industry" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Industry</label>
-                      <select
-                        name="industry"
-                        id="industry"
-                        value={formData.industry}
-                        onChange={handleChange}
-                        className="w-full px-3 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
-                      >
-                        <option value="Sports Facilities">Sports Facilities</option>
-                        <option value="Clinics & Medical">Clinics & Medical</option>
-                        <option value="Restaurants">Restaurants</option>
-                        <option value="Gyms & Wellness">Gyms & Wellness</option>
-                        <option value="Others">Others</option>
-                      </select>
-                    </div>
-
-                    {/* Budget */}
-                    <div className="flex flex-col gap-1">
-                      <label htmlFor="budget" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Budget Range</label>
-                      <select
-                        name="budget"
-                        id="budget"
-                        value={formData.budget}
-                        onChange={handleChange}
-                        className="w-full px-3 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
-                      >
-                        <option value="₱50,000 – ₱100,000">₱50k – ₱100k</option>
-                        <option value="₱150,000 – ₱200,000">₱150k – ₱200k</option>
-                        <option value="₱350,000 – ₱750,000">₱350k – ₱750k</option>
-                        <option value="Custom Enterprise">Custom Enterprise</option>
-                      </select>
-                    </div>
-
-                    {/* Timeline */}
-                    <div className="flex flex-col gap-1">
-                      <label htmlFor="timeline" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Target Timeline</label>
-                      <select
-                        name="timeline"
-                        id="timeline"
-                        value={formData.timeline}
-                        onChange={handleChange}
-                        className="w-full px-3 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
-                      >
-                        <option value="< 1 month">&lt; 1 month</option>
-                        <option value="1-2 months">1-2 months</option>
-                        <option value="2-3 months">2-3 months</option>
-                        <option value="3+ months">3+ months</option>
-                      </select>
-                    </div>
+                  {/* Phone */}
+                  <div className="flex flex-col gap-1">
+                    <label htmlFor="phone" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Phone / Mobile</label>
+                    <input
+                      type="tel"
+                      name="phone"
+                      id="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-55/50 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                      placeholder="e.g. 0917 123 4567"
+                    />
                   </div>
 
                   {/* Message */}
@@ -250,10 +171,10 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                     <textarea
                       name="message"
                       id="message"
-                      rows={4}
+                      rows={5}
                       value={formData.message}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all resize-none"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 bg-slate-55/50 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all resize-none"
                       placeholder="Describe the operational features, users, integrations, or modules you need us to build..."
                     />
                   </div>
@@ -284,20 +205,20 @@ export default function ConsultationModal({ isOpen, onClose }: ConsultationModal
                   </div>
                 </form>
               ) : (
-                <div className="py-12 flex flex-col items-center justify-center text-center max-w-md mx-auto">
-                  <div className="w-16 h-16 rounded-full bg-emerald-50 border-4 border-emerald-100 flex items-center justify-center text-emerald-600 mb-6 shadow-xs">
-                    <Check className="w-8 h-8" strokeWidth={3} />
+                <div className="py-8 flex flex-col items-center justify-center text-center max-w-sm mx-auto">
+                  <div className="w-14 h-14 rounded-full bg-emerald-50 border-4 border-emerald-100 flex items-center justify-center text-emerald-650 mb-5 shadow-xs">
+                    <Check className="w-7 h-7" strokeWidth={3} />
                   </div>
-                  <h4 className="text-2xl font-black text-slate-900 tracking-tight">Proposal Request Sent!</h4>
-                  <p className="text-sm text-slate-500 mt-3 leading-relaxed">
-                    Thank you for contacting Novaryn. Our engineering team has received your lead specifications and will prepare a tailored conceptual proposal. We will reach out to you within 24 hours.
+                  <h4 className="text-xl font-black text-slate-900 tracking-tight">Consultation Request Sent!</h4>
+                  <p className="text-xs text-slate-500 mt-2.5 leading-relaxed">
+                    Thank you for contacting Novaryn. Our engineering team has received your information and we will reach out to you within 24 hours to schedule our call.
                   </p>
                   <button
                     onClick={() => {
                       setSuccess(false);
                       onClose();
                     }}
-                    className="mt-8 px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-850 text-white font-bold text-xs transition-colors cursor-pointer"
+                    className="mt-6 px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-805 text-white font-bold text-xs transition-colors cursor-pointer"
                   >
                     Close Panel
                   </button>

@@ -43,6 +43,20 @@ class DatabaseSeeder extends Seeder
             'role' => 'developer'
         ]);
 
+        User::create([
+            'name' => 'Alexander Reyes',
+            'email' => 'coo@novaryn.tech',
+            'password' => Hash::make('password123'),
+            'role' => 'admin'
+        ]);
+
+        User::create([
+            'name' => 'Krystal Lim',
+            'email' => 'marketing@novaryn.tech',
+            'password' => Hash::make('password123'),
+            'role' => 'marketing'
+        ]);
+
         // 2. Create Pricing Packages
         PricingPackage::create([
             'name' => 'Starter',
@@ -129,7 +143,19 @@ class DatabaseSeeder extends Seeder
             ],
             'status' => 'featured',
             'seo_title' => 'PaddleYard Case Study - Sports Facility Management by Novaryn',
-            'seo_description' => 'Explore how Novaryn engineered a custom, production-grade club orchestration system for sports facility owners in the Philippines.'
+            'seo_description' => 'Explore how Novaryn engineered a custom, production-grade club orchestration system for sports facility owners in the Philippines.',
+            'client_name' => 'Juan Dela Cruz',
+            'stage' => 'Support',
+            'progress' => 100,
+            'dev_lead' => 'Alexander Reyes',
+            'repo_url' => 'github.com/novaryn/paddleyard-web',
+            'module_config' => [
+                'one_time_revenue' => 185000,
+                'monthly_revenue' => 15000,
+                'server_cost' => 2500,
+                'database_cost' => 1000,
+                'other_cost' => 500
+            ]
         ]);
 
         CaseStudy::create([
@@ -212,5 +238,30 @@ class DatabaseSeeder extends Seeder
 
         // 8. Seed Pricing Engine Plans
         $this->call(PlanSeeder::class);
+
+        // 9. Seed Sample Invoices
+        \App\Models\Invoice::create([
+            'invoice_number' => 'INV-20260715-001',
+            'client_name' => 'Juan Dela Cruz',
+            'client_email' => 'juan@paddleyard.ph',
+            'amount' => 75000,
+            'type' => 'downpayment',
+            'status' => 'paid',
+            'due_date' => '2026-07-22',
+            'paid_at' => '2026-07-16',
+            'project_id' => $project->id
+        ]);
+
+        \App\Models\Invoice::create([
+            'invoice_number' => 'INV-20260725-002',
+            'client_name' => 'Juan Dela Cruz',
+            'client_email' => 'juan@paddleyard.ph',
+            'amount' => 15000,
+            'type' => 'monthly_sla',
+            'status' => 'paid',
+            'due_date' => '2026-07-30',
+            'paid_at' => '2026-07-28',
+            'project_id' => $project->id
+        ]);
     }
 }

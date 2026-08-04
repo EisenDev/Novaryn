@@ -16,11 +16,20 @@ class Quotation extends Model
     protected $fillable = [
         'client_name',
         'client_email',
+        'client_phone',
+        'client_address',
+        'downpayment',
         'plan_id',
         'build_total',
         'monthly_total',
         'notes',
+        'include_maintenance',
         'status',
+    ];
+
+    protected $casts = [
+        'include_maintenance' => 'boolean',
+        'downpayment' => 'integer',
     ];
 
     protected static function boot()

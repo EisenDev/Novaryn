@@ -56,7 +56,8 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'role' => $user->role
+                'role' => $user->role,
+                'profile_picture' => $user->profile_picture
             ]
         ]);
     }
@@ -74,7 +75,8 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'role' => $user->role
+                'role' => $user->role,
+                'profile_picture' => $user->profile_picture
             ]
         ]);
     }
@@ -100,6 +102,165 @@ class AuthController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Logged out successfully.'
+        ]);
+    }
+
+    /**
+     * Update details of the authenticated user.
+     */
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'name'     => 'required|string|max:255',
+            'password' => 'nullable|string|min:8|confirmed',
+            'avatar'   => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:4096',
+        ]);
+
+        $user->name = $validated['name'];
+
+        if (!empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
+        }
+
+        if ($request->hasFile('avatar')) {
+            // Delete old avatar if exists
+            if ($user->profile_picture) {
+                $oldPath = str_replace('/storage/', '', parse_url($user->profile_picture, PHP_URL_PATH));
+                if (\Illuminate\Support\Facades\Storage::disk('public')->exists($oldPath)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($oldPath);
+                }
+            }
+            $path = $request->file('avatar')->store('avatars', 'public');
+            $user->profile_picture = config('app.url') . '/storage/' . $path;
+        }
+
+        $user->save();
+
+        AuditLog::create([
+            'user_id' => $user->id,
+            'action' => 'UPDATE_PROFILE',
+            'new_values' => [
+                'name' => $user->name,
+                'profile_picture' => $user->profile_picture
+            ],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Profile settings updated successfully.',
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role,
+                'profile_picture' => $user->profile_picture
+            ]
+        ]);
+    }
+
+    /**
+     * Display listing of team members (super_admin only).
+     */
+    public function usersList(Request $request): JsonResponse
+    {
+        if ($request->user()->role !== 'super_admin') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized access. Only Co-Founder & CEO accounts can review employee registries.'
+            ], 403);
+        }
+
+        $users = User::withTrashed()->orderBy('name', 'asc')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $users
+        ]);
+    }
+
+    /**
+     * Create employee login account.
+     */
+    public function createUserAccount(Request $request): JsonResponse
+    {
+        if ($request->user()->role !== 'super_admin') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized access. Only Co-Founder & CEO accounts can add team members.'
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+            'role' => 'required|string|in:super_admin,admin,developer,sales,marketing'
+        ]);
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => $validated['role']
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Team member registered successfully.',
+            'data' => $user
+        ], 201);
+    }
+
+    /**
+     * Update employee corporate role and status.
+     */
+    public function updateUserRole(Request $request, string $id): JsonResponse
+    {
+        if ($request->user()->role !== 'super_admin') {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Unauthorized access. Only Co-Founder & CEO accounts can update role permissions.'
+            ], 403);
+        }
+
+        $user = User::withTrashed()->findOrFail($id);
+
+        $validated = $request->validate([
+            'role' => 'required|string|in:super_admin,admin,developer,sales,marketing',
+            'status' => 'required|string|in:active,inactive'
+        ]);
+
+        // Prevent demoting the last super admin
+        if ($user->role === 'super_admin' && $validated['role'] !== 'super_admin') {
+            $superAdminCount = User::where('role', 'super_admin')->count();
+            if ($superAdminCount <= 1) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Cannot demote the primary CEO account. Assign another Super Admin first.'
+                ], 422);
+            }
+        }
+
+        $user->role = $validated['role'];
+
+        if ($validated['status'] === 'inactive') {
+            $user->delete();
+        } else {
+            if ($user->trashed()) {
+                $user->restore();
+            }
+        }
+
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Team member credentials updated successfully.',
+            'data' => $user
         ]);
     }
 }
