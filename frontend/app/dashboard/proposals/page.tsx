@@ -207,12 +207,13 @@ const MODULE_FEATURES: Record<string, string[]> = {
   ]
 };
 
-// Authorized Personnel static data (Team Directory with Founder role)
+// Authorized Personnel static data (Novaryn Executive Team Directory)
 const AUTHORIZED_SIGNATORIES = [
-  { name: "Joshua Eisen", title: "Founder" },
-  { name: "Arjay Escabas", title: "Founder" },
-  { name: "Maria Santos", title: "Founder" },
-  { name: "Alex Reyes", title: "Co-Founder" }
+  { name: "Jericho L. Suerto", title: "Chief Executive Officer (CEO)" },
+  { name: "Arjay L. Escabas", title: "Founder & Lead Developer" },
+  { name: "Eric E. Diamante", title: "Founder & Lead QA" },
+  { name: "Aliazer Casan P. Solaiman", title: "Founder & Developer" },
+  { name: "Xander Dela Cruz", title: "Founder & Project Manager" }
 ];
 
 const peso = (n: number) =>
@@ -775,9 +776,14 @@ export default function ContractBuilderPage() {
                       </div>
                       <div>
                         <p><strong>Monthly Installment (50%):</strong> {peso(Math.round((selectedQuote.build_total * 0.5) / (durationMonths === "indefinite" ? 12 : parseInt(durationMonths, 10))))}/mo ({durationMonths} Mos)</p>
-                        {selectedHostModule && (
-                          <p><strong>Cloud Hosting Fee:</strong> ${selectedHostModule.monthly_price}/mo USD</p>
-                        )}
+                        <p>
+                          <strong>Cloud Hosting &amp; DB Fee:</strong>{" "}
+                          {selectedHostModule && selectedHostModule.monthly_price > 0 ? (
+                            `$${selectedHostModule.monthly_price}/mo USD (${selectedHostModule.name})`
+                          ) : (
+                            "$0 /mo USD (Client-Managed Hosting)"
+                          )}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -791,29 +797,29 @@ export default function ContractBuilderPage() {
               </div>
             </div>
 
-            {/* PAGE 2 — SCOPE OF WORK */}
+            {/* PAGE 2 — SCOPE OF WORK & RESPONSIBILITIES */}
             <div className="a4-page">
               <div className="flex flex-col justify-between h-full">
                 <div>
                   {/* 2. Scope of Work */}
                   <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2 mb-2 text-slate-900">2. Scope of Work</h3>
-                  <p className="mb-3 text-justify text-[12pt] leading-relaxed">
+                  <p className="mb-2 text-justify text-[12pt] leading-relaxed">
                     The Developer agrees to develop a custom business system with the following modules, core functionalities, and analytics engines:
                   </p>
 
                   {enabledBuildModules.length > 0 ? (
-                    <div className="flex flex-col gap-3 pl-1 mb-3">
+                    <div className="flex flex-col gap-2.5 pl-1 mb-2">
                       {enabledBuildModules.map((m) => {
                         const feats = MODULE_FEATURES[m.name] || [];
                         return (
                           <div key={m.id} className="border-l-2 border-slate-400 pl-3 py-0.5">
                             <p className="text-[12pt] font-bold text-slate-950 font-sans leading-tight">{m.name}</p>
                             {feats.length > 0 && (
-                              <ul className="list-disc pl-4 mt-1 text-[11pt] text-slate-800 flex flex-col gap-0.5">
+                              <ul className="list-disc pl-4 mt-0.5 text-[10.5pt] text-slate-800 flex flex-col gap-0.5">
                                 {feats.map((f, i) => {
                                   if (f.startsWith("—")) {
                                     return (
-                                      <p key={i} className="font-bold text-[10pt] uppercase tracking-wider text-slate-900 mt-1.5 mb-0.5 font-sans -ml-4">
+                                      <p key={i} className="font-bold text-[9.5pt] uppercase tracking-wider text-slate-900 mt-1 mb-0.5 font-sans -ml-4">
                                         {f.replace(/—/g, "").trim()}
                                       </p>
                                     );
@@ -827,7 +833,7 @@ export default function ContractBuilderPage() {
                       })}
                     </div>
                   ) : (
-                    <ul className="list-disc pl-5 text-[11.5pt] text-slate-800 flex flex-col gap-1 mb-3">
+                    <ul className="list-disc pl-5 text-[11pt] text-slate-800 flex flex-col gap-0.5 mb-2">
                       <li>User Login and Authentication</li>
                       <li>Dashboard &amp; Overview</li>
                       <li>Product / Service Management</li>
@@ -837,9 +843,31 @@ export default function ContractBuilderPage() {
                     </ul>
                   )}
 
-                  <p className="text-[11pt] text-slate-600 mb-2 text-justify italic font-serif">
+                  <p className="text-[10.5pt] text-slate-600 mb-3 text-justify italic font-serif">
                     Any features, third-party integrations, or customizations not explicitly listed above shall be considered outside the scope of this Agreement unless mutually agreed upon in writing via a formal change order.
                   </p>
+
+                  {/* 3. Responsibilities of the Developer */}
+                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1 text-slate-900">3. Responsibilities of the Developer</h3>
+                  <p className="mb-1 text-[11.5pt]">The Developer agrees to:</p>
+                  <ul className="list-disc pl-5 text-[11pt] text-slate-800 flex flex-col gap-0.5 mb-3">
+                    <li>Gather and analyze the Client&apos;s system requirements.</li>
+                    <li>Design, develop, test, and implement the system.</li>
+                    <li>Maintain the confidentiality of the Client&apos;s information.</li>
+                    <li>Provide user documentation or basic training upon project completion.</li>
+                    <li>Correct system errors discovered during the agreed warranty period.</li>
+                  </ul>
+
+                  {/* 4. Responsibilities of the Client */}
+                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1 text-slate-900">4. Responsibilities of the Client</h3>
+                  <p className="mb-1 text-[11.5pt]">The Client agrees to:</p>
+                  <ul className="list-disc pl-5 text-[11pt] text-slate-800 flex flex-col gap-0.5 mb-2">
+                    <li>Provide accurate and complete information needed for system development.</li>
+                    <li>Designate a representative to communicate with the Developer.</li>
+                    <li>Review deliverables and provide timely feedback.</li>
+                    <li>Participate in testing and final acceptance of the system.</li>
+                    <li>Use the system in accordance with the provided instructions.</li>
+                  </ul>
                 </div>
 
                 {/* Footer */}
@@ -850,34 +878,12 @@ export default function ContractBuilderPage() {
               </div>
             </div>
 
-            {/* PAGE 3 */}
+            {/* PAGE 3 — TIMELINE, CONFIDENTIALITY & OWNERSHIP */}
             <div className="a4-page">
               <div className="flex flex-col justify-between h-full">
                 <div>
-                  {/* 3. Responsibilities of the Developer */}
-                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2 mb-1.5 text-slate-900">3. Responsibilities of the Developer</h3>
-                  <p className="mb-1 text-[12pt]">The Developer agrees to:</p>
-                  <ul className="list-disc pl-5 text-[11.5pt] text-slate-800 flex flex-col gap-1 mb-3">
-                    <li>Gather and analyze the Client&apos;s system requirements.</li>
-                    <li>Design, develop, test, and implement the system.</li>
-                    <li>Maintain the confidentiality of the Client&apos;s information.</li>
-                    <li>Provide user documentation or basic training upon project completion.</li>
-                    <li>Correct system errors discovered during the agreed warranty period.</li>
-                  </ul>
-
-                  {/* 4. Responsibilities of the Client */}
-                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1.5 text-slate-900">4. Responsibilities of the Client</h3>
-                  <p className="mb-1 text-[12pt]">The Client agrees to:</p>
-                  <ul className="list-disc pl-5 text-[11.5pt] text-slate-800 flex flex-col gap-1 mb-3">
-                    <li>Provide accurate and complete information needed for system development.</li>
-                    <li>Designate a representative to communicate with the Developer.</li>
-                    <li>Review deliverables and provide timely feedback.</li>
-                    <li>Participate in testing and final acceptance of the system.</li>
-                    <li>Use the system in accordance with the provided instructions.</li>
-                  </ul>
-
                   {/* 5. Project Timeline */}
-                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1.5 text-slate-900">5. Project Timeline</h3>
+                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2 mb-1.5 text-slate-900">5. Project Timeline</h3>
                   <p className="mb-1.5 text-justify text-[12pt]">
                     The total estimated build timeframe is <strong>{timeframe}</strong>. The target schedule per milestone phase is structured as follows:
                   </p>
@@ -909,24 +915,30 @@ export default function ContractBuilderPage() {
                   <p className="text-[10.5pt] text-slate-500 mb-3 font-serif">The timeline may be adjusted upon mutual written agreement if client requirement feedback or assets are delayed.</p>
 
                   {/* 6. Changes to the Project */}
-                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1.5 text-slate-900">6. Changes to the Project</h3>
-                  <p className="mb-3 text-justify text-[12pt] leading-relaxed">
+                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1 text-slate-900">6. Changes to the Project</h3>
+                  <p className="mb-3 text-justify text-[11.5pt] leading-relaxed">
                     Any request for additional features, major revisions, or changes beyond the agreed scope shall require the approval of both parties. Such changes may result in adjustments to the project schedule and, if applicable, additional costs.
                   </p>
 
                   {/* 7. Confidentiality */}
-                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1.5 text-slate-900">7. Confidentiality</h3>
-                  <p className="mb-1.5 text-justify text-[12pt] leading-relaxed">
+                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1 text-slate-900">7. Confidentiality</h3>
+                  <p className="mb-1.5 text-justify text-[11.5pt] leading-relaxed">
                     The Developer agrees to keep all business information, records, and data provided by the Client strictly confidential and shall not disclose such information to any third party without the Client&apos;s written consent, except as required by law.
                   </p>
-                  <p className="mb-2 text-justify text-[12pt] leading-relaxed">
+                  <p className="mb-3 text-justify text-[11.5pt] leading-relaxed">
                     The Client likewise agrees not to distribute, copy, or modify the Developer&apos;s source code without prior permission unless ownership of the source code has been transferred under this Agreement.
                   </p>
 
                   {/* 8. Ownership */}
-                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1.5 text-slate-900">8. Ownership</h3>
-                  <p className="mb-1.5 text-justify text-[12pt] leading-relaxed">
+                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1 text-slate-900">8. Ownership</h3>
+                  <p className="mb-3 text-justify text-[11.5pt] leading-relaxed">
                     Upon successful completion of the project and fulfillment of all agreed payment obligations, the Client shall own the completed system, including system documentation and database.
+                  </p>
+
+                  {/* 9. Testing and Acceptance */}
+                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1 text-slate-900">9. Testing and Acceptance</h3>
+                  <p className="mb-2 text-justify text-[11.5pt] leading-relaxed">
+                    The completed system shall undergo User Acceptance Testing (UAT). If the system meets the agreed requirements, the Client shall formally accept the project.
                   </p>
                 </div>
 
@@ -938,107 +950,101 @@ export default function ContractBuilderPage() {
               </div>
             </div>
 
-            {/* PAGE 4 — SIGNATURES */}
+            {/* PAGE 4 — WARRANTY, LAWS & SIGNATURES */}
             <div className="a4-page">
               <div className="flex flex-col justify-between h-full">
                 <div>
-                  {/* 9. Testing and Acceptance */}
-                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2 mb-1.5 text-slate-900">9. Testing and Acceptance</h3>
-                  <p className="mb-2 text-justify text-[12pt] leading-relaxed">
-                    The completed system shall undergo User Acceptance Testing (UAT). If the system meets the agreed requirements, the Client shall formally accept the project.
-                  </p>
-
                   {/* 10. Warranty and Maintenance */}
-                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1.5 text-slate-900">10. Warranty and Maintenance</h3>
-                  <p className="mb-1 text-[12pt] leading-relaxed">
+                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2 mb-1 text-slate-900">10. Warranty and Maintenance</h3>
+                  <p className="mb-2 text-[11.5pt] leading-relaxed">
                     The Developer shall provide a warranty period of 30 days after official turnover to correct software bugs or errors related to agreed functionality.
                   </p>
 
                   {/* 11. Termination */}
-                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1.5 text-slate-900">11. Termination</h3>
-                  <p className="mb-2 text-justify text-[12pt] leading-relaxed">
+                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">11. Termination</h3>
+                  <p className="mb-2 text-justify text-[11.5pt] leading-relaxed">
                     Either party may terminate this Agreement by providing written notice if the other party fails to fulfill its obligations.
                   </p>
 
                   {/* 12. Limitation of Liability */}
-                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1.5 text-slate-900">12. Limitation of Liability</h3>
-                  <p className="mb-2 text-justify text-[12pt] leading-relaxed">
+                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">12. Limitation of Liability</h3>
+                  <p className="mb-2 text-justify text-[11.5pt] leading-relaxed">
                     The Developer shall not be held responsible for data loss caused by Client actions, hardware failures, or unauthorized third-party modifications.
                   </p>
 
                   {/* 13. Governing Law */}
-                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1.5 text-slate-900">13. Governing Law</h3>
-                  <p className="mb-2 text-justify text-[12pt] leading-relaxed">
+                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">13. Governing Law</h3>
+                  <p className="mb-2 text-justify text-[11.5pt] leading-relaxed">
                     This Agreement shall be governed by the applicable laws of the Republic of the Philippines.
                   </p>
 
                   {/* 14. Entire Agreement */}
-                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-1.5 text-slate-900">14. Entire Agreement</h3>
-                  <p className="mb-3 text-justify text-[12pt] leading-relaxed">
+                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">14. Entire Agreement</h3>
+                  <p className="mb-2.5 text-justify text-[11.5pt] leading-relaxed">
                     This document constitutes the complete agreement between the Client and the Developer and supersedes any prior verbal or written agreements.
                   </p>
 
                   {/* Source Code Buyout Clause (Optional) */}
                   {includeSourceCodeClause && (
-                    <div className="mt-2 mb-3 p-2.5 border-l-2 border-slate-500 bg-slate-50 text-[11pt] leading-relaxed font-sans">
+                    <div className="mt-1 mb-2.5 p-2 border-l-2 border-slate-500 bg-slate-50 text-[10.5pt] leading-relaxed font-sans">
                       <p className="font-bold text-slate-800">Source Code Transfer Addendum:</p>
                       <p className="text-slate-700 mt-0.5">
-                        Upon full payment of all fees including the buyout fee of ₱{Number(sourceCodeFee.replace(/,/g, '') || 0).toLocaleString('en-PH')}, source code repository administrative access will be transferred to the Client {sourceCodeReleaseDays || "30"} calendar days post-settlement.
+                        Upon full payment of all fees including buyout fee of ₱{Number(sourceCodeFee.replace(/,/g, '') || 0).toLocaleString('en-PH')}, source code access will be transferred to Client {sourceCodeReleaseDays || "30"} calendar days post-settlement.
                       </p>
                     </div>
                   )}
 
                   {/* 15. Signatures */}
-                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-3 mb-3 text-slate-900">15. Signatures</h3>
-                  <p className="mb-4 text-justify text-[11.5pt] leading-relaxed">
+                  <h3 className="font-sans font-bold text-[13pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-2.5 text-slate-900">15. Signatures</h3>
+                  <p className="mb-3 text-justify text-[11pt] leading-relaxed">
                     By signing below, both parties acknowledge that they have read, understood, and agreed to the terms and conditions of this Agreement.
                   </p>
 
                   {/* SIGNATURES GRID */}
-                  <div className="grid grid-cols-2 gap-6 mb-4 font-sans">
+                  <div className="grid grid-cols-2 gap-6 mb-3 font-sans">
                     {/* CLIENT */}
                     <div>
-                      <p className="text-[11pt] font-bold uppercase tracking-wider text-slate-900 mb-2">CLIENT</p>
-                      <div className="flex flex-col gap-4">
-                        <div className="flex items-end gap-2"><span className="text-[10pt] w-20 shrink-0 font-medium">Name:</span><div className="flex-1 border-b border-slate-500 font-semibold text-[10.5pt] text-slate-800">{selectedQuote.client_name}</div></div>
-                        <div className="flex items-end gap-2"><span className="text-[10pt] w-20 shrink-0 font-medium">Signature:</span><div className="flex-1 border-b border-slate-500 h-6" /></div>
-                        <div className="flex items-end gap-2"><span className="text-[10pt] w-20 shrink-0 font-medium">Date:</span><div className="flex-1 border-b border-slate-500 h-6" /></div>
+                      <p className="text-[10.5pt] font-bold uppercase tracking-wider text-slate-900 mb-1.5">CLIENT</p>
+                      <div className="flex flex-col gap-3.5">
+                        <div className="flex items-end gap-2"><span className="text-[9.5pt] w-20 shrink-0 font-medium">Name:</span><div className="flex-1 border-b border-slate-500 font-semibold text-[10pt] text-slate-800">{selectedQuote.client_name}</div></div>
+                        <div className="flex items-end gap-2"><span className="text-[9.5pt] w-20 shrink-0 font-medium">Signature:</span><div className="flex-1 border-b border-slate-500 h-5" /></div>
+                        <div className="flex items-end gap-2"><span className="text-[9.5pt] w-20 shrink-0 font-medium">Date:</span><div className="flex-1 border-b border-slate-500 h-5" /></div>
                       </div>
                     </div>
 
                     {/* DEVELOPER */}
                     <div>
-                      <p className="text-[11pt] font-bold uppercase tracking-wider text-slate-900 mb-2">DEVELOPER / TEAM</p>
-                      <div className="flex flex-col gap-4">
-                        <div className="flex items-end gap-2"><span className="text-[10pt] w-20 shrink-0 font-medium">Name:</span><div className="flex-1 border-b border-slate-500 font-semibold text-[10.5pt] text-slate-800">{signatory.name} ({signatory.title})</div></div>
-                        <div className="flex items-end gap-2"><span className="text-[10pt] w-20 shrink-0 font-medium">Signature:</span><div className="flex-1 border-b border-slate-500 h-6" /></div>
-                        <div className="flex items-end gap-2"><span className="text-[10pt] w-20 shrink-0 font-medium">Date:</span><div className="flex-1 border-b border-slate-500 h-6" /></div>
+                      <p className="text-[10.5pt] font-bold uppercase tracking-wider text-slate-900 mb-1.5">DEVELOPER / TEAM</p>
+                      <div className="flex flex-col gap-3.5">
+                        <div className="flex items-end gap-2"><span className="text-[9.5pt] w-20 shrink-0 font-medium">Name:</span><div className="flex-1 border-b border-slate-500 font-semibold text-[10pt] text-slate-800">{signatory.name} ({signatory.title})</div></div>
+                        <div className="flex items-end gap-2"><span className="text-[9.5pt] w-20 shrink-0 font-medium">Signature:</span><div className="flex-1 border-b border-slate-500 h-5" /></div>
+                        <div className="flex items-end gap-2"><span className="text-[9.5pt] w-20 shrink-0 font-medium">Date:</span><div className="flex-1 border-b border-slate-500 h-5" /></div>
                       </div>
                     </div>
                   </div>
 
                   {/* WITNESS / NOTARY */}
                   {acknowledgmentStyle === "private" ? (
-                    <div className="font-sans mt-2">
-                      <p className="text-[11pt] font-bold uppercase tracking-wider text-slate-900 mb-2">WITNESS</p>
+                    <div className="font-sans mt-1">
+                      <p className="text-[10.5pt] font-bold uppercase tracking-wider text-slate-900 mb-1.5">WITNESS</p>
                       <div className="grid grid-cols-2 gap-6">
-                        <div className="flex items-end gap-2"><span className="text-[10pt] w-20 shrink-0 font-medium">Name:</span><div className="flex-1 border-b border-slate-500 h-6" /></div>
-                        <div className="flex items-end gap-2"><span className="text-[10pt] w-20 shrink-0 font-medium">Signature:</span><div className="flex-1 border-b border-slate-500 h-6" /></div>
+                        <div className="flex items-end gap-2"><span className="text-[9.5pt] w-20 shrink-0 font-medium">Name:</span><div className="flex-1 border-b border-slate-500 h-5" /></div>
+                        <div className="flex items-end gap-2"><span className="text-[9.5pt] w-20 shrink-0 font-medium">Signature:</span><div className="flex-1 border-b border-slate-500 h-5" /></div>
                       </div>
                     </div>
                   ) : (
-                    <div className="text-[10.5pt] text-slate-700 font-sans mt-2">
-                      <p className="text-center font-bold uppercase text-[10.5pt] tracking-wide mb-1 text-slate-900">NOTARIAL ACKNOWLEDGEMENT</p>
-                      <p className="text-justify mb-2 leading-relaxed text-[10pt]">
+                    <div className="text-[10pt] text-slate-700 font-sans mt-1">
+                      <p className="text-center font-bold uppercase text-[10pt] tracking-wide mb-1 text-slate-900">NOTARIAL ACKNOWLEDGEMENT</p>
+                      <p className="text-justify mb-1.5 leading-relaxed text-[9.5pt]">
                         BEFORE ME, a Notary Public for and in the City of Digos, this day personally appeared <strong>{signatory.name}</strong> and <strong>{selectedQuote.client_name}</strong>, exhibiting their respective government-issued IDs, known to me to be the same persons who executed the foregoing Agreement.
                       </p>
                       <div className="flex justify-between items-end">
-                        <div className="text-[9.5pt]">
+                        <div className="text-[9pt]">
                           <p>Doc. No. _____; Page No. _____; Book No. _____; Series of {new Date(effectiveDate).getFullYear()}.</p>
                         </div>
-                        <div className="text-center border-t border-slate-400 w-44 pt-1 font-sans font-semibold text-slate-800 text-[9.5pt]">
+                        <div className="text-center border-t border-slate-400 w-44 pt-1 font-sans font-semibold text-slate-800 text-[9pt]">
                           {attorneyName}
-                          <p className="text-[8.5px] text-slate-400 font-normal">Notary Public / Attorney-at-Law</p>
+                          <p className="text-[8px] text-slate-400 font-normal">Notary Public / Attorney-at-Law</p>
                         </div>
                       </div>
                     </div>
@@ -1176,109 +1182,127 @@ export default function ContractBuilderPage() {
                 <th className="px-6 py-4 font-sans">System Plan</th>
                 <th className="px-6 py-4 font-sans text-right">One-time Build</th>
                 <th className="px-6 py-4 font-sans text-right">Monthly Installment</th>
+                <th className="px-6 py-4 font-sans text-right">Cloud Hosting &amp; DB</th>
                 <th className="px-6 py-4 font-sans text-center">Installment Progress</th>
                 <th className="px-6 py-4 font-sans">Saved Date</th>
                 <th className="px-6 py-4 text-right font-sans rounded-tr-2xl">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
-              {quotations.map((quote) => (
-                <tr key={quote.id} className={`hover:bg-slate-50/50 transition-colors ${quote.pending_deletion_at ? "opacity-60" : ""} relative`}>
-                  <td className="px-6 py-4">
-                    <div className="font-semibold text-slate-900 flex items-center gap-2">
-                      {quote.client_name}
-                      {quote.pending_deletion_at && (
-                        <span className="inline-flex items-center gap-1 text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-100 px-1.5 py-0.5 rounded-full uppercase tracking-wide">
-                          <AlertTriangle className="w-2.5 h-2.5" /> Pending Deletion
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-[10px] text-slate-400 mt-0.5">{quote.client_email || "No Email"}</div>
-                    {quote.pending_deletion_at && (
-                      <div className="text-[9px] text-amber-600 mt-0.5 font-medium">
-                        Requested by {quote.pending_deletion_by} · Awaiting approval
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="font-medium text-slate-600">Custom System</span>
-                  </td>
-                  <td className="px-6 py-4 text-right font-sans">
-                    <div className="font-mono font-semibold text-slate-900">{peso(quote.build_total)}</div>
-                    <div className="text-[9.5px] text-slate-400 font-normal">50% Launch: {peso(Math.round(quote.build_total * 0.5))}</div>
-                  </td>
-                  <td className="px-6 py-4 text-right font-sans">
-                    <div className="font-mono font-semibold text-slate-900">{peso(Math.round((quote.build_total * 0.5) / 12))}/mo</div>
-                    <div className="text-[9.5px] text-slate-400 font-normal">50% spread over 12 mos</div>
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <span className="inline-flex items-center gap-1 text-[9.5px] font-bold bg-blue-50 text-blue-700 border border-blue-100 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                      0 / 12 Months Paid
-                    </span>
-                    <p className="text-[9px] text-slate-400 mt-0.5 font-sans font-normal">12 Months Term Remaining</p>
-                  </td>
-                  <td className="px-6 py-4 text-slate-400">
-                    {formatDate(quote.created_at)}
-                  </td>
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      {!quote.pending_deletion_at && (
-                        <>
-                          <button
-                            onClick={() => {
-                              setSelectedQuote(quote);
-                              setContractMode("new");
-                            }}
-                            className="px-3 py-1.5 bg-emerald-50 border border-emerald-100 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-lg text-[11px] font-bold transition-all cursor-pointer"
-                          >
-                            Draft Contract
-                          </button>
-                          <button
-                            onClick={() => {
-                              setSelectedQuote(quote);
-                              setContractMode("renewal");
-                            }}
-                            className="px-3 py-1.5 bg-blue-50 border border-blue-100 text-blue-700 hover:bg-blue-600 hover:text-white rounded-lg text-[11px] font-bold transition-all cursor-pointer"
-                          >
-                            Draft Renewal
-                          </button>
-                        </>
-                      )}
-                      {/* 3-dot kebab menu */}
-                      <div className="relative">
-                        <button
-                          onClick={() => setOpenMenuId(openMenuId === quote.id ? null : quote.id)}
-                          className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-all cursor-pointer relative z-10"
-                        >
-                          <MoreVertical className="w-4 h-4" />
-                        </button>
-                        {openMenuId === quote.id && (
-                          <>
-                            {/* Click outside handler */}
-                            <div className="fixed inset-0 z-30" onClick={() => setOpenMenuId(null)} />
-                            <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl border border-slate-200 shadow-xl z-50 py-1 overflow-hidden">
-                              {!quote.pending_deletion_at ? (
-                                <button
-                                  onClick={() => openDeleteModal(quote)}
-                                  className="flex items-center gap-2.5 w-full px-4 py-2.5 text-[12px] font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                  Request Deletion
-                                </button>
-                              ) : (
-                                <div className="flex items-center gap-2.5 w-full px-4 py-2.5 text-[12px] font-semibold text-amber-600 cursor-not-allowed">
-                                  <AlertTriangle className="w-3.5 h-3.5" />
-                                  Pending Approval
-                                </div>
-                              )}
-                            </div>
-                          </>
+              {quotations.map((quote) => {
+                const hostMod = quote.quotation_modules?.find(qm => qm.module?.category === "support")?.module;
+                const hostUsdPrice = hostMod?.monthly_price || 0;
+                return (
+                  <tr key={quote.id} className={`hover:bg-slate-50/50 transition-colors ${quote.pending_deletion_at ? "opacity-60" : ""} relative`}>
+                    <td className="px-6 py-4">
+                      <div className="font-semibold text-slate-900 flex items-center gap-2">
+                        {quote.client_name}
+                        {quote.pending_deletion_at && (
+                          <span className="inline-flex items-center gap-1 text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-100 px-1.5 py-0.5 rounded-full uppercase tracking-wide">
+                            <AlertTriangle className="w-2.5 h-2.5" /> Pending Deletion
+                          </span>
                         )}
                       </div>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                      <div className="text-[10px] text-slate-400 mt-0.5">{quote.client_email || "No Email"}</div>
+                      {quote.pending_deletion_at && (
+                        <div className="text-[9px] text-amber-600 mt-0.5 font-medium">
+                          Requested by {quote.pending_deletion_by} · Awaiting approval
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="font-medium text-slate-600">Custom System</span>
+                    </td>
+                    <td className="px-6 py-4 text-right font-sans">
+                      <div className="font-mono font-semibold text-slate-900">{peso(quote.build_total)}</div>
+                      <div className="text-[9.5px] text-slate-400 font-normal">50% Launch: {peso(Math.round(quote.build_total * 0.5))}</div>
+                    </td>
+                    <td className="px-6 py-4 text-right font-sans">
+                      <div className="font-mono font-semibold text-slate-900">{peso(Math.round((quote.build_total * 0.5) / 12))}/mo</div>
+                      <div className="text-[9.5px] text-slate-400 font-normal">50% spread over 12 mos</div>
+                    </td>
+                    <td className="px-6 py-4 text-right font-sans">
+                      {hostUsdPrice > 0 ? (
+                        <>
+                          <div className="font-mono font-semibold text-slate-900">${hostUsdPrice}/mo USD</div>
+                          <div className="text-[9.5px] text-slate-400 font-normal">≈ {peso(Math.round(hostUsdPrice * 60.93))}/mo</div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="font-mono font-semibold text-slate-500">$0 /mo</div>
+                          <div className="text-[9.5px] text-slate-400 font-normal">Client-Managed</div>
+                        </>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <span className="inline-flex items-center gap-1 text-[9.5px] font-bold bg-blue-50 text-blue-700 border border-blue-100 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                        0 / 12 Months Paid
+                      </span>
+                      <p className="text-[9px] text-slate-400 mt-0.5 font-sans font-normal">12 Months Term Remaining</p>
+                    </td>
+                    <td className="px-6 py-4 text-slate-400">
+                      {formatDate(quote.created_at)}
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {!quote.pending_deletion_at && (
+                          <>
+                            <button
+                              onClick={() => {
+                                setSelectedQuote(quote);
+                                setContractMode("new");
+                              }}
+                              className="px-3 py-1.5 bg-emerald-50 border border-emerald-100 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-lg text-[11px] font-bold transition-all cursor-pointer"
+                            >
+                              Draft Contract
+                            </button>
+                            <button
+                              onClick={() => {
+                                setSelectedQuote(quote);
+                                setContractMode("renewal");
+                              }}
+                              className="px-3 py-1.5 bg-blue-50 border border-blue-100 text-blue-700 hover:bg-blue-600 hover:text-white rounded-lg text-[11px] font-bold transition-all cursor-pointer"
+                            >
+                              Draft Renewal
+                            </button>
+                          </>
+                        )}
+                        {/* 3-dot kebab menu */}
+                        <div className="relative">
+                          <button
+                            onClick={() => setOpenMenuId(openMenuId === quote.id ? null : quote.id)}
+                            className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-all cursor-pointer relative z-10"
+                          >
+                            <MoreVertical className="w-4 h-4" />
+                          </button>
+                          {openMenuId === quote.id && (
+                            <>
+                              {/* Click outside handler */}
+                              <div className="fixed inset-0 z-30" onClick={() => setOpenMenuId(null)} />
+                              <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl border border-slate-200 shadow-xl z-50 py-1 overflow-hidden">
+                                {!quote.pending_deletion_at ? (
+                                  <button
+                                    onClick={() => openDeleteModal(quote)}
+                                    className="flex items-center gap-2.5 w-full px-4 py-2.5 text-[12px] font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    Request Deletion
+                                  </button>
+                                ) : (
+                                  <div className="flex items-center gap-2.5 w-full px-4 py-2.5 text-[12px] font-semibold text-amber-600 cursor-not-allowed">
+                                    <AlertTriangle className="w-3.5 h-3.5" />
+                                    Pending Approval
+                                  </div>
+                                )}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
