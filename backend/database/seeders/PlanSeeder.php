@@ -137,7 +137,7 @@ class PlanSeeder extends Seeder
             [
                 'name' => 'Advanced Server & DB (Pro Host)',
                 'build_price' => 0,
-                'monthly_price' => 105,  // $105 USD/mo
+                'monthly_price' => 100,  // $100 USD/mo
                 'complexity_score' => 1,
                 'is_required' => false,
                 'enabled_by_default' => false,
@@ -146,7 +146,7 @@ class PlanSeeder extends Seeder
             [
                 'name' => 'High-Availability Cloud Network (Enterprise Host)',
                 'build_price' => 0,
-                'monthly_price' => 350,  // $350 USD/mo
+                'monthly_price' => 330,  // $330 USD/mo
                 'complexity_score' => 1,
                 'is_required' => false,
                 'enabled_by_default' => false,
