@@ -18,9 +18,7 @@ services:
 
   # ── Laravel API Backend ──────────────────────────
   backend:
-    build:
-      context: ./backend
-      dockerfile: ../docker/backend/Dockerfile.prod
+    image: ghcr.io/eisendev/novaryn-backend:latest
     container_name: novaryn-backend
     restart: unless-stopped
     environment:
@@ -53,11 +51,7 @@ services:
 
   # ── Next.js Frontend ─────────────────────────────
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: ../docker/frontend/Dockerfile.prod
-      args:
-        NEXT_PUBLIC_API_URL: https://novaryn.tech/api/v1
+    image: ghcr.io/eisendev/novaryn-frontend:latest
     container_name: novaryn-frontend
     restart: unless-stopped
     environment:

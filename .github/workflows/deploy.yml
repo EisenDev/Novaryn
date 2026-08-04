@@ -5,15 +5,61 @@ on:
     branches:
       - main
 
+env:
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE: ghcr.io/eisendev/novaryn-backend
+  FRONTEND_IMAGE: ghcr.io/eisendev/novaryn-frontend
+
 jobs:
-  deploy:
-    name: Deploy to Azure VM
+  build-and-push:
+    name: 🐳 Build and Push Docker Images
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - name: 🔐 Checkout repository
         uses: actions/checkout@v4
 
+      - name: 🛠️ Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: 🔑 Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📦 Build and Push Backend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./docker/backend/Dockerfile.prod
+          push: true
+          tags: ${{ env.BACKEND_IMAGE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: 📦 Build and Push Frontend Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./docker/frontend/Dockerfile.prod
+          build-args: |
+            NEXT_PUBLIC_API_URL=https://novaryn.tech/api/v1
+          push: true
+          tags: ${{ env.FRONTEND_IMAGE }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: 🚀 Deploy to Azure VM
+    runs-on: ubuntu-latest
+    needs: build-and-push
+
+    steps:
       - name: 🚢 Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -35,32 +81,24 @@ jobs:
               git reset --hard origin/main
             else
               echo "📥 Cloning repository..."
-              git clone https://github.com/${{ github.repository }}.git .
+              git clone https://github.com/EisenDev/Novaryn.git .
             fi
 
-            # Write the production .env file for docker compose
-            echo "⚙️  Writing production environment file..."
-            cat > .env.prod << 'ENVEOF'
-            APP_KEY=${{ secrets.APP_KEY }}
-            DB_DATABASE=postgres
-            DB_USERNAME=postgres.dgterugnouvltpzwafnx
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            ENVEOF
+            # Log in to GitHub Container Registry on the VM
+            echo "${{ secrets.GHCR_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-            # Build and restart containers
-            echo "🐳 Building Docker images..."
-            sudo docker compose -f docker-compose.prod.yml --env-file .env.prod pull --ignore-buildable || true
-            sudo docker compose -f docker-compose.prod.yml --env-file .env.prod build --no-cache
+            # Pull, recreate, and run containers
+            echo "🐳 Pulling latest images from GHCR..."
+            sudo docker compose -f docker-compose.prod.yml --env-file .env.prod pull
 
             echo "🚀 Starting containers..."
             sudo docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
 
-            # Wait for DB to be healthy
-            echo "⏳ Waiting for database..."
-            sleep 15
+            # Wait for DB connections to be ready
+            sleep 10
 
             # Run migrations
-            echo "🗄️  Running database migrations..."
+            echo "🗄️ Running database migrations..."
             sudo docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T backend php artisan migrate --force
 
             # Clear caches after deploy
