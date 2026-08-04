@@ -47,84 +47,163 @@ interface Quotation {
   pending_deletion_reason: string | null;
 }
 
-// Module Features Map for detailed contract scopes
+// Module Features Map — kept in sync with pricing-engine/page.tsx
 const MODULE_FEATURES: Record<string, string[]> = {
   "Custom Brand Website / CMS": [
     "Fully Custom Figma-to-Code Design",
     "Mobile-Responsive Layouts",
     "Easy Content Management (CMS)",
     "SEO & Meta Tag Configurations",
-    "Secure Contact Form Integration"
+    "Secure Contact Form Integration",
+    "Basic Site Traffic Overview (page views, visitor count)",
+    "Monthly Website Performance Summary Report"
   ],
   "Appointment & Slot Booking": [
-    "Client Online Booking Widget",
+    "Client Online Booking Widget (web & mobile)",
     "Dynamic Scheduling Calendar Grid",
-    "Email & SMS Confirmation Alerts",
-    "Services & Staff Directory Setup",
-    "Real-time Availability Sync"
+    "Email & SMS Confirmation & Reminder Alerts",
+    "Services, Staff & Time Slot Directory Setup",
+    "Real-time Availability Sync",
+    "Walk-in & Manual Override Booking by Admin",
+    "Booking Status Tracking (Pending / Confirmed / Cancelled)",
+    "Daily & Weekly Booking Volume Summary",
+    "Cancellation & No-show Rate Tracker",
+    "Staff Utilization Rate Overview",
+    "Monthly Appointment Revenue Summary Report"
   ],
   "Standalone POS (Point of Sale)": [
     "Fast Cashier Checkout Interface",
     "Thermal Receipt Printer Integration",
-    "GCash, Maya, and QR Payments",
-    "Daily Shift & Cash Logging",
-    "Refunds & Transaction History"
+    "GCash, Maya, Cash, and QR Payment Support",
+    "Daily Shift Opening & Cash Closing Logs",
+    "Refunds, Voids & Transaction History",
+    "Product/Service Quick-Add Menu",
+    "Discount & Promo Code Application",
+    "Daily Sales Summary & Cash Flow Report",
+    "Top-Selling Products & Services Ranking",
+    "Shift-by-Shift Revenue Comparison",
+    "Monthly Sales Trend Report (exportable)"
   ],
   "Small Inventory System": [
-    "Product catalog with SKU logs",
-    "Manual Stock-In & Stock-Out Logs",
-    "Automated Low-Stock Alert Alerts",
-    "Supplier List & Purchase Logs",
-    "Basic Stock Value Summaries"
+    "Product Catalog with SKU & Barcode Logs",
+    "Manual Stock-In & Stock-Out Entry Logs",
+    "Automated Low-Stock Alert Notifications",
+    "Supplier Directory & Purchase Order Logs",
+    "Category & Variant Management",
+    "Multi-unit Stock Conversion (box → pcs)",
+    "Inventory Valuation & Stock-on-Hand Report",
+    "Stock Movement & Variance Analytics",
+    "Slow-Moving & Dead Stock Identification",
+    "Supplier Purchase History & Lead Time Report",
+    "Monthly Inventory Health Summary (exportable PDF)"
   ],
   "Customer CRM & Membership Wallet": [
-    "Client Profile & Purchase Logs",
-    "Tiered Membership Badges",
-    "Prepaid Credit Digital Wallet",
-    "Loyalty & Rewards Point Rules",
-    "QR Check-in Scanner App"
+    "Customer Profile Directory & Purchase History",
+    "Tiered Membership Levels (Bronze / Silver / Gold)",
+    "Prepaid Digital Wallet (top-up & deduct)",
+    "Loyalty Points Earn & Redeem Rules Engine",
+    "QR Code Check-in Scanner App",
+    "Birthday & Anniversary Auto-messaging",
+    "Customer Segmentation Tags",
+    "Customer Retention & Churn Rate Report",
+    "Member Activity & Visit Frequency Analytics",
+    "Wallet Top-up & Spending Summary",
+    "Loyalty Points Redemption Trend Report",
+    "Customer Lifetime Value (CLV) Overview Dashboard"
   ],
   "E-Commerce Online Store": [
-    "Shopping Cart & Secure Checkout",
-    "Product Filters & Variations",
-    "GCash/Maya/Card Gateways",
-    "Lalamove/J&T Delivery API Sync",
-    "Stock levels auto-deduction"
+    "Shopping Cart & Secure Checkout Flow",
+    "Product Listings with Filters, Variants & Gallery",
+    "GCash, Maya, Credit/Debit Card Gateways",
+    "Lalamove / J&T Delivery API Sync",
+    "Stock Auto-Deduction on Checkout",
+    "Order Management & Fulfillment Tracker",
+    "Customer Account & Order History Portal",
+    "Coupon & Flash Sale Engine",
+    "Sales Revenue & GMV Analytics Dashboard",
+    "Product Performance & Conversion Rate Reports",
+    "Cart Abandonment Rate Tracking",
+    "Customer Purchase Behavior Insights",
+    "Top Traffic Sources & Channel Attribution",
+    "Monthly E-Commerce Business Report (exportable)"
   ],
   "Venue / Facility Booking Grid": [
-    "Hourly Asset Booking Grid UI",
-    "Peak & Off-Peak Price Rules",
-    "Interactive Court/Room Layouts",
-    "Reservation Check-in validation",
-    "Re-scheduling & Refund requests"
+    "Hourly Asset Booking Grid (courts, rooms, lanes)",
+    "Peak & Off-Peak Dynamic Pricing Rules",
+    "Interactive Floor / Court Layout Map",
+    "Reservation QR Check-in Validation",
+    "Re-scheduling, Cancellation & Refund Workflow",
+    "Walk-in & Admin Manual Override Booking",
+    "Blocked / Maintenance Slot Management",
+    "Facility Utilization Rate per Asset Report",
+    "Revenue per Court / Room / Lane Analytics",
+    "Peak Hours & Off-Peak Demand Heatmap",
+    "Booking Source Breakdown (online vs walk-in)",
+    "Monthly Facility Revenue Trend Summary"
   ],
   "MIS Dashboard & Custom Reports": [
-    "Executive Performance Charts",
-    "Role-Based Access (RBAC) control",
-    "PDF Financial statement reports",
-    "Manager Activity Audit Logs",
-    "Custom business data filters"
+    "Executive KPI Summary Dashboard (multi-module)",
+    "Role-Based Access Control (RBAC) per department",
+    "Exportable PDF & Excel Financial Reports",
+    "Manager & Staff Activity Audit Logs",
+    "Custom Business Data Filters & Date Ranges",
+    "Real-time Data Feed Across All Modules",
+    "Scheduled Auto-Email Report Delivery",
+    "Cross-Department Revenue & Cost Analytics",
+    "Performance vs Target Comparison Charts",
+    "Operational Efficiency Metrics Dashboard",
+    "Trend Analysis & Month-over-Month Growth Charts",
+    "Custom Report Builder (drag & configure)",
+    "Executive-ready Slide-format Report Exports"
   ],
   "Big Inventory & Supply Chain": [
-    "Multi-branch real-time stock sync",
-    "Barcode inventory scanning",
-    "Auto-replenish purchase orders",
-    "Inter-branch stock transfer logs",
-    "Physical count adjustment logs"
+    "Multi-Branch Real-time Stock Sync",
+    "Barcode & QR Code Inventory Scanning",
+    "Auto-Replenishment & Purchase Order Automation",
+    "Inter-Branch Stock Transfer with Approval Flow",
+    "Physical Count Adjustment & Variance Logs",
+    "Multi-Warehouse Zone Management",
+    "Perishable & Expiry Date Tracking",
+    "Supply Chain Performance & Lead Time Dashboard",
+    "Demand Forecasting & Reorder Point Analytics",
+    "Vendor Scorecard & Comparison Report",
+    "Loss, Shrinkage & Damage Audit Reports",
+    "COGS & Gross Margin per Product Analytics",
+    "Inventory Aging & Turnover Rate Report",
+    "Multi-Branch Stock Consolidation Summary"
   ],
   "Franchise & Branch HQ Panel": [
-    "Central Headquarters Control Panel",
-    "Consolidated Branch comparison charts",
-    "Central Product Catalog control",
-    "Cross-branch audit logging logs",
-    "Royalty fee billing modules"
+    "Central HQ Control Panel (all branches in one view)",
+    "Consolidated Branch Revenue Comparison Charts",
+    "Central Product Catalog & Pricing Control",
+    "Cross-Branch Audit Logging & Compliance Monitoring",
+    "Royalty Fee Calculation & Billing Module",
+    "Franchisee Onboarding & Access Management",
+    "Announcement & Policy Broadcast System",
+    "Branch Performance Benchmarking Dashboard",
+    "Consolidated Revenue & Expense Analytics",
+    "Franchise Compliance Score Reports",
+    "Territory & Regional Sales Heatmap",
+    "Top & Bottom Performing Branch Rankings",
+    "Royalty Fee Collection Trend Analysis",
+    "HQ-to-Branch Operational Efficiency Comparison"
   ],
   "Enterprise ERP & Legacy Integration": [
-    "SAP, Oracle, or Dynamics API Sync",
-    "Replicated Database Instances",
-    "Active Directory (AD/SSO) Login",
-    "Scheduler retry queues",
-    "Enterprise 99.99% Node SLA"
+    "SAP, Oracle, or MS Dynamics API Integration",
+    "Replicated Read/Write Database Node Instances",
+    "Active Directory / SSO (Single Sign-On) Login",
+    "Async Job Scheduler with Retry Queue System",
+    "Enterprise 99.99% Uptime SLA Node Architecture",
+    "Custom Webhook & API Gateway Bridge",
+    "Legacy Data Migration & ETL Pipeline",
+    "Multi-entity & Holding Company Structure Support",
+    "Enterprise Business Intelligence (BI) Dashboard",
+    "Custom Data Warehouse & OLAP Cube Reports",
+    "Real-time Executive KPI Streaming Dashboard",
+    "Multi-system Consolidated Analytics Hub",
+    "Predictive Analytics & AI-assisted Forecasting",
+    "Regulatory Compliance & Audit Trail Reports",
+    "Board-ready Financial Intelligence Reports"
   ]
 };
 
@@ -739,30 +818,6 @@ export default function ContractBuilderPage() {
                         {contractMode === "renewal" ? peso(0) : peso(selectedQuote.build_total)}
                       </td>
                     </tr>
-                    {contractMode === "new" && (
-                      <>
-                        <tr className="bg-slate-50/40">
-                          <td className="border border-slate-300 p-2 pl-6 font-sans">
-                            <strong>Production Launch Payment (50%)</strong>
-                            <p className="text-[9px] text-slate-500">Payable upon final deployment & system handover to production.</p>
-                          </td>
-                          <td className="border border-slate-300 p-2 text-right font-semibold">
-                            {peso(Math.round(selectedQuote.build_total * 0.5))}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td className="border border-slate-300 p-2 pl-6 font-sans">
-                            <strong>Monthly Contract Installment (50% spread)</strong>
-                            <p className="text-[9px] text-slate-500">
-                              Amortized monthly over the initial {durationMonths === "indefinite" ? "12" : durationMonths}-month contract term.
-                            </p>
-                          </td>
-                          <td className="border border-slate-300 p-2 text-right font-semibold">
-                            {peso(Math.round((selectedQuote.build_total * 0.5) / (durationMonths === "indefinite" ? 12 : parseInt(durationMonths, 10))))}/mo
-                          </td>
-                        </tr>
-                      </>
-                    )}
                   </tbody>
                 </table>
               </div>
@@ -872,58 +927,83 @@ export default function ContractBuilderPage() {
                   </>
                 )}
 
-                {/* Signatures block */}
-                <div className="grid grid-cols-2 gap-x-12 mt-6 pt-4 border-t border-slate-100 signature-block">
-                  <div className="text-center">
-                    <p className="text-slate-400 text-[9px] uppercase font-sans font-bold">Novaryn Tech Solutions</p>
-                    <div className="h-12 border-b border-slate-300" />
-                    <p className="text-[11px] font-bold text-slate-800 mt-1">{signatory.name}</p>
-                    <p className="text-[9px] text-slate-500 font-sans">{signatory.title}</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-slate-400 text-[9px] uppercase font-sans font-bold">Client Authorized Signatory</p>
-                    <div className="h-12 border-b border-slate-300" />
-                    <p className="text-[11px] font-bold text-slate-800 mt-1">{selectedQuote.client_name}</p>
-                    <p className="text-[9px] text-slate-500 font-sans">Authorized Client Representative</p>
-                  </div>
+                <h3 className="font-sans font-bold text-[11px] uppercase border-b border-slate-250 pb-0.5 mt-4 mb-2 text-slate-900">{includeSourceCodeClause ? "14" : "13"}. Limitation of Liability</h3>
+                <p className="mb-1 text-[10.5px]">The Developer shall not be held responsible for:</p>
+                <ul className="list-disc pl-5 text-[10.5px] text-slate-700 flex flex-col gap-0.5 mb-3">
+                  <li>Data loss caused by the Client's actions</li>
+                  <li>Hardware or network failures</li>
+                  <li>Unauthorized modifications made by third parties</li>
+                  <li>Problems resulting from software not developed under this Agreement</li>
+                </ul>
+
+                <h3 className="font-sans font-bold text-[11px] uppercase border-b border-slate-250 pb-0.5 mt-4 mb-2 text-slate-900">{includeSourceCodeClause ? "15" : "14"}. Governing Law</h3>
+                <p className="mb-3 text-justify text-[10.5px]">
+                  This Agreement shall be governed by the applicable laws of the <strong>Republic of the Philippines</strong>. Any disputes shall be submitted to the proper courts of Digos City, Davao del Sur.
+                </p>
+
+                <h3 className="font-sans font-bold text-[11px] uppercase border-b border-slate-250 pb-0.5 mt-4 mb-2 text-slate-900">{includeSourceCodeClause ? "16" : "15"}. Entire Agreement</h3>
+                <p className="mb-3 text-justify text-[10.5px]">
+                  This document constitutes the complete agreement between the Client and the Developer and supersedes any prior verbal or written agreements regarding this project.
+                </p>
+              </div>
+
+              <div className="flex justify-between items-center text-[8px] text-slate-400 border-t border-slate-100 pt-1 font-sans mt-4">
+                <span>Novaryn Tech Solutions · Client System Development Agreement</span>
+                <span>Page 3</span>
+              </div>
+            </div>
+
+            {/* PAGE 4 — SIGNATURES */}
+            <div className="a4-page">
+              <div>
+                <h3 className="font-sans font-bold text-[11px] uppercase border-b border-slate-250 pb-0.5 mt-2 mb-4 text-slate-900">{includeSourceCodeClause ? "17" : "16"}. Signatures</h3>
+                <p className="mb-5 text-justify text-[10.5px]">
+                  By signing below, both parties acknowledge that they have read, understood, and agreed to the terms and conditions of this Agreement.
+                </p>
+
+                <p className="text-[10px] font-bold font-sans uppercase tracking-wide text-slate-800 mb-4">CLIENT</p>
+                <div className="flex flex-col gap-7 mb-6">
+                  <div className="flex items-end gap-3"><span className="text-[10.5px] shrink-0 w-28">Name:</span><div className="flex-1 border-b border-slate-500" /></div>
+                  <div className="flex items-end gap-3"><span className="text-[10.5px] shrink-0 w-28">Signature:</span><div className="flex-1 border-b border-slate-500" /></div>
+                  <div className="flex items-end gap-3"><span className="text-[10.5px] shrink-0 w-28">Date:</span><div className="flex-1 border-b border-slate-500" /></div>
                 </div>
 
-                {/* Legal acknowledgment block */}
+                <div className="border-t border-dashed border-slate-300 my-5" />
+
+                <p className="text-[10px] font-bold font-sans uppercase tracking-wide text-slate-800 mb-4">DEVELOPER / DEVELOPMENT TEAM</p>
+                <div className="flex flex-col gap-7 mb-6">
+                  <div className="flex items-end gap-3"><span className="text-[10.5px] shrink-0 w-28">Name(s):</span><div className="flex-1 border-b border-slate-500" /></div>
+                  <div className="flex items-end gap-3"><span className="text-[10.5px] shrink-0 w-28">Signature(s):</span><div className="flex-1 border-b border-slate-500" /></div>
+                  <div className="flex items-end gap-3"><span className="text-[10.5px] shrink-0 w-28">Date:</span><div className="flex-1 border-b border-slate-500" /></div>
+                </div>
+
+                <div className="border-t border-dashed border-slate-300 my-5" />
+
                 {acknowledgmentStyle === "private" ? (
-                  /* Private Witness Agreement signatures */
-                  <div className="mt-6 pt-4 border-t-2 border-dashed border-slate-300 text-[10px] text-slate-500 notary-block">
-                    <p className="text-center font-bold font-sans uppercase text-[9px] tracking-wide mb-3 text-slate-650">SIGNED IN THE PRESENCE OF:</p>
-                    <div className="grid grid-cols-2 gap-x-12 mt-1 text-center">
-                      <div>
-                        <div className="h-8 border-b border-slate-300" />
-                        <p className="text-[9px] text-slate-500 font-sans mt-1">Witness 1 (Signature over Printed Name)</p>
-                      </div>
-                      <div>
-                        <div className="h-8 border-b border-slate-300" />
-                        <p className="text-[9px] text-slate-500 font-sans mt-1">Witness 2 (Signature over Printed Name)</p>
-                      </div>
+                  <div>
+                    <p className="text-[10px] font-bold font-sans uppercase tracking-wide text-slate-800 mb-4">WITNESS</p>
+                    <div className="flex flex-col gap-7">
+                      <div className="flex items-end gap-3"><span className="text-[10.5px] shrink-0 w-28">Name:</span><div className="flex-1 border-b border-slate-500" /></div>
+                      <div className="flex items-end gap-3"><span className="text-[10.5px] shrink-0 w-28">Signature:</span><div className="flex-1 border-b border-slate-500" /></div>
+                      <div className="flex items-end gap-3"><span className="text-[10.5px] shrink-0 w-28">Date:</span><div className="flex-1 border-b border-slate-500" /></div>
                     </div>
                   </div>
                 ) : (
-                  /* Notary public legal acknowledgment */
-                  <div className="mt-6 pt-4 border-t-2 border-dashed border-slate-300 text-[10px] text-slate-555 notary-block">
-                    <p className="text-center font-bold font-sans uppercase text-[9px] tracking-wide mb-1 text-slate-600">NOTARIAL ACKNOWLEDGEMENT</p>
-                    <p className="mb-2 text-justify text-[9px]">
-                      REPUBLIC OF THE PHILIPPINES)
-                      <br />
-                      CITY OF DIGOS &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; ) S.S.
+                  <div className="text-[10px] text-slate-600">
+                    <p className="text-center font-bold font-sans uppercase text-[9px] tracking-wide mb-2 text-slate-700">NOTARIAL ACKNOWLEDGEMENT</p>
+                    <p className="mb-1">REPUBLIC OF THE PHILIPPINES)</p>
+                    <p className="mb-3">CITY OF DIGOS &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;) S.S.</p>
+                    <p className="text-justify mb-3">
+                      BEFORE ME, a Notary Public for and in the City of Digos, this day personally appeared <strong>{signatory.name}</strong> and <strong>{selectedQuote.client_name}</strong>, exhibiting their respective government-issued IDs, known to me to be the same persons who executed the foregoing Agreement, and they acknowledged to me that the same is their free and voluntary act and deed.
                     </p>
-                    <p className="text-justify mb-2 text-[9px]">
-                      BEFORE ME, a Notary Public for and in the City of Digos, this day personally appeared {signatory.name} and {selectedQuote.client_name}, exhibiting to me their respective government-issued IDs, known to me to be the same persons who executed the foregoing Software Agreement, and they acknowledged to me that the same is their free and voluntary act and deed.
-                    </p>
-                    <div className="flex justify-between mt-2 text-[9px]">
-                      <div>
+                    <div className="flex justify-between mt-3">
+                      <div className="text-[9px]">
                         <p>Doc. No. _______;</p>
                         <p>Page. No. _______;</p>
                         <p>Book. No. _______;</p>
-                        <p>Series of 2026.</p>
+                        <p>Series of {new Date(effectiveDate).getFullYear()}.</p>
                       </div>
-                      <div className="text-center border-t border-slate-350 w-48 pt-1.5 mt-2 font-sans font-semibold text-slate-700 text-[9px]">
+                      <div className="text-center border-t border-slate-400 w-48 pt-1.5 mt-4 font-sans font-semibold text-slate-700 text-[9px]">
                         {attorneyName}
                         <p className="text-[8px] text-slate-400 font-normal mt-0.5">Notary Public / Attorney-at-Law</p>
                       </div>
@@ -932,11 +1012,6 @@ export default function ContractBuilderPage() {
                 )}
               </div>
 
-              {/* Page Footer */}
-              <div className="flex justify-between items-center text-[9px] text-slate-400 border-t border-slate-100 pt-1 font-sans">
-                <span>Novaryn Business Contract</span>
-                <span>Page 2 of 2</span>
-              </div>
             </div>
 
           </div>
