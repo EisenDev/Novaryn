@@ -177,6 +177,8 @@ export default function ContractBuilderPage() {
 
   // Source Code clause toggle
   const [includeSourceCodeClause, setIncludeSourceCodeClause] = useState(false);
+  const [sourceCodeFee, setSourceCodeFee] = useState("0");
+  const [sourceCodeReleaseDays, setSourceCodeReleaseDays] = useState("30");
 
   // Delete workflow states
   const [deleteTarget, setDeleteTarget] = useState<Quotation | null>(null);
@@ -559,6 +561,32 @@ export default function ContractBuilderPage() {
               </label>
             </div>
 
+            {/* Source Code Fee & Release Schedule Inputs */}
+            {includeSourceCodeClause && (
+              <div className="flex flex-col gap-3 pl-3.5 border-l border-slate-200 mt-0.5">
+                <div className="flex flex-col gap-1">
+                  <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Source Code Buyout Fee (PHP)</label>
+                  <input
+                    type="text"
+                    value={sourceCodeFee}
+                    onChange={(e) => setSourceCodeFee(e.target.value)}
+                    placeholder="e.g. 15,000"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-250 bg-slate-50/50 text-[12px] font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-400 focus:border-emerald-400 transition-all font-sans"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[9px] font-bold text-slate-500 uppercase tracking-wider">Release Timeline (Days after full payment)</label>
+                  <input
+                    type="text"
+                    value={sourceCodeReleaseDays}
+                    onChange={(e) => setSourceCodeReleaseDays(e.target.value)}
+                    placeholder="e.g. 30"
+                    className="w-full px-3 py-2 rounded-lg border border-slate-250 bg-slate-50/50 text-[12px] font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-400 focus:border-emerald-400 transition-all font-sans"
+                  />
+                </div>
+              </div>
+            )}
+
             {/* Config: Notary (Only if notarized acknowledgment selected) */}
             {acknowledgmentStyle === "notarized" && (
               <div className="flex flex-col gap-1.5">
@@ -823,10 +851,11 @@ export default function ContractBuilderPage() {
                       The parties hereto have mutually agreed and negotiated a <strong>Source Code Transfer</strong> as part of this Agreement. Accordingly, the following terms shall govern the intellectual property and ownership of the developed software:
                     </p>
                     <div className="pl-3 text-[10px] text-slate-650 leading-relaxed border-l-2 border-slate-400 mb-3 flex flex-col gap-1.5">
-                      <p><strong>(a) Transfer Conditions:</strong> Upon the Client's full and complete settlement of all amounts due under Section 2 of this Agreement — including all installment payments, cloud hosting fees, and any other outstanding obligations — Novaryn Tech Solutions shall transfer to the Client full ownership of the source code repository for the custom system modules described in Section 1.</p>
-                      <p><strong>(b) Repository Handover:</strong> Transfer shall be effected by granting the Client administrative access to the version-controlled repository (e.g., GitHub, GitLab) containing the final source code. The Developer shall provide one (1) complimentary handover session to assist in the transition.</p>
+                      <p><strong>(a) Transfer Conditions:</strong> Upon the Client's full and complete settlement of all payments due under Section 2 of this Agreement — including all monthly installments, hosting support fees, and the negotiated source code buyout fee of <strong>₱{Number(sourceCodeFee.replace(/,/g, '') || 0).toLocaleString('en-PH')}</strong> — Novaryn Tech Solutions shall transfer to the Client full ownership of the source code repository for the custom system modules described in Section 1.</p>
+                      <p><strong>(b) Repository Handover:</strong> Transfer shall be completed by granting the Client administrative access to the version-controlled repository (e.g., GitHub, GitLab) containing the final source code. The Developer shall provide one (1) complimentary handover session to assist in the transition.</p>
                       <p><strong>(c) Retained Rights:</strong> Novaryn retains all rights over its proprietary internal frameworks, development tooling, reusable component libraries, and platform infrastructure not custom-built exclusively for this Client. Only the custom-developed modules uniquely attributed to this engagement shall be transferred.</p>
                       <p><strong>(d) Post-Transfer Warranty:</strong> Following repository handover, Novaryn's obligation for bug fixes, updates, or maintenance related to modifications made by the Client or third parties to the transferred codebase is hereby waived. The Client assumes full technical responsibility upon transfer.</p>
+                      <p><strong>(e) Post-Agreement Safety Release Timeline:</strong> To facilitate a secure transfer and verify hosting configurations, the actual transfer of repository administrative rights and handover of complete source code files shall be completed <strong>{sourceCodeReleaseDays || "30"} calendar days after the full settlement of all payments</strong> (including the buyout fee), rather than immediately upon contract signing, to mitigate deployment and security risks.</p>
                     </div>
                   </>
                 )}
@@ -922,22 +951,22 @@ export default function ContractBuilderPage() {
           </p>
         </div>
       ) : (
-        <div className="bg-white border border-slate-200/70 rounded-2xl shadow-xs overflow-hidden">
-          <table className="w-full border-collapse text-left text-xs text-slate-500">
-            <thead className="bg-slate-50 border-b border-slate-100 text-slate-400 font-bold uppercase tracking-wider text-[9px]">
+        <div className="bg-white border border-slate-200/70 rounded-2xl shadow-xs overflow-visible relative">
+          <table className="w-full border-collapse text-left text-xs text-slate-500 overflow-visible">
+            <thead className="bg-slate-50 border-b border-slate-100 text-slate-400 font-bold uppercase tracking-wider text-[9px] rounded-t-2xl">
               <tr>
-                <th className="px-6 py-4 font-sans">Client Name</th>
+                <th className="px-6 py-4 font-sans rounded-tl-2xl">Client Name</th>
                 <th className="px-6 py-4 font-sans">System Plan</th>
                 <th className="px-6 py-4 font-sans text-right">One-time Build</th>
                 <th className="px-6 py-4 font-sans text-right">Monthly Support</th>
                 <th className="px-6 py-4 font-sans text-center">Maintenance SLA</th>
                 <th className="px-6 py-4 font-sans">Saved Date</th>
-                <th className="px-6 py-4 text-right font-sans">Actions</th>
+                <th className="px-6 py-4 text-right font-sans rounded-tr-2xl">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {quotations.map((quote) => (
-                <tr key={quote.id} className={`hover:bg-slate-50/50 transition-colors ${quote.pending_deletion_at ? "opacity-60" : ""}`}>
+                <tr key={quote.id} className={`hover:bg-slate-50/50 transition-colors ${quote.pending_deletion_at ? "opacity-60" : ""} relative`}>
                   <td className="px-6 py-4">
                     <div className="font-semibold text-slate-900 flex items-center gap-2">
                       {quote.client_name}
@@ -1005,15 +1034,15 @@ export default function ContractBuilderPage() {
                       <div className="relative">
                         <button
                           onClick={() => setOpenMenuId(openMenuId === quote.id ? null : quote.id)}
-                          className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-all cursor-pointer"
+                          className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-all cursor-pointer relative z-10"
                         >
                           <MoreVertical className="w-4 h-4" />
                         </button>
                         {openMenuId === quote.id && (
                           <>
                             {/* Click outside handler */}
-                            <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
-                            <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl border border-slate-200 shadow-lg z-20 py-1 overflow-hidden">
+                            <div className="fixed inset-0 z-30" onClick={() => setOpenMenuId(null)} />
+                            <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl border border-slate-200 shadow-xl z-50 py-1 overflow-hidden">
                               {!quote.pending_deletion_at ? (
                                 <button
                                   onClick={() => openDeleteModal(quote)}
