@@ -1,0 +1,37 @@
+# ─────────────────────────────────────────────
+# Stage 1: Build
+# ─────────────────────────────────────────────
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copy dependency manifests first (layer cache)
+COPY package*.json ./
+RUN npm ci
+
+# Pass the public API URL at build time so Next.js bakes it in
+ARG NEXT_PUBLIC_API_URL=https://novaryn.tech/api/v1
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+# Copy source and build
+COPY . .
+RUN npm run build
+
+# ─────────────────────────────────────────────
+# Stage 2: Production runner
+# ─────────────────────────────────────────────
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+ENV NODE_ENV=production
+
+# Only copy what the standalone build outputs
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+EXPOSE 3000
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+CMD ["node", "server.js"]

@@ -1,0 +1,86 @@
+version: "3.8"
+
+services:
+  # ── Nginx Reverse Proxy ──────────────────────────
+  nginx:
+    image: nginx:alpine
+    container_name: novaryn-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - novaryn-network
+
+  # ── Laravel API Backend ──────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../docker/backend/Dockerfile.prod
+    container_name: novaryn-backend
+    restart: unless-stopped
+    environment:
+      APP_NAME: Novaryn
+      APP_ENV: production
+      APP_DEBUG: "false"
+      APP_KEY: ${APP_KEY}
+      APP_URL: https://novaryn.tech
+      # ── Supabase (Session Pooler, IPv4-compatible) ──
+      DB_CONNECTION: pgsql
+      DB_HOST: aws-0-ap-northeast-1.pooler.supabase.com
+      DB_PORT: 5432
+      DB_DATABASE: postgres
+      DB_USERNAME: postgres.dgterugnouvltpzwafnx
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_SSLMODE: require
+      # ── Redis (local container) ──────────────────
+      CACHE_STORE: redis
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      SESSION_DRIVER: redis
+      # ── Logging ─────────────────────────────────
+      LOG_CHANNEL: stderr
+      LOG_LEVEL: error
+    depends_on:
+      redis:
+        condition: service_started
+    networks:
+      - novaryn-network
+
+  # ── Next.js Frontend ─────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/frontend/Dockerfile.prod
+      args:
+        NEXT_PUBLIC_API_URL: https://novaryn.tech/api/v1
+    container_name: novaryn-frontend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+    depends_on:
+      - backend
+    networks:
+      - novaryn-network
+
+  # ── Redis Cache ───────────────────────────────────
+  redis:
+    image: redis:alpine
+    container_name: novaryn-redis
+    restart: unless-stopped
+    volumes:
+      - redis-data:/data
+    networks:
+      - novaryn-network
+
+networks:
+  novaryn-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+    driver: local
