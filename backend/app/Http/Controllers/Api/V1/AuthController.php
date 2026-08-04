@@ -113,10 +113,21 @@ class AuthController extends Controller
         $user = $request->user();
 
         $validated = $request->validate([
-            'name'     => 'required|string|max:255',
-            'password' => 'nullable|string|min:8|confirmed',
-            'avatar'   => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:4096',
+            'name'         => 'required|string|max:255',
+            'old_password' => 'nullable|string',
+            'password'     => 'nullable|string|min:8|confirmed',
+            'avatar'       => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:4096',
         ]);
+
+        // If a new password is provided, verify the old password first
+        if (!empty($validated['password'])) {
+            if (empty($validated['old_password']) || !Hash::check($validated['old_password'], $user->password)) {
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'Your current password is incorrect. Please try again.'
+                ], 422);
+            }
+        }
 
         $user->name = $validated['name'];
 
@@ -133,7 +144,7 @@ class AuthController extends Controller
                 }
             }
             $path = $request->file('avatar')->store('avatars', 'public');
-            $user->profile_picture = config('app.url') . '/storage/' . $path;
+            $user->profile_picture = \Illuminate\Support\Facades\Storage::url($path);
         }
 
         $user->save();
@@ -261,6 +272,49 @@ class AuthController extends Controller
             'status' => 'success',
             'message' => 'Team member credentials updated successfully.',
             'data' => $user
+        ]);
+    }
+
+    /**
+     * Permanently delete (hard delete) a team account — super_admin only.
+     * Super admins cannot delete themselves.
+     */
+    public function deleteUser(Request $request, string $id): JsonResponse
+    {
+        if ($request->user()->role !== 'super_admin') {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Unauthorized. Only the Super Admin can permanently delete accounts.'
+            ], 403);
+        }
+
+        // Prevent self-deletion
+        if ($request->user()->id === $id) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'You cannot delete your own account.'
+            ], 422);
+        }
+
+        $user = User::withTrashed()->findOrFail($id);
+
+        // Revoke all tokens before deletion
+        $user->tokens()->delete();
+
+        // Hard delete (permanent)
+        $user->forceDelete();
+
+        AuditLog::create([
+            'user_id'    => $request->user()->id,
+            'action'     => 'DELETE_USER',
+            'new_values' => ['deleted_user_email' => $user->email],
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent()
+        ]);
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Team member account permanently deleted.'
         ]);
     }
 }

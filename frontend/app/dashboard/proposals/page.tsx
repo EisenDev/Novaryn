@@ -716,13 +716,13 @@ export default function ContractBuilderPage() {
                   </div>
                 )}
 
-                {/* Pricing Table (Section 2) */}
+                {/* Pricing Table (Section 2 - Part 1) */}
                 <h3 className="font-sans font-bold text-[11px] uppercase border-b border-slate-250 pb-0.5 mb-2 mt-4 text-slate-900">SECTION 2: COMPENSATION & PAYMENT TERMS</h3>
                 <p className="mb-2 text-justify text-[10px]">
                   In consideration of the services rendered, the Client agrees to make payment to the Developer under a contract-based structure as follows:
                 </p>
                 
-                <table className="w-full border-collapse border border-slate-300 mb-3 text-[11px]">
+                <table className="w-full border-collapse border border-slate-300 mb-1 text-[11px]">
                   <thead>
                     <tr className="bg-slate-55 border-b border-slate-300 text-[10px]">
                       <th className="border border-slate-300 p-2 text-left font-bold font-sans">Payment Detail</th>
@@ -763,6 +763,30 @@ export default function ContractBuilderPage() {
                         </tr>
                       </>
                     )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Page Footer */}
+              <div className="flex justify-between items-center text-[9px] text-slate-400 border-t border-slate-100 pt-1 font-sans">
+                <span>Novaryn Business Contract</span>
+                <span>Page 1 of 2</span>
+              </div>
+            </div>
+
+            {/* PAGE 2 */}
+            <div className="a4-page">
+              
+              <div>
+                {/* Section 2 (Compensation Table Continued) */}
+                <table className="w-full border-collapse border border-slate-300 mb-3 text-[11px]">
+                  <thead>
+                    <tr className="bg-slate-55 border-b border-slate-300 text-[10px]">
+                      <th className="border border-slate-300 p-2 text-left font-bold font-sans">Payment Detail (Continued)</th>
+                      <th className="border border-slate-300 p-2 text-right font-bold font-sans w-28">Cost</th>
+                    </tr>
+                  </thead>
+                  <tbody>
                     {selectedHostModule && (
                       <tr className="bg-slate-50/40">
                         <td className="border border-slate-300 p-2">
@@ -818,19 +842,7 @@ export default function ContractBuilderPage() {
                     <li><strong>Post-Contract Year 2+ Support:</strong> Upon the expiration of the initial {durationMonths === "indefinite" ? "12" : durationMonths}-month term, this Agreement transitions to a **Pay-as-you-go / On-Demand Renewal model**. The Client shall pay a monthly base support fee of **₱0** if no software errors, checkups, or service interventions occur. Active support calls, system health checks, or bug resolution requests will be billed separately.</li>
                   </ul>
                 </div>
-              </div>
 
-              {/* Page Footer */}
-              <div className="flex justify-between items-center text-[9px] text-slate-400 border-t border-slate-100 pt-1 font-sans">
-                <span>Novaryn Business Contract</span>
-                <span>Page 1 of 2</span>
-              </div>
-            </div>
-
-            {/* PAGE 2 */}
-            <div className="a4-page">
-              
-              <div>
                 {/* Timeframe & Term (Section 3) */}
                 <h3 className="font-sans font-bold text-[11px] uppercase border-b border-slate-250 pb-0.5 mt-4 mb-2 text-slate-900">SECTION 3: TIMEFRAME & TERM DURATION</h3>
                 {contractMode === "new" ? (

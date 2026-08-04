@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use App\Models\PricingPackage;
 use App\Models\Project;
 use App\Models\CaseStudy;
@@ -11,8 +10,6 @@ use App\Models\Lead;
 use App\Models\ContactMessage;
 use App\Models\NewsletterSubscriber;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -21,50 +18,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Create Default Users (Admins)
-        User::create([
-            'name' => 'Arjay Escabas',
-            'email' => 'eisen.dev@admin.com',
-            'password' => Hash::make('admin1234'),
-            'role' => 'super_admin'
-        ]);
-
-        User::create([
-            'name' => 'Super Admin',
-            'email' => 'admin@novaryn.tech',
-            'password' => Hash::make('password123'),
-            'role' => 'super_admin'
-        ]);
-
-        User::create([
-            'name' => 'Sales Manager',
-            'email' => 'sales@novaryn.tech',
-            'password' => Hash::make('password123'),
-            'role' => 'sales'
-        ]);
-
-        User::create([
-            'name' => 'Lead Developer',
-            'email' => 'dev@novaryn.tech',
-            'password' => Hash::make('password123'),
-            'role' => 'developer'
-        ]);
-
-        User::create([
-            'name' => 'Alexander Reyes',
-            'email' => 'coo@novaryn.tech',
-            'password' => Hash::make('password123'),
-            'role' => 'admin'
-        ]);
-
-        User::create([
-            'name' => 'Krystal Lim',
-            'email' => 'marketing@novaryn.tech',
-            'password' => Hash::make('password123'),
-            'role' => 'marketing'
-        ]);
-
-        // 2. Create Pricing Packages
+        // 1. Create Pricing Packages
         PricingPackage::create([
             'name' => 'Starter',
             'setup_price' => '₱50,000 – ₱100,000',

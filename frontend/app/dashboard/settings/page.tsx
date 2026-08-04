@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { 
-  User, Key, RefreshCw, Check, ShieldAlert, Plus, X, ShieldCheck, Upload
+  User, Key, RefreshCw, Check, ShieldAlert, Plus, X, ShieldCheck, Upload, Trash2
 } from "lucide-react";
 
 interface EmployeeItem {
@@ -118,6 +118,7 @@ export default function SettingsPage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [password, setPassword] = useState("");
+  const [oldPassword, setOldPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -205,11 +206,18 @@ export default function SettingsPage() {
       return;
     }
 
+    if (password && !oldPassword) {
+      setError("Please enter your current password to set a new one.");
+      setLoading(false);
+      return;
+    }
+
     try {
       // Use FormData to support file upload
       const formData = new FormData();
       formData.append("name", nickname);
       if (password) {
+        formData.append("old_password", oldPassword);
         formData.append("password", password);
         formData.append("password_confirmation", passwordConfirmation);
       }
@@ -236,6 +244,7 @@ export default function SettingsPage() {
       setCurrentAvatarUrl(json.user.profile_picture);
       setAvatarFile(null);
       setAvatarPreview(null);
+      setOldPassword("");
       setPassword("");
       setPasswordConfirmation("");
       setSuccess("Profile updated successfully.");
@@ -291,6 +300,30 @@ export default function SettingsPage() {
           ? { ...item, role: nextRole as any, deleted_at: nextStatus === "inactive" ? new Date().toISOString() : null }
           : item
       ));
+    } catch (err: any) {
+      alert(err.message);
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleDeleteEmployee = async (emp: EmployeeItem) => {
+    const confirmed = window.confirm(
+      `Permanently delete "${emp.name}" (${emp.email})?\n\nThis action cannot be undone. The account will be removed from all records.`
+    );
+    if (!confirmed) return;
+    setActionLoadingId(emp.id);
+    try {
+      const res = await fetch(`${apiUrl}/auth/users/${emp.id}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${getToken()}`,
+          "Accept": "application/json"
+        }
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.message || "Failed to delete account.");
+      setEmployees(prev => prev.filter(item => item.id !== emp.id));
     } catch (err: any) {
       alert(err.message);
     } finally {
@@ -410,23 +443,33 @@ export default function SettingsPage() {
               <Key className="w-3.5 h-3.5" /> Update Password
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5 sm:col-span-2">
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Current Password</label>
+                <input
+                  type="password"
+                  value={oldPassword}
+                  onChange={(e) => setOldPassword(e.target.value)}
+                  placeholder="Your current password"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                />
+              </div>
               <div className="flex flex-col gap-1.5">
                 <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">New Password</label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Leave blank to keep current"
+                  placeholder="Min. 8 characters"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Confirm Password</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Confirm New Password</label>
                 <input
                   type="password"
                   value={passwordConfirmation}
                   onChange={(e) => setPasswordConfirmation(e.target.value)}
-                  placeholder="Confirm password"
+                  placeholder="Confirm new password"
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 text-xs font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                 />
               </div>
@@ -474,7 +517,7 @@ export default function SettingsPage() {
                     <th className="py-3 px-6">Email</th>
                     <th className="py-3 px-6">Role</th>
                     <th className="py-3 px-6">Status</th>
-                    <th className="py-3 px-6 text-center">Sync</th>
+                    <th className="py-3 px-6 text-center">Delete</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -526,10 +569,20 @@ export default function SettingsPage() {
                           </select>
                         </td>
                         <td className="py-3.5 px-6 text-center">
-                          {actionLoadingId === emp.id
-                            ? <RefreshCw className="w-3.5 h-3.5 animate-spin text-slate-400 mx-auto" />
-                            : <span className="text-[10px] text-slate-300">—</span>
-                          }
+                          <div className="flex items-center justify-center gap-2">
+                            {actionLoadingId === emp.id
+                              ? <RefreshCw className="w-3.5 h-3.5 animate-spin text-slate-400" />
+                              : (
+                                <button
+                                  onClick={() => handleDeleteEmployee(emp)}
+                                  title="Permanently delete this account"
+                                  className="p-1.5 rounded-lg hover:bg-red-50 text-slate-300 hover:text-red-500 transition-all cursor-pointer"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              )
+                            }
+                          </div>
                         </td>
                       </tr>
                     );

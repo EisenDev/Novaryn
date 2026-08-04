@@ -47,6 +47,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/users', [AuthController::class, 'usersList']);
             Route::post('/users', [AuthController::class, 'createUserAccount']);
             Route::put('/users/{id}', [AuthController::class, 'updateUserRole']);
+            Route::delete('/users/{id}', [AuthController::class, 'deleteUser']);
         });
     });
 
