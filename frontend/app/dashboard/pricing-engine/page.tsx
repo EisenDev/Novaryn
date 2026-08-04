@@ -55,77 +55,172 @@ const MODULE_FEATURES: Record<string, string[]> = {
     "Mobile-Responsive Layouts",
     "Easy Content Management (CMS)",
     "SEO & Meta Tag Configurations",
-    "Secure Contact Form Integration"
+    "Secure Contact Form Integration",
+    "Basic Site Traffic Overview (page views, visitor count)",
+    "Monthly Website Performance Summary Report"
   ],
+
+  // ── STARTER ──────────────────────────────────────────────────────
   "Appointment & Slot Booking": [
-    "Client Online Booking Widget",
+    "Client Online Booking Widget (web & mobile)",
     "Dynamic Scheduling Calendar Grid",
-    "Email & SMS Confirmation Alerts",
-    "Services & Staff Directory Setup",
-    "Real-time Availability Sync"
+    "Email & SMS Confirmation & Reminder Alerts",
+    "Services, Staff & Time Slot Directory Setup",
+    "Real-time Availability Sync",
+    "Walk-in & Manual Override Booking by Admin",
+    "Booking Status Tracking (Pending / Confirmed / Cancelled)",
+    "— Analytics & Reports —",
+    "Daily & Weekly Booking Volume Summary",
+    "Cancellation & No-show Rate Tracker",
+    "Staff Utilization Rate Overview",
+    "Monthly Appointment Revenue Summary Report"
   ],
   "Standalone POS (Point of Sale)": [
     "Fast Cashier Checkout Interface",
     "Thermal Receipt Printer Integration",
-    "GCash, Maya, and QR Payments",
-    "Daily Shift & Cash Logging",
-    "Refunds & Transaction History"
+    "GCash, Maya, Cash, and QR Payment Support",
+    "Daily Shift Opening & Cash Closing Logs",
+    "Refunds, Voids & Transaction History",
+    "Product/Service Quick-Add Menu",
+    "Discount & Promo Code Application",
+    "— Analytics & Reports —",
+    "Daily Sales Summary & Cash Flow Report",
+    "Top-Selling Products & Services Ranking",
+    "Shift-by-Shift Revenue Comparison",
+    "Monthly Sales Trend Report (exportable)"
   ],
+
+  // ── PROFESSIONAL ─────────────────────────────────────────────────
   "Small Inventory System": [
-    "Product catalog with SKU logs",
-    "Manual Stock-In & Stock-Out Logs",
-    "Automated Low-Stock Alert Alerts",
-    "Supplier List & Purchase Logs",
-    "Basic Stock Value Summaries"
+    "Product Catalog with SKU & Barcode Logs",
+    "Manual Stock-In & Stock-Out Entry Logs",
+    "Automated Low-Stock Alert Notifications",
+    "Supplier Directory & Purchase Order Logs",
+    "Category & Variant Management",
+    "Multi-unit Stock Conversion (box → pcs)",
+    "— Analytics & Reports —",
+    "Inventory Valuation & Stock-on-Hand Report",
+    "Stock Movement & Variance Analytics",
+    "Slow-Moving & Dead Stock Identification",
+    "Supplier Purchase History & Lead Time Report",
+    "Monthly Inventory Health Summary (exportable PDF)"
   ],
   "Customer CRM & Membership Wallet": [
-    "Client Profile & Purchase Logs",
-    "Tiered Membership Badges",
-    "Prepaid Credit Digital Wallet",
-    "Loyalty & Rewards Point Rules",
-    "QR Check-in Scanner App"
+    "Customer Profile Directory & Purchase History",
+    "Tiered Membership Levels (Bronze / Silver / Gold)",
+    "Prepaid Digital Wallet (top-up & deduct)",
+    "Loyalty Points Earn & Redeem Rules Engine",
+    "QR Code Check-in Scanner App",
+    "Birthday & Anniversary Auto-messaging",
+    "Customer Segmentation Tags",
+    "— Analytics & Reports —",
+    "Customer Retention & Churn Rate Report",
+    "Member Activity & Visit Frequency Analytics",
+    "Wallet Top-up & Spending Summary",
+    "Loyalty Points Redemption Trend Report",
+    "Customer Lifetime Value (CLV) Overview Dashboard"
   ],
   "E-Commerce Online Store": [
-    "Shopping Cart & Secure Checkout",
-    "Product Filters & Variations",
-    "GCash/Maya/Card Gateways",
-    "Lalamove/J&T Delivery API Sync",
-    "Stock levels auto-deduction"
+    "Shopping Cart & Secure Checkout Flow",
+    "Product Listings with Filters, Variants & Gallery",
+    "GCash, Maya, Credit/Debit Card Gateways",
+    "Lalamove / J&T Delivery API Sync",
+    "Stock Auto-Deduction on Checkout",
+    "Order Management & Fulfillment Tracker",
+    "Customer Account & Order History Portal",
+    "Coupon & Flash Sale Engine",
+    "— Analytics & Reports —",
+    "Sales Revenue & GMV Analytics Dashboard",
+    "Product Performance & Conversion Rate Reports",
+    "Cart Abandonment Rate Tracking",
+    "Customer Purchase Behavior Insights",
+    "Top Traffic Sources & Channel Attribution",
+    "Monthly E-Commerce Business Report (exportable)"
   ],
   "Venue / Facility Booking Grid": [
-    "Hourly Asset Booking Grid UI",
-    "Peak & Off-Peak Price Rules",
-    "Interactive Court/Room Layouts",
-    "Reservation Check-in validation",
-    "Re-scheduling & Refund requests"
+    "Hourly Asset Booking Grid (courts, rooms, lanes)",
+    "Peak & Off-Peak Dynamic Pricing Rules",
+    "Interactive Floor / Court Layout Map",
+    "Reservation QR Check-in Validation",
+    "Re-scheduling, Cancellation & Refund Workflow",
+    "Walk-in & Admin Manual Override Booking",
+    "Blocked / Maintenance Slot Management",
+    "— Analytics & Reports —",
+    "Facility Utilization Rate per Asset Report",
+    "Revenue per Court / Room / Lane Analytics",
+    "Peak Hours & Off-Peak Demand Heatmap",
+    "Booking Source Breakdown (online vs walk-in)",
+    "Monthly Facility Revenue Trend Summary"
   ],
   "MIS Dashboard & Custom Reports": [
-    "Executive Performance Charts",
-    "Role-Based Access (RBAC) control",
-    "PDF Financial statement reports",
-    "Manager Activity Audit Logs",
-    "Custom business data filters"
+    "Executive KPI Summary Dashboard (multi-module)",
+    "Role-Based Access Control (RBAC) per department",
+    "Exportable PDF & Excel Financial Reports",
+    "Manager & Staff Activity Audit Logs",
+    "Custom Business Data Filters & Date Ranges",
+    "Real-time Data Feed Across All Modules",
+    "Scheduled Auto-Email Report Delivery",
+    "— Analytics & Reports —",
+    "Cross-Department Revenue & Cost Analytics",
+    "Performance vs Target Comparison Charts",
+    "Operational Efficiency Metrics Dashboard",
+    "Trend Analysis & Month-over-Month Growth Charts",
+    "Custom Report Builder (drag & configure)",
+    "Executive-ready Slide-format Report Exports"
   ],
+
+  // ── ENTERPRISE ───────────────────────────────────────────────────
   "Big Inventory & Supply Chain": [
-    "Multi-branch real-time stock sync",
-    "Barcode inventory scanning",
-    "Auto-replenish purchase orders",
-    "Inter-branch stock transfer logs",
-    "Physical count adjustment logs"
+    "Multi-Branch Real-time Stock Sync",
+    "Barcode & QR Code Inventory Scanning",
+    "Auto-Replenishment & Purchase Order Automation",
+    "Inter-Branch Stock Transfer with Approval Flow",
+    "Physical Count Adjustment & Variance Logs",
+    "Multi-Warehouse Zone Management",
+    "Perishable & Expiry Date Tracking",
+    "— Analytics & Reports —",
+    "Supply Chain Performance & Lead Time Dashboard",
+    "Demand Forecasting & Reorder Point Analytics",
+    "Vendor Scorecard & Comparison Report",
+    "Loss, Shrinkage & Damage Audit Reports",
+    "COGS & Gross Margin per Product Analytics",
+    "Inventory Aging & Turnover Rate Report",
+    "Multi-Branch Stock Consolidation Summary"
   ],
   "Franchise & Branch HQ Panel": [
-    "Central Headquarters Control Panel",
-    "Consolidated Branch comparison charts",
-    "Central Product Catalog control",
-    "Cross-branch audit logging logs",
-    "Royalty fee billing modules"
+    "Central HQ Control Panel (all branches in one view)",
+    "Consolidated Branch Revenue Comparison Charts",
+    "Central Product Catalog & Pricing Control",
+    "Cross-Branch Audit Logging & Compliance Monitoring",
+    "Royalty Fee Calculation & Billing Module",
+    "Franchisee Onboarding & Access Management",
+    "Announcement & Policy Broadcast System",
+    "— Analytics & Reports —",
+    "Branch Performance Benchmarking Dashboard",
+    "Consolidated Revenue & Expense Analytics",
+    "Franchise Compliance Score Reports",
+    "Territory & Regional Sales Heatmap",
+    "Top & Bottom Performing Branch Rankings",
+    "Royalty Fee Collection Trend Analysis",
+    "HQ-to-Branch Operational Efficiency Comparison"
   ],
   "Enterprise ERP & Legacy Integration": [
-    "SAP, Oracle, or Dynamics API Sync",
-    "Replicated Database Instances",
-    "Active Directory (AD/SSO) Login",
-    "Scheduler retry queues",
-    "Enterprise 99.99% Node SLA"
+    "SAP, Oracle, or MS Dynamics API Integration",
+    "Replicated Read/Write Database Node Instances",
+    "Active Directory / SSO (Single Sign-On) Login",
+    "Async Job Scheduler with Retry Queue System",
+    "Enterprise 99.99% Uptime SLA Node Architecture",
+    "Custom Webhook & API Gateway Bridge",
+    "Legacy Data Migration & ETL Pipeline",
+    "Multi-entity & Holding Company Structure Support",
+    "— Analytics & Reports —",
+    "Enterprise Business Intelligence (BI) Dashboard",
+    "Custom Data Warehouse & OLAP Cube Reports",
+    "Real-time Executive KPI Streaming Dashboard",
+    "Multi-system Consolidated Analytics Hub",
+    "Predictive Analytics & AI-assisted Forecasting",
+    "Regulatory Compliance & Audit Trail Reports",
+    "Board-ready Financial Intelligence Reports"
   ]
 };
 
@@ -1165,13 +1260,21 @@ export default function PricingEnginePage() {
               </button>
             </div>
             {/* Features List */}
-            <div className="px-5 pt-3 pb-8 flex flex-col gap-2.5 max-h-[60vh] overflow-y-auto">
-              {(MODULE_FEATURES[mobileDrawerModule.name] || []).map((feat, idx) => (
-                <div key={idx} className="flex items-start gap-3 py-2 border-b border-slate-50 last:border-0">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
-                  <span className="text-[13px] text-slate-700 font-medium">{feat}</span>
-                </div>
-              ))}
+            <div className="px-5 pt-3 pb-8 flex flex-col gap-2 max-h-[60vh] overflow-y-auto">
+              {(MODULE_FEATURES[mobileDrawerModule.name] || []).map((feat, idx) =>
+                feat.startsWith("—") ? (
+                  <div key={idx} className="flex items-center gap-2 mt-3 mb-1">
+                    <div className="flex-1 h-px bg-slate-200" />
+                    <span className="text-[9px] font-black uppercase tracking-widest text-emerald-600 shrink-0">{feat.replace(/^—\s*/, "").replace(/\s*—$/, "")}</span>
+                    <div className="flex-1 h-px bg-slate-200" />
+                  </div>
+                ) : (
+                  <div key={idx} className="flex items-start gap-3 py-1.5 border-b border-slate-50 last:border-0">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                    <span className="text-[13px] text-slate-700 font-medium">{feat}</span>
+                  </div>
+                )
+              )}
             </div>
           </div>
         </>
@@ -1326,14 +1429,22 @@ function ModuleRow({ mod, enabled, onToggle, onViewFeatures, launchPct }: Module
       {/* Expanded Features Dropdown List (Desktop only, when enabled) */}
       {enabled && features.length > 0 && (
         <div className="hidden sm:block px-3 pb-3 pt-2.5 border-t border-slate-100 bg-slate-50/20 text-[11px] text-slate-500 animate-fade-in">
-          <p className="font-bold text-slate-700 mb-1.5">What's Included:</p>
-          <ul className="grid grid-cols-2 gap-x-4 gap-y-1.5 mt-1">
-            {features.map((feat, idx) => (
-              <li key={idx} className="flex items-center gap-1.5 text-slate-600">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                <span>{feat}</span>
-              </li>
-            ))}
+          <p className="font-bold text-slate-700 mb-2">What's Included:</p>
+          <ul className="flex flex-col gap-1.5 mt-1">
+            {features.map((feat, idx) =>
+              feat.startsWith("—") ? (
+                <li key={idx} className="flex items-center gap-2 mt-2 mb-0.5">
+                  <div className="flex-1 h-px bg-slate-200" />
+                  <span className="text-[9px] font-black uppercase tracking-widest text-emerald-600 shrink-0">{feat.replace(/^—\s*/, "").replace(/\s*—$/, "")}</span>
+                  <div className="flex-1 h-px bg-slate-200" />
+                </li>
+              ) : (
+                <li key={idx} className="flex items-center gap-1.5 text-slate-600">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                  <span>{feat}</span>
+                </li>
+              )
+            )}
           </ul>
         </div>
       )}
