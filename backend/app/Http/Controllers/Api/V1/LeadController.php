@@ -43,6 +43,9 @@ class LeadController extends Controller
 
         $leads = $query->paginate($request->get('per_page', 15));
 
+        // Mark all unviewed leads as viewed when admin loads the leads list
+        Lead::where('is_viewed', false)->update(['is_viewed' => true]);
+
         return response()->json([
             'status' => 'success',
             'data' => $leads

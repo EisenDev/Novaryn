@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { 
   FileText, ArrowLeft, Printer, RefreshCw, 
-  User, Calendar, Landmark, Settings, CheckCircle2, ShieldAlert, CreditCard
+  User, Calendar, Landmark, Settings, CheckCircle2, ShieldAlert, CreditCard,
+  MoreVertical, Trash2, Code2, AlertTriangle
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────
@@ -41,6 +42,9 @@ interface Quotation {
   status: "draft" | "sent" | "accepted" | "declined";
   created_at: string;
   quotation_modules: QuotationModule[];
+  pending_deletion_at: string | null;
+  pending_deletion_by: string | null;
+  pending_deletion_reason: string | null;
 }
 
 // Module Features Map for detailed contract scopes
@@ -171,6 +175,18 @@ export default function ContractBuilderPage() {
   const [durationMonths, setDurationMonths] = useState("12"); // default to 1 year (12 months)
   const [acknowledgmentStyle, setAcknowledgmentStyle] = useState<"notarized" | "private">("private"); // default to private witness
 
+  // Source Code clause toggle
+  const [includeSourceCodeClause, setIncludeSourceCodeClause] = useState(false);
+
+  // Delete workflow states
+  const [deleteTarget, setDeleteTarget] = useState<Quotation | null>(null);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [deleteAgreed, setDeleteAgreed] = useState(false);
+  const [deleteReason, setDeleteReason] = useState("");
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+
   // Fetch quotations list from backend
   const fetchQuotationsList = useCallback(async () => {
     setLoading(true);
@@ -246,6 +262,66 @@ export default function ContractBuilderPage() {
   const handlePrint = () => {
     window.print();
   };
+
+  // Delete workflow
+  const openDeleteModal = (quote: Quotation) => {
+    setDeleteTarget(quote);
+    setDeleteConfirmText("");
+    setDeleteAgreed(false);
+    setDeleteReason("");
+    setDeleteError("");
+    setOpenMenuId(null);
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteTarget(null);
+    setDeleteConfirmText("");
+    setDeleteAgreed(false);
+    setDeleteReason("");
+    setDeleteError("");
+  };
+
+  const submitDeleteRequest = async () => {
+    if (!deleteTarget) return;
+    if (deleteConfirmText !== `Delete ${deleteTarget.client_name} Contract`) {
+      setDeleteError(`You must type exactly: Delete ${deleteTarget.client_name} Contract`);
+      return;
+    }
+    if (!deleteAgreed) {
+      setDeleteError("You must confirm you understand this action cannot be undone without admin approval.");
+      return;
+    }
+    if (!deleteReason.trim()) {
+      setDeleteError("Please provide a reason for deletion.");
+      return;
+    }
+    setDeleteLoading(true);
+    setDeleteError("");
+    const token = localStorage.getItem("novaryn_admin_token");
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+    try {
+      const res = await fetch(`${apiUrl}/pricing/quotations/${deleteTarget.id}/request-delete`, {
+        method: "PATCH",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ reason: deleteReason }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || "Failed to submit deletion request.");
+      // Update local state: mark as pending deletion
+      setQuotations(prev => prev.map(q => q.id === deleteTarget.id ? { ...q, pending_deletion_at: new Date().toISOString(), pending_deletion_by: "You", pending_deletion_reason: deleteReason } : q));
+      _cachedQuotations = _cachedQuotations.map(q => q.id === deleteTarget!.id ? { ...q, pending_deletion_at: new Date().toISOString(), pending_deletion_by: "You", pending_deletion_reason: deleteReason } : q);
+      closeDeleteModal();
+    } catch (err: any) {
+      setDeleteError(err.message || "Something went wrong.");
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
 
   if (loading && quotations.length === 0) {
     return (
@@ -460,6 +536,27 @@ export default function ContractBuilderPage() {
                 <option value="private">Private Agreement (Witness Signatures)</option>
                 <option value="notarized">Notarized (Notary Public Block)</option>
               </select>
+            </div>
+
+            {/* Source Code Ownership Clause Toggle */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                <Code2 className="w-3.5 h-3.5 text-slate-400" /> Source Code Clause
+              </label>
+              <label className="flex items-start gap-2.5 p-3 rounded-lg border border-slate-205 bg-slate-50/50 cursor-pointer hover:border-slate-300 transition-all">
+                <input
+                  type="checkbox"
+                  checked={includeSourceCodeClause}
+                  onChange={(e) => setIncludeSourceCodeClause(e.target.checked)}
+                  className="mt-0.5 accent-emerald-500 w-3.5 h-3.5 shrink-0 cursor-pointer"
+                />
+                <div>
+                  <p className="text-[11px] font-bold text-slate-700 leading-tight">Include Source Code Transfer Clause</p>
+                  <p className="text-[9.5px] text-slate-400 mt-0.5 leading-relaxed">
+                    Adds a contract section stating Novaryn transfers full source code ownership and repository access to the Client upon completion of all payments. Check only if a negotiated source code buyout is part of this agreement.
+                  </p>
+                </div>
+              </label>
             </div>
 
             {/* Config: Notary (Only if notarized acknowledgment selected) */}
@@ -718,6 +815,22 @@ export default function ContractBuilderPage() {
                   </p>
                 )}
 
+                {/* Source Code Transfer Clause (conditionally included) */}
+                {includeSourceCodeClause && (
+                  <>
+                    <h3 className="font-sans font-bold text-[11px] uppercase border-b border-slate-250 pb-0.5 mt-4 mb-2 text-slate-900">SECTION 4: SOURCE CODE OWNERSHIP & TRANSFER</h3>
+                    <p className="mb-2 text-justify text-[10px]">
+                      The parties hereto have mutually agreed and negotiated a <strong>Source Code Transfer</strong> as part of this Agreement. Accordingly, the following terms shall govern the intellectual property and ownership of the developed software:
+                    </p>
+                    <div className="pl-3 text-[10px] text-slate-650 leading-relaxed border-l-2 border-slate-400 mb-3 flex flex-col gap-1.5">
+                      <p><strong>(a) Transfer Conditions:</strong> Upon the Client's full and complete settlement of all amounts due under Section 2 of this Agreement — including all installment payments, cloud hosting fees, and any other outstanding obligations — Novaryn Tech Solutions shall transfer to the Client full ownership of the source code repository for the custom system modules described in Section 1.</p>
+                      <p><strong>(b) Repository Handover:</strong> Transfer shall be effected by granting the Client administrative access to the version-controlled repository (e.g., GitHub, GitLab) containing the final source code. The Developer shall provide one (1) complimentary handover session to assist in the transition.</p>
+                      <p><strong>(c) Retained Rights:</strong> Novaryn retains all rights over its proprietary internal frameworks, development tooling, reusable component libraries, and platform infrastructure not custom-built exclusively for this Client. Only the custom-developed modules uniquely attributed to this engagement shall be transferred.</p>
+                      <p><strong>(d) Post-Transfer Warranty:</strong> Following repository handover, Novaryn's obligation for bug fixes, updates, or maintenance related to modifications made by the Client or third parties to the transferred codebase is hereby waived. The Client assumes full technical responsibility upon transfer.</p>
+                    </div>
+                  </>
+                )}
+
                 {/* Signatures block */}
                 <div className="grid grid-cols-2 gap-x-12 mt-6 pt-4 border-t border-slate-100 signature-block">
                   <div className="text-center">
@@ -824,10 +937,22 @@ export default function ContractBuilderPage() {
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {quotations.map((quote) => (
-                <tr key={quote.id} className="hover:bg-slate-50/50 transition-colors">
+                <tr key={quote.id} className={`hover:bg-slate-50/50 transition-colors ${quote.pending_deletion_at ? "opacity-60" : ""}`}>
                   <td className="px-6 py-4">
-                    <div className="font-semibold text-slate-900">{quote.client_name}</div>
+                    <div className="font-semibold text-slate-900 flex items-center gap-2">
+                      {quote.client_name}
+                      {quote.pending_deletion_at && (
+                        <span className="inline-flex items-center gap-1 text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-100 px-1.5 py-0.5 rounded-full uppercase tracking-wide">
+                          <AlertTriangle className="w-2.5 h-2.5" /> Pending Deletion
+                        </span>
+                      )}
+                    </div>
                     <div className="text-[10px] text-slate-400 mt-0.5">{quote.client_email || "No Email"}</div>
+                    {quote.pending_deletion_at && (
+                      <div className="text-[9px] text-amber-600 mt-0.5 font-medium">
+                        Requested by {quote.pending_deletion_by} · Awaiting approval
+                      </div>
+                    )}
                   </td>
                   <td className="px-6 py-4">
                     <span className="font-medium text-slate-600">Custom System</span>
@@ -854,30 +979,160 @@ export default function ContractBuilderPage() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => {
-                          setSelectedQuote(quote);
-                          setContractMode("new");
-                        }}
-                        className="px-3 py-1.5 bg-emerald-50 border border-emerald-100 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-lg text-[11px] font-bold transition-all cursor-pointer"
-                      >
-                        Draft Contract
-                      </button>
-                      <button
-                        onClick={() => {
-                          setSelectedQuote(quote);
-                          setContractMode("renewal");
-                        }}
-                        className="px-3 py-1.5 bg-blue-50 border border-blue-100 text-blue-700 hover:bg-blue-600 hover:text-white rounded-lg text-[11px] font-bold transition-all cursor-pointer"
-                      >
-                        Draft Renewal
-                      </button>
+                      {!quote.pending_deletion_at && (
+                        <>
+                          <button
+                            onClick={() => {
+                              setSelectedQuote(quote);
+                              setContractMode("new");
+                            }}
+                            className="px-3 py-1.5 bg-emerald-50 border border-emerald-100 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-lg text-[11px] font-bold transition-all cursor-pointer"
+                          >
+                            Draft Contract
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedQuote(quote);
+                              setContractMode("renewal");
+                            }}
+                            className="px-3 py-1.5 bg-blue-50 border border-blue-100 text-blue-700 hover:bg-blue-600 hover:text-white rounded-lg text-[11px] font-bold transition-all cursor-pointer"
+                          >
+                            Draft Renewal
+                          </button>
+                        </>
+                      )}
+                      {/* 3-dot kebab menu */}
+                      <div className="relative">
+                        <button
+                          onClick={() => setOpenMenuId(openMenuId === quote.id ? null : quote.id)}
+                          className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-700 transition-all cursor-pointer"
+                        >
+                          <MoreVertical className="w-4 h-4" />
+                        </button>
+                        {openMenuId === quote.id && (
+                          <>
+                            {/* Click outside handler */}
+                            <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
+                            <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl border border-slate-200 shadow-lg z-20 py-1 overflow-hidden">
+                              {!quote.pending_deletion_at ? (
+                                <button
+                                  onClick={() => openDeleteModal(quote)}
+                                  className="flex items-center gap-2.5 w-full px-4 py-2.5 text-[12px] font-semibold text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                  Request Deletion
+                                </button>
+                              ) : (
+                                <div className="flex items-center gap-2.5 w-full px-4 py-2.5 text-[12px] font-semibold text-amber-600 cursor-not-allowed">
+                                  <AlertTriangle className="w-3.5 h-3.5" />
+                                  Pending Approval
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-slate-900/50 backdrop-blur-sm"
+            onClick={closeDeleteModal}
+          />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6 flex flex-col gap-5 z-10">
+            {/* Icon + title */}
+            <div className="flex flex-col items-center text-center gap-2">
+              <div className="w-12 h-12 rounded-full bg-red-50 border border-red-100 flex items-center justify-center">
+                <Trash2 className="w-6 h-6 text-red-500" />
+              </div>
+              <h2 className="text-[16px] font-bold text-slate-900 leading-tight">Request Contract Deletion</h2>
+              <p className="text-[12px] text-slate-500 max-w-[300px]">
+                This will flag <strong>{deleteTarget.client_name}&apos;s</strong> contract for deletion. A Super Admin must approve before it is permanently removed.
+              </p>
+            </div>
+
+            {/* Reason field */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Reason for Deletion</label>
+              <textarea
+                value={deleteReason}
+                onChange={(e) => setDeleteReason(e.target.value)}
+                rows={2}
+                placeholder="e.g. Duplicate entry, client request, data error..."
+                className="w-full px-3 py-2.5 rounded-lg border border-slate-250 bg-slate-50 text-[12px] text-slate-800 focus:outline-none focus:ring-1 focus:ring-red-400 focus:border-red-400 transition-all resize-none font-sans"
+              />
+            </div>
+
+            {/* Typed confirmation */}
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                Type to confirm
+              </label>
+              <p className="text-[11px] text-slate-400">
+                Type exactly: <code className="bg-slate-100 px-1 py-0.5 rounded text-red-600 font-mono text-[10px]">Delete {deleteTarget.client_name} Contract</code>
+              </p>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                placeholder={`Delete ${deleteTarget.client_name} Contract`}
+                className="w-full px-3 py-2.5 rounded-lg border border-slate-250 bg-slate-50 text-[12px] text-slate-800 font-mono focus:outline-none focus:ring-1 focus:ring-red-400 focus:border-red-400 transition-all"
+              />
+            </div>
+
+            {/* Acknowledgment checkbox */}
+            <label className="flex items-start gap-3 cursor-pointer p-3 rounded-xl bg-amber-50 border border-amber-100">
+              <input
+                type="checkbox"
+                checked={deleteAgreed}
+                onChange={(e) => setDeleteAgreed(e.target.checked)}
+                className="mt-0.5 accent-red-500 w-3.5 h-3.5 shrink-0 cursor-pointer"
+              />
+              <p className="text-[11px] text-amber-800 leading-relaxed">
+                I understand this deletion request requires <strong>Super Admin approval</strong> before the contract is permanently removed. This action is logged in the audit trail.
+              </p>
+            </label>
+
+            {/* Error message */}
+            {deleteError && (
+              <p className="text-[11px] text-red-600 font-medium bg-red-50 px-3 py-2 rounded-lg border border-red-100">
+                {deleteError}
+              </p>
+            )}
+
+            {/* Action buttons */}
+            <div className="flex gap-3 mt-1">
+              <button
+                onClick={closeDeleteModal}
+                disabled={deleteLoading}
+                className="flex-1 py-2.5 rounded-xl border border-slate-200 text-[12px] font-bold text-slate-600 hover:bg-slate-50 transition-all cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submitDeleteRequest}
+                disabled={deleteLoading || deleteConfirmText !== `Delete ${deleteTarget.client_name} Contract` || !deleteAgreed || !deleteReason.trim()}
+                className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-[12px] font-bold transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                {deleteLoading ? (
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <Trash2 className="w-3.5 h-3.5" />
+                )}
+                Submit Request
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

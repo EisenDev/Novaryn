@@ -25,11 +25,15 @@ class Quotation extends Model
         'notes',
         'include_maintenance',
         'status',
+        'pending_deletion_at',
+        'pending_deletion_by',
+        'pending_deletion_reason',
     ];
 
     protected $casts = [
         'include_maintenance' => 'boolean',
         'downpayment' => 'integer',
+        'pending_deletion_at' => 'datetime',
     ];
 
     protected static function boot()

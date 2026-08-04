@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 #[Fillable([
     'name', 'company', 'email', 'phone', 'industry', 'budget',
     'timeline', 'message', 'status', 'assigned_to', 'meeting_date',
-    'notes', 'source'
+    'notes', 'source', 'is_viewed'
 ])]
 class Lead extends Model
 {

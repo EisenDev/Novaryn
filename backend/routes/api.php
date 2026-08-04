@@ -94,5 +94,14 @@ Route::prefix('v1')->group(function () {
 
         // Dashboard Analytics
         Route::get('/dashboard/analytics', [AnalyticsController::class, 'metrics']);
+
+        // Sidebar Badge Counts (new leads, pending consultations, new quotations)
+        Route::get('/dashboard/badges', [AnalyticsController::class, 'badges']);
+
+        // Quotation Delete Workflow (safe pending deletion)
+        Route::patch('pricing/quotations/{id}/request-delete', [PricingEngineController::class, 'requestDeletion']);
+        Route::patch('pricing/quotations/{id}/approve-delete', [PricingEngineController::class, 'approveDeletion']);
+        Route::patch('pricing/quotations/{id}/reject-delete', [PricingEngineController::class, 'rejectDeletion']);
+        Route::delete('pricing/quotations/{id}', [PricingEngineController::class, 'destroyQuotation']);
     });
 });

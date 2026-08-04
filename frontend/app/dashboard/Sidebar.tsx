@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
@@ -19,6 +19,12 @@ interface SidebarProps {
   onClose: () => void;
 }
 
+interface SidebarBadges {
+  new_leads: number;
+  pending_consultations: number;
+  new_quotations: number;
+}
+
 interface SidebarGroup {
   label: string;
   items: {
@@ -26,6 +32,7 @@ interface SidebarGroup {
     label: string;
     icon: React.ComponentType<any>;
     disabled?: boolean;
+    badgeKey?: keyof SidebarBadges;
   }[];
 }
 
@@ -39,10 +46,10 @@ const sidebarGroups: SidebarGroup[] = [
   {
     label: "Sales & CRM",
     items: [
-      { href: "/dashboard/leads", label: "Leads Manager", icon: Users },
-      { href: "/dashboard/consultations", label: "Consultations", icon: Calendar },
+      { href: "/dashboard/leads", label: "Leads Manager", icon: Users, badgeKey: "new_leads" },
+      { href: "/dashboard/consultations", label: "Consultations", icon: Calendar, badgeKey: "pending_consultations" },
       { href: "/dashboard/proposals", label: "Contract Builder", icon: FileText },
-      { href: "/dashboard/pricing-engine", label: "Pricing Engine", icon: Calculator },
+      { href: "/dashboard/pricing-engine", label: "Pricing Engine", icon: Calculator, badgeKey: "new_quotations" },
     ]
   },
   {
@@ -68,8 +75,43 @@ const sidebarGroups: SidebarGroup[] = [
   }
 ];
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+
 export default function Sidebar({ user, isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const [badges, setBadges] = useState<SidebarBadges>({
+    new_leads: 0,
+    pending_consultations: 0,
+    new_quotations: 0,
+  });
+
+  const fetchBadges = useCallback(async () => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("novaryn_admin_token") : null;
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${API_BASE}/v1/dashboard/badges`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
+      });
+      if (!res.ok) return;
+      const json = await res.json();
+      if (json?.data) {
+        setBadges(json.data);
+      }
+    } catch {
+      // Fail silently — badge counts are non-critical
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchBadges();
+    // Poll every 30 seconds for fresh badge counts
+    const interval = setInterval(fetchBadges, 30_000);
+    return () => clearInterval(interval);
+  }, [fetchBadges]);
 
   return (
     <>
@@ -117,6 +159,7 @@ export default function Sidebar({ user, isOpen, onClose }: SidebarProps) {
               {group.items.map((item) => {
                 const isActive = pathname === item.href;
                 const Icon = item.icon;
+                const badgeCount = item.badgeKey ? badges[item.badgeKey] : 0;
 
                 if (item.disabled) {
                   return (
@@ -140,15 +183,23 @@ export default function Sidebar({ user, isOpen, onClose }: SidebarProps) {
                   <Link
                     key={item.href}
                     href={item.href}
-                    onClick={onClose} // Close sidebar on click on mobile
-                    className={`flex items-center gap-2.5 px-3 h-8.5 rounded-lg text-[12px] font-semibold transition-all ${
+                    onClick={onClose}
+                    className={`flex items-center justify-between px-3 h-8.5 rounded-lg text-[12px] font-semibold transition-all ${
                       isActive 
                         ? "bg-emerald-500/5 text-emerald-650 font-black border-l-2 border-emerald-500 rounded-l-none pl-2.5" 
                         : "text-slate-550 hover:bg-slate-50 hover:text-slate-800"
                     }`}
                   >
-                    <Icon className="w-3.5 h-3.5 shrink-0" strokeWidth={isActive ? 2.2 : 1.6} />
-                    <span>{item.label}</span>
+                    <div className="flex items-center gap-2.5">
+                      <Icon className="w-3.5 h-3.5 shrink-0" strokeWidth={isActive ? 2.2 : 1.6} />
+                      <span>{item.label}</span>
+                    </div>
+                    {/* Badge indicator */}
+                    {badgeCount > 0 && (
+                      <span className="min-w-[18px] h-[18px] px-1 flex items-center justify-center rounded-full bg-red-500 text-white text-[9px] font-bold leading-none shadow-sm">
+                        {badgeCount > 99 ? "99+" : badgeCount}
+                      </span>
+                    )}
                   </Link>
                 );
               })}

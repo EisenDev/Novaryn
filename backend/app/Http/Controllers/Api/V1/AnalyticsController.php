@@ -86,4 +86,32 @@ class AnalyticsController extends Controller
             ]
         ]);
     }
+
+    /**
+     * Get sidebar badge counts for navigation indicators.
+     */
+    public function badges(Request $request): JsonResponse
+    {
+        // New leads = leads that have not been viewed yet (is_viewed = false)
+        $newLeads = Lead::where('is_viewed', false)->count();
+
+        // Pending consultations = leads with status new/contacted but no meeting date set
+        $pendingConsultations = Lead::whereIn('status', ['new', 'contacted'])
+            ->whereNull('meeting_date')
+            ->count();
+
+        // New quotations = quotations created in the last 7 days
+        $newQuotations = \App\Models\Quotation::where('created_at', '>=', now()->subDays(7))
+            ->whereNull('pending_deletion_at')
+            ->count();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'new_leads' => $newLeads,
+                'pending_consultations' => $pendingConsultations,
+                'new_quotations' => $newQuotations,
+            ]
+        ]);
+    }
 }

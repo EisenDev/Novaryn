@@ -179,4 +179,121 @@ class PricingEngineController extends Controller
             'data' => $module
         ]);
     }
+
+    /**
+     * Flag a quotation for pending deletion (requires admin approval).
+     */
+    public function requestDeletion(Request $request, string $id)
+    {
+        $request->validate([
+            'reason' => 'required|string|max:500',
+        ]);
+
+        $quotation = Quotation::findOrFail($id);
+
+        if ($quotation->pending_deletion_at) {
+            return response()->json(['error' => 'This quotation already has a pending deletion request.'], 422);
+        }
+
+        $admin = $request->user();
+        $quotation->update([
+            'pending_deletion_at' => now(),
+            'pending_deletion_by' => $admin->name,
+            'pending_deletion_reason' => $request->reason,
+        ]);
+
+        // Log audit
+        \App\Models\AuditLog::create([
+            'user_id' => $admin->id,
+            'action' => 'quotation_delete_requested',
+            'model_type' => 'Quotation',
+            'model_id' => $quotation->id,
+            'new_values' => ['client' => $quotation->client_name, 'reason' => $request->reason, 'requested_by' => $admin->name],
+        ]);
+
+        return response()->json([
+            'message' => 'Deletion request submitted. A Super Admin must approve before the contract is removed.',
+            'data' => $quotation->fresh()
+        ]);
+    }
+
+    /**
+     * Approve a pending deletion request and permanently delete the quotation.
+     */
+    public function approveDeletion(Request $request, string $id)
+    {
+        $quotation = Quotation::findOrFail($id);
+
+        if (!$quotation->pending_deletion_at) {
+            return response()->json(['error' => 'No pending deletion request found for this quotation.'], 422);
+        }
+
+        $admin = $request->user();
+
+        // Log audit before deletion
+        \App\Models\AuditLog::create([
+            'user_id' => $admin->id,
+            'action' => 'quotation_deleted',
+            'model_type' => 'Quotation',
+            'model_id' => $quotation->id,
+            'new_values' => ['client' => $quotation->client_name, 'originally_requested_by' => $quotation->pending_deletion_by, 'approved_by' => $admin->name],
+        ]);
+
+        $quotation->quotationModules()->delete();
+        $quotation->delete();
+
+        return response()->json([
+            'message' => 'Quotation has been permanently deleted.'
+        ]);
+    }
+
+    /**
+     * Reject a pending deletion request and restore the quotation to active.
+     */
+    public function rejectDeletion(Request $request, string $id)
+    {
+        $quotation = Quotation::findOrFail($id);
+
+        $admin = $request->user();
+
+        \App\Models\AuditLog::create([
+            'user_id' => $admin->id,
+            'action' => 'quotation_delete_rejected',
+            'model_type' => 'Quotation',
+            'model_id' => $quotation->id,
+            'new_values' => ['client' => $quotation->client_name, 'rejected_by' => $admin->name],
+        ]);
+
+        $quotation->update([
+            'pending_deletion_at' => null,
+            'pending_deletion_by' => null,
+            'pending_deletion_reason' => null,
+        ]);
+
+        return response()->json([
+            'message' => 'Deletion request has been rejected. The quotation remains active.'
+        ]);
+    }
+
+    /**
+     * Hard delete a quotation (only if no pending deletion workflow is in place).
+     */
+    public function destroyQuotation(Request $request, string $id)
+    {
+        $quotation = Quotation::findOrFail($id);
+        $admin = $request->user();
+
+        \App\Models\AuditLog::create([
+            'user_id' => $admin->id,
+            'action' => 'quotation_force_deleted',
+            'model_type' => 'Quotation',
+            'model_id' => $quotation->id,
+            'new_values' => ['client' => $quotation->client_name, 'deleted_by' => $admin->name],
+        ]);
+
+        $quotation->quotationModules()->delete();
+        $quotation->delete();
+
+        return response()->json(['message' => 'Quotation deleted.']);
+    }
 }
