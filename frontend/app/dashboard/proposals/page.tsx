@@ -440,7 +440,7 @@ export default function ContractBuilderPage() {
           .contract-document-paper {
             width: 210mm;
             min-height: 297mm;
-            padding: 20mm 22mm 20mm 22mm;
+            padding: 20mm 22mm 22mm 22mm;
             margin: 0 auto;
             background: white;
             box-shadow: 0 8px 24px rgb(0 0 0 / 0.09), 0 2px 6px rgb(0 0 0 / 0.04);
@@ -460,7 +460,7 @@ export default function ContractBuilderPage() {
           @media print {
             @page {
               size: A4 portrait;
-              margin: 15mm 18mm 18mm 18mm;
+              margin: 0; /* SUPPRESSES browser date/time header & URL footer! */
             }
             body {
               background: white !important;
@@ -477,7 +477,7 @@ export default function ContractBuilderPage() {
               position: absolute !important;
               left: 0 !important;
               top: 0 !important;
-              width: 100% !important;
+              width: 210mm !important;
               background: white !important;
               padding: 0 !important;
               margin: 0 !important;
@@ -487,15 +487,16 @@ export default function ContractBuilderPage() {
             .contract-document-paper {
               border: none !important;
               box-shadow: none !important;
-              padding: 0 !important;
+              padding: 16mm 20mm 22mm 20mm !important;
               margin: 0 !important;
-              width: 100% !important;
+              width: 210mm !important;
               min-height: auto !important;
               font-family: 'Times New Roman', Times, serif !important;
               font-size: 11pt !important;
               line-height: 1.5 !important;
               color: black !important;
               background: white !important;
+              box-sizing: border-box !important;
             }
             .section-block {
               break-inside: avoid !important;
@@ -504,6 +505,22 @@ export default function ContractBuilderPage() {
             table, tr {
               break-inside: avoid !important;
               page-break-inside: avoid !important;
+            }
+            /* Running Footer repeated on EVERY printed page box */
+            .print-footer {
+              position: fixed !important;
+              bottom: 8mm !important;
+              left: 20mm !important;
+              right: 20mm !important;
+              border-top: 1px solid #cbd5e1 !important;
+              padding-top: 5px !important;
+              font-size: 8.5pt !important;
+              color: #64748b !important;
+              display: flex !important;
+              justify-content: space-between !important;
+              align-items: center !important;
+              font-family: system-ui, -apple-system, sans-serif !important;
+              background: white !important;
             }
           }
         `}} />
@@ -1143,8 +1160,8 @@ export default function ContractBuilderPage() {
                 </div>
               </div>
 
-              {/* Footer */}
-              <div className="flex justify-between items-center text-[9pt] text-slate-400 border-t border-slate-200 pt-3 pb-1 font-sans mt-12">
+              {/* Footer (Repeated on every page box when printing via position: fixed) */}
+              <div className="print-footer flex justify-between items-center text-[9pt] text-slate-400 border-t border-slate-200 pt-3 pb-1 font-sans mt-12">
                 <span>Novaryn Tech Solutions · Client System Development Agreement</span>
                 <span>System Agreement Document</span>
               </div>
