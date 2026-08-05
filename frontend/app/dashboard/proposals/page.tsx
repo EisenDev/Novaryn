@@ -460,7 +460,7 @@ export default function ContractBuilderPage() {
           @media print {
             @page {
               size: A4 portrait;
-              margin: 0; /* SUPPRESSES browser date/time header & URL footer! */
+              margin: 16mm 20mm 20mm 20mm; /* REAL A4 MARGINS FOR EVERY SINGLE PRINTED PAGE! */
             }
             body {
               background: white !important;
@@ -474,10 +474,7 @@ export default function ContractBuilderPage() {
             }
             #print-container-wrapper {
               display: block !important;
-              position: absolute !important;
-              left: 0 !important;
-              top: 0 !important;
-              width: 210mm !important;
+              width: 100% !important;
               background: white !important;
               padding: 0 !important;
               margin: 0 !important;
@@ -487,9 +484,9 @@ export default function ContractBuilderPage() {
             .contract-document-paper {
               border: none !important;
               box-shadow: none !important;
-              padding: 16mm 20mm 22mm 20mm !important;
+              padding: 0 !important;
               margin: 0 !important;
-              width: 210mm !important;
+              width: 100% !important;
               min-height: auto !important;
               font-family: 'Times New Roman', Times, serif !important;
               font-size: 11pt !important;
@@ -509,9 +506,9 @@ export default function ContractBuilderPage() {
             /* Running Footer repeated on EVERY printed page box */
             .print-footer {
               position: fixed !important;
-              bottom: 8mm !important;
-              left: 20mm !important;
-              right: 20mm !important;
+              bottom: 0 !important;
+              left: 0 !important;
+              right: 0 !important;
               border-top: 1px solid #cbd5e1 !important;
               padding-top: 5px !important;
               font-size: 8.5pt !important;
