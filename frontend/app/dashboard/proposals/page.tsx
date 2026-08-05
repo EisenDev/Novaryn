@@ -4,7 +4,8 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { 
   FileText, ArrowLeft, Printer, RefreshCw, 
   User, Calendar, Landmark, Settings, CheckCircle2, ShieldAlert, CreditCard,
-  MoreVertical, Trash2, Code2, AlertTriangle, Clock, Edit3, X, Save
+  MoreVertical, Trash2, Code2, AlertTriangle, Clock, Edit3, X, Save,
+  ListChecks, Plus
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────────
@@ -272,6 +273,10 @@ export default function ContractBuilderPage() {
   const [sourceCodeFee, setSourceCodeFee] = useState("0");
   const [sourceCodeReleaseDays, setSourceCodeReleaseDays] = useState("30");
 
+  // Custom Specific Scope State
+  const [customScopes, setCustomScopes] = useState<string[]>([]);
+  const [newCustomScopeInput, setNewCustomScopeInput] = useState("");
+
   // Delete workflow states
   const [deleteTarget, setDeleteTarget] = useState<Quotation | null>(null);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
@@ -429,40 +434,38 @@ export default function ContractBuilderPage() {
   if (selectedQuote) {
     return (
       <div className="flex flex-col gap-6 text-left pb-12">
-        {/* Style block for Print override & Fluid Document View */}
+        {/* Style block for Print override & Discrete A4 Page Preview */}
         <style dangerouslySetInnerHTML={{ __html: `
-          /* Document screen preview styling (DOCX / PDF standard paper view) */
-          .contract-document-paper {
+          /* A4 screen preview styling (Discrete A4 sheets) */
+          .a4-page {
             width: 210mm;
+            height: 297mm;
             min-height: 297mm;
-            padding: 20mm 22mm 18mm 22mm;
-            margin: 0 auto;
+            max-height: 297mm;
+            padding: 16mm 20mm 14mm 20mm;
+            margin: 0 auto 24px auto;
             background: white;
-            box-shadow: 0 8px 24px rgb(0 0 0 / 0.09), 0 2px 6px rgb(0 0 0 / 0.04);
+            box-shadow: 0 4px 16px rgb(0 0 0 / 0.08), 0 1px 3px rgb(0 0 0 / 0.04);
             box-sizing: border-box;
             position: relative;
             font-family: 'Times New Roman', Times, serif;
             font-size: 11pt;
             color: #0f172a;
-            line-height: 1.6;
+            line-height: 1.5;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-          }
-
-          .section-block {
-            break-inside: avoid;
-            page-break-inside: avoid;
+            overflow: hidden;
           }
 
           @media print {
+            @page {
+              size: A4 portrait;
+              margin: 0; /* Hides browser URL, date/time header, and title headers/footers! */
+            }
             body {
               background: white !important;
               color: black !important;
-            }
-            @page {
-              size: A4;
-              margin: 15mm 18mm 18mm 18mm;
             }
             body * {
               visibility: hidden !important;
@@ -475,25 +478,33 @@ export default function ContractBuilderPage() {
               position: absolute !important;
               left: 0 !important;
               top: 0 !important;
-              width: 100% !important;
+              width: 210mm !important;
               background: white !important;
               padding: 0 !important;
               margin: 0 !important;
               border: none !important;
               box-shadow: none !important;
             }
-            .contract-document-paper {
+            .a4-page {
               border: none !important;
               box-shadow: none !important;
-              padding: 0 !important;
+              padding: 16mm 20mm 14mm 20mm !important;
               margin: 0 !important;
-              width: 100% !important;
-              min-height: auto !important;
+              width: 210mm !important;
+              height: 297mm !important;
+              min-height: 297mm !important;
+              max-height: 297mm !important;
+              page-break-after: always !important;
+              box-sizing: border-box !important;
               font-family: 'Times New Roman', Times, serif !important;
               font-size: 11pt !important;
               line-height: 1.5 !important;
               color: black !important;
               background: white !important;
+              overflow: hidden !important;
+            }
+            .a4-page:last-child {
+              page-break-after: avoid !important;
             }
           }
         `}} />
@@ -601,6 +612,57 @@ export default function ContractBuilderPage() {
               </div>
             )}
 
+            {/* Config: Custom Client-Specific Scope Builder */}
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
+                <ListChecks className="w-3.5 h-3.5 text-slate-400" /> Client-Specific Custom Scopes
+              </label>
+              <div className="flex gap-1.5">
+                <input
+                  type="text"
+                  value={newCustomScopeInput}
+                  onChange={(e) => setNewCustomScopeInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && newCustomScopeInput.trim()) {
+                      e.preventDefault();
+                      setCustomScopes(prev => [...prev, newCustomScopeInput.trim()]);
+                      setNewCustomScopeInput("");
+                    }
+                  }}
+                  placeholder="Add custom scope (e.g. Xero API sync)..."
+                  className="flex-1 px-3 py-2 rounded-lg border border-slate-250 bg-slate-50/50 text-[11.5px] font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-emerald-400 focus:border-emerald-400 font-sans"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (newCustomScopeInput.trim()) {
+                      setCustomScopes(prev => [...prev, newCustomScopeInput.trim()]);
+                      setNewCustomScopeInput("");
+                    }
+                  }}
+                  className="px-3 py-2 bg-emerald-50 border border-emerald-200 text-emerald-700 hover:bg-emerald-600 hover:text-white rounded-lg text-[11px] font-bold transition-all cursor-pointer shrink-0 flex items-center gap-1"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add
+                </button>
+              </div>
+              {customScopes.length > 0 && (
+                <div className="flex flex-col gap-1.5 mt-1 max-h-36 overflow-y-auto pr-1">
+                  {customScopes.map((scope, idx) => (
+                    <div key={idx} className="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-md bg-slate-50 border border-slate-200 text-[11px] text-slate-800 font-sans">
+                      <span className="truncate flex-1">• {scope}</span>
+                      <button
+                        type="button"
+                        onClick={() => setCustomScopes(prev => prev.filter((_, i) => i !== idx))}
+                        className="text-slate-400 hover:text-red-500 transition-colors p-0.5 cursor-pointer shrink-0"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Config: Payment Terms (Only for new builds) */}
             {contractMode === "new" && (
               <div className="flex flex-col gap-1.5">
@@ -697,7 +759,7 @@ export default function ContractBuilderPage() {
             {/* Document details preview indicator */}
             <div className="border-t border-slate-100 pt-3 text-[11px] text-slate-400 flex flex-col gap-1 text-left font-sans">
               <p><strong>Default Paper Size:</strong> Standard A4 (210mm x 297mm)</p>
-              <p><strong>Page Break Mode:</strong> Dynamic Continuous Legal Layout</p>
+              <p><strong>Page Break Mode:</strong> Discrete Multi-Page Structure (4 Pages)</p>
             </div>
 
             {/* Action buttons */}
@@ -710,57 +772,58 @@ export default function ContractBuilderPage() {
             </button>
           </div>
 
-          {/* Legal Contract HTML Preview (Right Column - Fluid A4 Paper Layout) */}
+          {/* Legal Contract HTML Preview (Right Column - Discrete A4 Page Sheets) */}
           <div id="print-container-wrapper" className="bg-slate-150 border border-slate-205 rounded-2xl p-6 flex flex-col gap-6 shadow-inner overflow-x-auto select-none no-print-layout justify-center items-center">
             
-            <div className="contract-document-paper">
-              <div>
-                {/* Header Letterhead */}
-                <div className="flex flex-col items-center border-b-2 border-slate-900 pb-3 mb-5">
-                  <img src="/novaryn-logo.png" alt="Novaryn Logo" className="w-12 h-12 object-contain mb-1.5" />
-                  <h1 className="text-[16px] font-sans font-black uppercase tracking-wider text-slate-950">NOVARYN TECH SOLUTIONS</h1>
-                  <p className="text-[10px] text-slate-500 font-sans tracking-wide">Digos City, Davao del Sur, Philippines · contact@novaryn.tech</p>
-                </div>
-
-                {/* Agreement Title */}
-                <div className="text-center mb-6">
-                  <h2 className="text-[16px] font-extrabold uppercase tracking-wide font-sans text-slate-900 leading-tight">
-                    CLIENT SYSTEM DEVELOPMENT AGREEMENT
-                  </h2>
-                  <div className="w-28 h-[1.5px] bg-slate-800 mx-auto my-2" />
-                </div>
-
-                <p className="mb-4 text-justify text-[11pt] leading-relaxed">
-                  This Client System Development Agreement (<strong>&quot;Agreement&quot;</strong>) is entered into and made effective as of <strong>{formatDate(effectiveDate)}</strong> (the <strong>&quot;Effective Date&quot;</strong>), by and between:
-                </p>
-
-                <div className="flex flex-col gap-3 my-4 pl-4 border-l-2 border-slate-400 font-sans">
-                  <div>
-                    <p className="text-[11pt] font-bold text-slate-950 uppercase tracking-wide">DEVELOPER / DEVELOPMENT TEAM:</p>
-                    <p className="text-[10.5pt] text-slate-800 leading-normal pl-2">
-                      <strong>NOVARYN TECH SOLUTIONS</strong>, represented herein by <strong>{signatory.name}</strong> ({signatory.title}), with primary address at Digos City, Davao del Sur, Philippines (Contact: contact@novaryn.tech).
-                    </p>
+            {/* PAGE 1 */}
+            <div className="a4-page">
+              <div className="flex flex-col justify-between h-full">
+                <div>
+                  {/* Header Letterhead */}
+                  <div className="flex flex-col items-center border-b-2 border-slate-900 pb-3 mb-4">
+                    <img src="/novaryn-logo.png" alt="Novaryn Logo" className="w-10 h-10 object-contain mb-1.5" />
+                    <h1 className="text-[15px] font-sans font-black uppercase tracking-wider text-slate-950">NOVARYN TECH SOLUTIONS</h1>
+                    <p className="text-[10px] text-slate-500 font-sans tracking-wide">Digos City, Davao del Sur, Philippines · contact@novaryn.tech</p>
                   </div>
-                  <div>
-                    <p className="text-[11pt] font-bold text-slate-950 uppercase tracking-wide">CLIENT:</p>
-                    <p className="text-[10.5pt] text-slate-800 leading-normal pl-2">
-                      <strong>{selectedQuote.client_name.toUpperCase()}</strong>
-                      {selectedQuote.client_address && `, located at ${selectedQuote.client_address}`}
-                      {selectedQuote.client_phone && ` (Phone: ${selectedQuote.client_phone})`}
-                      {selectedQuote.client_email && ` (Email: ${selectedQuote.client_email})`}.
-                    </p>
-                  </div>
-                </div>
 
-                {/* 1. Purpose */}
-                <div className="section-block mt-6">
-                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-1 mb-2.5 text-slate-900">1. PURPOSE</h3>
-                  <p className="text-justify text-[11pt] leading-relaxed mb-4">
+                  {/* Agreement Title */}
+                  <div className="text-center mb-4">
+                    <h2 className="text-[15px] font-extrabold uppercase tracking-wide font-sans text-slate-900 leading-tight">
+                      CLIENT SYSTEM DEVELOPMENT AGREEMENT
+                    </h2>
+                    <div className="w-24 h-[1.5px] bg-slate-800 mx-auto my-1.5" />
+                  </div>
+
+                  <p className="mb-3 text-justify text-[11.5pt] leading-relaxed">
+                    This Client System Development Agreement (<strong>&quot;Agreement&quot;</strong>) is entered into and made effective as of <strong>{formatDate(effectiveDate)}</strong> (the <strong>&quot;Effective Date&quot;</strong>), by and between:
+                  </p>
+
+                  <div className="flex flex-col gap-3 my-3 pl-4 border-l-2 border-slate-400 font-sans">
+                    <div>
+                      <p className="text-[11pt] font-bold text-slate-950 uppercase tracking-wide">DEVELOPER / DEVELOPMENT TEAM:</p>
+                      <p className="text-[10.5pt] text-slate-800 leading-normal pl-2">
+                        <strong>NOVARYN TECH SOLUTIONS</strong>, represented herein by <strong>{signatory.name}</strong> ({signatory.title}), with primary address at Digos City, Davao del Sur, Philippines (Contact: contact@novaryn.tech).
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-[11pt] font-bold text-slate-950 uppercase tracking-wide">CLIENT:</p>
+                      <p className="text-[10.5pt] text-slate-800 leading-normal pl-2">
+                        <strong>{selectedQuote.client_name.toUpperCase()}</strong>
+                        {selectedQuote.client_address && `, located at ${selectedQuote.client_address}`}
+                        {selectedQuote.client_phone && ` (Phone: ${selectedQuote.client_phone})`}
+                        {selectedQuote.client_email && ` (Email: ${selectedQuote.client_email})`}.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* 1. Purpose */}
+                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-0.5 mt-4 mb-2 text-slate-900">1. PURPOSE</h3>
+                  <p className="mb-4 text-justify text-[11.5pt] leading-relaxed">
                     The purpose of this Agreement is to define the terms, commercial conditions, scope of work, technical obligations, and turnover criteria under which the Developer shall design, build, deploy, and support the custom business software system (<strong>&quot;{enabledBuildModules.length > 0 ? enabledBuildModules.map(m => m.name).join(", ") : "Custom Business System"}&quot;</strong>) for the Client.
                   </p>
 
                   {/* Financial Valuation Summary Table */}
-                  <div className="my-4 font-sans border border-slate-300 rounded-lg overflow-hidden">
+                  <div className="my-3 font-sans border border-slate-300 rounded-lg overflow-hidden">
                     <div className="bg-slate-100 border-b border-slate-300 px-4 py-2">
                       <h4 className="font-bold text-slate-900 uppercase tracking-wide text-[10pt]">
                         Financial Valuation &amp; Payment Schedule Summary
@@ -805,8 +868,8 @@ export default function ContractBuilderPage() {
                           <td colSpan={2} className="px-4 py-3 border-r border-slate-300 font-sans uppercase tracking-wider text-[9.5pt]">
                             TOTAL RECURRING MONTHLY OBLIGATION:
                           </td>
-                          <td className="px-4 py-3 text-right font-mono text-[10.5pt] text-emerald-800">
-                            Total = {peso(Math.round((selectedQuote.build_total * 0.5) / (durationMonths === "indefinite" ? 12 : parseInt(durationMonths, 10))))} + ${selectedHostModule?.monthly_price || 0} / mo ({durationMonths} mos)
+                          <td className="px-4 py-3 text-right font-mono text-[10.5pt] text-slate-950 font-bold">
+                            {peso(Math.round((selectedQuote.build_total * 0.5) / (durationMonths === "indefinite" ? 12 : parseInt(durationMonths, 10))))} + ${selectedHostModule?.monthly_price || 0} / mo ({durationMonths} mos)
                           </td>
                         </tr>
                       </tbody>
@@ -814,26 +877,36 @@ export default function ContractBuilderPage() {
                   </div>
                 </div>
 
-                {/* 2. Scope of Work */}
-                <div className="section-block mt-6">
-                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-1 mb-2.5 text-slate-900">2. SCOPE OF WORK</h3>
-                  <p className="mb-3 text-justify text-[11pt] leading-relaxed">
+                {/* Page 1 Footer */}
+                <div className="flex justify-between items-center text-[9pt] text-slate-400 border-t border-slate-200 pt-2 pb-1 font-sans mt-auto">
+                  <span>Novaryn Tech Solutions · Client System Development Agreement</span>
+                  <span>Page 1 of 4</span>
+                </div>
+              </div>
+            </div>
+
+            {/* PAGE 2 — SCOPE OF WORK */}
+            <div className="a4-page">
+              <div className="flex flex-col justify-between h-full">
+                <div>
+                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-0.5 mt-2 mb-2 text-slate-900">2. SCOPE OF WORK</h3>
+                  <p className="mb-3 text-justify text-[11.5pt] leading-relaxed">
                     The Developer agrees to design, engineer, and deliver a custom business software system encompassing the following authorized modules, core features, and data management functions:
                   </p>
 
                   {enabledBuildModules.length > 0 ? (
-                    <div className="flex flex-col gap-4 pl-1 mb-4">
+                    <div className="flex flex-col gap-3 pl-1 mb-3">
                       {enabledBuildModules.map((m) => {
                         const feats = MODULE_FEATURES[m.name] || [];
                         return (
-                          <div key={m.id} className="border-l-2 border-slate-400 pl-3.5 py-0.5 break-inside-avoid">
+                          <div key={m.id} className="border-l-2 border-slate-400 pl-3 py-0.5">
                             <p className="text-[11.5pt] font-bold text-slate-950 font-sans leading-tight">{m.name}</p>
                             {feats.length > 0 && (
-                              <ul className="list-disc pl-5 mt-1.5 text-[10.5pt] text-slate-800 flex flex-col gap-1">
+                              <ul className="list-disc pl-4 mt-1 text-[10.5pt] text-slate-800 flex flex-col gap-0.5">
                                 {feats.map((f, i) => {
                                   if (f.startsWith("—")) {
                                     return (
-                                      <p key={i} className="font-bold text-[9.5pt] uppercase tracking-wider text-slate-900 mt-2 mb-0.5 font-sans -ml-5">
+                                      <p key={i} className="font-bold text-[9.5pt] uppercase tracking-wider text-slate-900 mt-1.5 mb-0.5 font-sans -ml-4">
                                         {f.replace(/—/g, "").trim()}
                                       </p>
                                     );
@@ -847,56 +920,77 @@ export default function ContractBuilderPage() {
                       })}
                     </div>
                   ) : (
-                    <ul className="list-disc pl-6 text-[11pt] text-slate-800 flex flex-col gap-1.5 mb-4">
-                      <li>User Authentication &amp; Access Control</li>
-                      <li>Main Management Dashboard &amp; Analytics</li>
-                      <li>Core Module Workflows</li>
-                      <li>Reporting &amp; Data Exports</li>
+                    <ul className="list-disc pl-5 text-[11pt] text-slate-800 flex flex-col gap-1 mb-3">
+                      <li>User Login and Authentication</li>
+                      <li>Dashboard &amp; Overview</li>
+                      <li>Product / Service Management</li>
+                      <li>Category &amp; Item Setup</li>
+                      <li>Transactions &amp; Activity Logging</li>
+                      <li>Report Generation</li>
                     </ul>
                   )}
 
-                  <p className="text-[10pt] text-slate-600 mb-4 text-justify italic font-serif leading-relaxed">
-                    Any features, third-party integrations, or customizations not explicitly enumerated in Section 2 above shall be deemed outside the scope of this Agreement unless formally agreed upon in writing via a mutually executed Change Order.
+                  {/* Client-Specific Custom Scopes Section */}
+                  {customScopes.length > 0 && (
+                    <div className="mt-3 pt-2.5 border-t border-slate-300 border-dashed">
+                      <p className="text-[11pt] font-bold text-slate-950 font-sans mb-1.5">Client-Specific Customized Deliverables &amp; Technical Scopes:</p>
+                      <ul className="list-disc pl-5 text-[10.5pt] text-slate-800 flex flex-col gap-1">
+                        {customScopes.map((cs, idx) => (
+                          <li key={idx} className="font-semibold text-slate-900">{cs}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  <p className="text-[10pt] text-slate-600 mt-3 mb-2 text-justify italic font-serif leading-relaxed">
+                    Any features, third-party integrations, or customizations not explicitly listed above shall be considered outside the scope of this Agreement unless mutually agreed upon in writing via a formal change order.
                   </p>
                 </div>
 
-                {/* 3. Responsibilities of the Developer */}
-                <div className="section-block mt-6">
-                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-1 mb-2.5 text-slate-900">3. RESPONSIBILITIES OF THE DEVELOPER</h3>
-                  <p className="mb-2 text-[11pt]">The Developer agrees to:</p>
-                  <ul className="list-disc pl-6 text-[10.5pt] text-slate-800 flex flex-col gap-1 mb-4">
+                {/* Page 2 Footer */}
+                <div className="flex justify-between items-center text-[9pt] text-slate-400 border-t border-slate-200 pt-2 pb-1 font-sans mt-auto">
+                  <span>Novaryn Tech Solutions · Client System Development Agreement</span>
+                  <span>Page 2 of 4</span>
+                </div>
+              </div>
+            </div>
+
+            {/* PAGE 3 — RESPONSIBILITIES, TIMELINE, CONFIDENTIALITY & OWNERSHIP */}
+            <div className="a4-page">
+              <div className="flex flex-col justify-between h-full">
+                <div>
+                  {/* 3. Responsibilities of the Developer */}
+                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-0.5 mt-2 mb-1 text-slate-900">3. RESPONSIBILITIES OF THE DEVELOPER</h3>
+                  <p className="mb-1 text-[11pt]">The Developer agrees to:</p>
+                  <ul className="list-disc pl-5 text-[10.5pt] text-slate-800 flex flex-col gap-0.5 mb-2.5">
                     <li>Gather and analyze the Client&apos;s system requirements.</li>
                     <li>Design, develop, test, and implement the system.</li>
                     <li>Maintain the confidentiality of the Client&apos;s information.</li>
                     <li>Provide user documentation or basic training upon project completion.</li>
                     <li>Correct system errors discovered during the agreed warranty period.</li>
                   </ul>
-                </div>
 
-                {/* 4. Responsibilities of the Client */}
-                <div className="section-block mt-6">
-                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-1 mb-2.5 text-slate-900">4. RESPONSIBILITIES OF THE CLIENT</h3>
-                  <p className="mb-2 text-[11pt]">The Client agrees to:</p>
-                  <ul className="list-disc pl-6 text-[10.5pt] text-slate-800 flex flex-col gap-1 mb-4">
+                  {/* 4. Responsibilities of the Client */}
+                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">4. RESPONSIBILITIES OF THE CLIENT</h3>
+                  <p className="mb-1 text-[11pt]">The Client agrees to:</p>
+                  <ul className="list-disc pl-5 text-[10.5pt] text-slate-800 flex flex-col gap-0.5 mb-2.5">
                     <li>Provide accurate and complete information needed for system development.</li>
                     <li>Designate a representative to communicate with the Developer.</li>
                     <li>Review deliverables and provide timely feedback.</li>
                     <li>Participate in testing and final acceptance of the system.</li>
                     <li>Use the system in accordance with the provided instructions.</li>
                   </ul>
-                </div>
 
-                {/* 5. Project Timeline */}
-                <div className="section-block mt-6">
-                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-1 mb-2.5 text-slate-900">5. PROJECT TIMELINE</h3>
-                  <p className="mb-2 text-justify text-[11pt]">
+                  {/* 5. Project Timeline */}
+                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">5. PROJECT TIMELINE</h3>
+                  <p className="mb-1 text-justify text-[11pt]">
                     The total estimated build timeframe is <strong>{timeframe}</strong>. The target schedule per milestone phase is structured as follows:
                   </p>
-                  <table className="w-full border-collapse text-[10.5pt] my-2 font-sans">
+                  <table className="w-full border-collapse text-[10.5pt] mt-1 mb-1.5 font-sans">
                     <thead>
                       <tr className="bg-slate-100 border-b border-slate-400">
-                        <th className="border border-slate-300 px-3 py-1.5 text-left font-bold font-sans">Activity / Milestone Phase</th>
-                        <th className="border border-slate-300 px-3 py-1.5 text-center font-bold font-sans w-48">Target Date</th>
+                        <th className="border border-slate-300 px-3 py-1 text-left font-bold font-sans">Activity / Milestone Phase</th>
+                        <th className="border border-slate-300 px-3 py-1 text-center font-bold font-sans w-44">Target Date</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -909,139 +1003,128 @@ export default function ContractBuilderPage() {
                         "Final Turnover"
                       ].map((activity, i) => (
                         <tr key={i} className={i % 2 === 1 ? "bg-slate-50/70" : ""}>
-                          <td className="border border-slate-300 px-3 py-1 text-slate-900 font-medium">{activity}</td>
-                          <td className="border border-slate-300 px-3 py-1 text-center text-slate-800 font-semibold">
+                          <td className="border border-slate-300 px-3 py-0.5 text-slate-900 font-medium">{activity}</td>
+                          <td className="border border-slate-300 px-3 py-0.5 text-center text-slate-800 font-semibold">
                             {timelineDates[activity] || "TBD"}
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                  <p className="text-[9.5pt] text-slate-500 mb-4 font-serif italic">The timeline may be adjusted upon mutual written agreement if client requirement feedback or assets are delayed.</p>
-                </div>
+                  <p className="text-[9.5pt] text-slate-500 mb-2 font-serif italic">The timeline may be adjusted upon mutual written agreement if client requirement feedback or assets are delayed.</p>
 
-                {/* 6. Changes to the Project */}
-                <div className="section-block mt-6">
-                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-1 mb-2.5 text-slate-900">6. CHANGES TO THE PROJECT</h3>
-                  <p className="mb-4 text-justify text-[11pt] leading-relaxed">
+                  {/* 6. Changes to the Project */}
+                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">6. CHANGES TO THE PROJECT</h3>
+                  <p className="mb-2 text-justify text-[11pt] leading-relaxed">
                     Any request for additional features, major revisions, or changes beyond the agreed scope shall require the approval of both parties. Such changes may result in adjustments to the project schedule and, if applicable, additional costs.
                   </p>
-                </div>
 
-                {/* 7. Confidentiality */}
-                <div className="section-block mt-6">
-                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-1 mb-2.5 text-slate-900">7. CONFIDENTIALITY</h3>
-                  <p className="mb-2 text-justify text-[11pt] leading-relaxed">
+                  {/* 7. Confidentiality */}
+                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">7. CONFIDENTIALITY</h3>
+                  <p className="mb-1 text-justify text-[11pt] leading-relaxed">
                     The Developer agrees to keep all business information, records, and data provided by the Client strictly confidential and shall not disclose such information to any third party without the Client&apos;s written consent, except as required by law.
                   </p>
-                  <p className="mb-4 text-justify text-[11pt] leading-relaxed">
+                  <p className="mb-2 text-justify text-[11pt] leading-relaxed">
                     The Client likewise agrees not to distribute, copy, or modify the Developer&apos;s source code without prior permission unless ownership of the source code has been transferred under this Agreement.
                   </p>
-                </div>
 
-                {/* 8. Ownership */}
-                <div className="section-block mt-6">
-                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-1 mb-2.5 text-slate-900">8. OWNERSHIP</h3>
-                  <p className="mb-4 text-justify text-[11pt] leading-relaxed">
+                  {/* 8. Ownership */}
+                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">8. OWNERSHIP</h3>
+                  <p className="mb-2 text-justify text-[11pt] leading-relaxed">
                     Upon successful completion of the project and fulfillment of all agreed payment obligations, the Client shall own the completed system, including system documentation and database.
                   </p>
-                </div>
 
-                {/* 9. Testing and Acceptance */}
-                <div className="section-block mt-6">
-                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-1 mb-2.5 text-slate-900">9. TESTING AND ACCEPTANCE</h3>
-                  <p className="mb-4 text-justify text-[11pt] leading-relaxed">
+                  {/* 9. Testing and Acceptance */}
+                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">9. TESTING AND ACCEPTANCE</h3>
+                  <p className="mb-2 text-justify text-[11pt] leading-relaxed">
                     The completed system shall undergo User Acceptance Testing (UAT). If the system meets the agreed requirements, the Client shall formally accept the project.
                   </p>
                 </div>
 
-                {/* 10. Warranty and Maintenance */}
-                <div className="section-block mt-6">
-                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-1 mb-2.5 text-slate-900">10. WARRANTY AND MAINTENANCE</h3>
-                  <p className="mb-4 text-[11pt] leading-relaxed">
+                {/* Page 3 Footer */}
+                <div className="flex justify-between items-center text-[9pt] text-slate-400 border-t border-slate-200 pt-2 pb-1 font-sans mt-auto">
+                  <span>Novaryn Tech Solutions · Client System Development Agreement</span>
+                  <span>Page 3 of 4</span>
+                </div>
+              </div>
+            </div>
+
+            {/* PAGE 4 — WARRANTY, LAWS & SIGNATURES */}
+            <div className="a4-page">
+              <div className="flex flex-col justify-between h-full">
+                <div>
+                  {/* 10. Warranty and Maintenance */}
+                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-0.5 mt-2 mb-1 text-slate-900">10. WARRANTY AND MAINTENANCE</h3>
+                  <p className="mb-2 text-[11pt] leading-relaxed">
                     The Developer shall provide a warranty period of 30 days after official turnover to correct software bugs or errors related to agreed functionality.
                   </p>
-                </div>
 
-                {/* 11. Termination */}
-                <div className="section-block mt-6">
-                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-1 mb-2.5 text-slate-900">11. TERMINATION</h3>
-                  <p className="mb-4 text-justify text-[11pt] leading-relaxed">
+                  {/* 11. Termination */}
+                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">11. TERMINATION</h3>
+                  <p className="mb-2 text-justify text-[11pt] leading-relaxed">
                     Either party may terminate this Agreement by providing written notice if the other party fails to fulfill its obligations.
                   </p>
-                </div>
 
-                {/* 12. Limitation of Liability */}
-                <div className="section-block mt-6">
-                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-1 mb-2.5 text-slate-900">12. LIMITATION OF LIABILITY</h3>
-                  <p className="mb-4 text-justify text-[11pt] leading-relaxed">
+                  {/* 12. Limitation of Liability */}
+                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">12. LIMITATION OF LIABILITY</h3>
+                  <p className="mb-2 text-justify text-[11pt] leading-relaxed">
                     The Developer shall not be held responsible for data loss caused by Client actions, hardware failures, or unauthorized third-party modifications.
                   </p>
-                </div>
 
-                {/* 13. Governing Law */}
-                <div className="section-block mt-6">
-                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-1 mb-2.5 text-slate-900">13. GOVERNING LAW</h3>
-                  <p className="mb-4 text-justify text-[11pt] leading-relaxed">
+                  {/* 13. Governing Law */}
+                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">13. GOVERNING LAW</h3>
+                  <p className="mb-2 text-justify text-[11pt] leading-relaxed">
                     This Agreement shall be governed by the applicable laws of the Republic of the Philippines.
                   </p>
-                </div>
 
-                {/* 14. Entire Agreement */}
-                <div className="section-block mt-6">
-                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-1 mb-2.5 text-slate-900">14. ENTIRE AGREEMENT</h3>
-                  <p className="mb-4 text-justify text-[11pt] leading-relaxed">
+                  {/* 14. Entire Agreement */}
+                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-1 text-slate-900">14. ENTIRE AGREEMENT</h3>
+                  <p className="mb-2 text-justify text-[11pt] leading-relaxed">
                     This document constitutes the complete agreement between the Client and the Developer and supersedes any prior verbal or written agreements.
                   </p>
-                </div>
 
-                {/* Source Code Buyout Clause (Optional) */}
-                {includeSourceCodeClause && (
-                  <div className="section-block mt-4 mb-4 p-3 border-l-2 border-slate-700 bg-slate-50 text-[10.5pt] leading-relaxed font-sans">
-                    <p className="font-bold text-slate-900">Source Code Transfer Addendum:</p>
-                    <p className="text-slate-800 mt-0.5">
-                      Upon full settlement of all contract fees including the buyout fee of ₱{Number(sourceCodeFee.replace(/,/g, '') || 0).toLocaleString('en-PH')}, source code repository access will be transferred to Client within {sourceCodeReleaseDays || "30"} calendar days post-settlement.
-                    </p>
-                  </div>
-                )}
+                  {/* Source Code Buyout Clause (Optional) */}
+                  {includeSourceCodeClause && (
+                    <div className="mt-1 mb-2 p-2 border-l-2 border-slate-500 bg-slate-50 text-[10.5pt] leading-relaxed font-sans">
+                      <p className="font-bold text-slate-800">Source Code Transfer Addendum:</p>
+                      <p className="text-slate-700 mt-0.5">
+                        Upon full payment of all fees including buyout fee of ₱{Number(sourceCodeFee.replace(/,/g, '') || 0).toLocaleString('en-PH')}, source code access will be transferred to Client {sourceCodeReleaseDays || "30"} calendar days post-settlement.
+                      </p>
+                    </div>
+                  )}
 
-                {/* 15. Signatures Block */}
-                <div className="section-block mt-8 pt-2 break-inside-avoid">
-                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-1 mb-4 text-slate-900">15. SIGNATURES</h3>
-                  <p className="mb-8 text-justify text-[11pt] leading-relaxed">
+                  {/* 15. SIGNATURES BLOCK */}
+                  <h3 className="font-sans font-bold text-[12pt] uppercase border-b border-slate-300 pb-0.5 mt-2.5 mb-2 text-slate-900">15. SIGNATURES</h3>
+                  <p className="mb-2 text-justify text-[11pt] leading-relaxed">
                     IN WITNESS WHEREOF, the parties hereto have executed and acknowledged this Agreement as of the Effective Date written above.
                   </p>
 
-                  {/* SIGNATURES GRID (Signature over printed name format) */}
-                  <div className="grid grid-cols-2 gap-12 mt-6 font-sans">
+                  {/* SIGNATURES GRID (Signature line sits DIRECTLY under printed name) */}
+                  <div className="grid grid-cols-2 gap-8 mt-4 mb-3 font-sans">
                     {/* CLIENT */}
-                    <div className="flex flex-col justify-end">
-                      <p className="text-[11pt] font-black tracking-wide text-slate-950 mb-12 uppercase">
+                    <div className="flex flex-col justify-end pt-12">
+                      <p className="text-[11pt] font-black tracking-wide text-slate-950 uppercase border-b-2 border-slate-900 pb-1 font-sans">
                         {selectedQuote.client_name.toUpperCase()}
                       </p>
-                      <div className="border-t-2 border-slate-900 pt-1.5">
-                        <p className="text-[10pt] font-bold uppercase tracking-wider text-slate-900">CLIENT</p>
-                        <p className="text-[9pt] text-slate-500">Authorized Representative</p>
-                      </div>
+                      <p className="text-[10pt] font-bold uppercase tracking-wider text-slate-900 mt-1.5">CLIENT</p>
+                      <p className="text-[9pt] text-slate-500">Authorized Representative</p>
                     </div>
 
                     {/* DEVELOPER */}
-                    <div className="flex flex-col justify-end">
-                      <p className="text-[11pt] font-black tracking-wide text-slate-950 mb-12 uppercase">
+                    <div className="flex flex-col justify-end pt-12">
+                      <p className="text-[11pt] font-black tracking-wide text-slate-950 uppercase border-b-2 border-slate-900 pb-1 font-sans">
                         {signatory.name.toUpperCase()}
                       </p>
-                      <div className="border-t-2 border-slate-900 pt-1.5">
-                        <p className="text-[10pt] font-bold uppercase tracking-wider text-slate-900">DEVELOPER / TEAM</p>
-                        <p className="text-[9pt] text-slate-500">{signatory.title}</p>
-                      </div>
+                      <p className="text-[10pt] font-bold uppercase tracking-wider text-slate-900 mt-1.5">DEVELOPER / TEAM</p>
+                      <p className="text-[9pt] text-slate-500">{signatory.title}</p>
                     </div>
                   </div>
 
-                  {/* WITNESS / NOTARY BLOCK */}
+                  {/* WITNESS / NOTARY */}
                   {acknowledgmentStyle === "private" ? (
-                    <div className="font-sans mt-10 break-inside-avoid">
+                    <div className="font-sans mt-4">
                       <p className="text-[10pt] font-bold uppercase tracking-wider text-slate-900 mb-6">WITNESS SIGNATURES</p>
-                      <div className="grid grid-cols-2 gap-12">
+                      <div className="grid grid-cols-2 gap-8">
                         <div>
                           <div className="border-t border-slate-400 pt-1">
                             <p className="text-[9.5pt] font-medium text-slate-700">Witness Name &amp; Signature</p>
@@ -1055,16 +1138,16 @@ export default function ContractBuilderPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="text-[10pt] text-slate-700 font-sans mt-8 break-inside-avoid border-t border-slate-300 pt-4">
-                      <p className="text-center font-bold uppercase text-[10pt] tracking-wide mb-2 text-slate-900">NOTARIAL ACKNOWLEDGEMENT</p>
-                      <p className="text-justify mb-4 leading-relaxed text-[9.5pt]">
+                    <div className="text-[10pt] text-slate-700 font-sans mt-3">
+                      <p className="text-center font-bold uppercase text-[10pt] tracking-wide mb-1 text-slate-900">NOTARIAL ACKNOWLEDGEMENT</p>
+                      <p className="text-justify mb-1.5 leading-relaxed text-[9.5pt]">
                         BEFORE ME, a Notary Public for and in the City of Digos, Davao del Sur, this day personally appeared <strong>{signatory.name}</strong> and <strong>{selectedQuote.client_name.toUpperCase()}</strong>, exhibiting their respective government-issued IDs, known to me to be the same persons who executed the foregoing Agreement.
                       </p>
-                      <div className="flex justify-between items-end mt-6">
+                      <div className="flex justify-between items-end">
                         <div className="text-[9pt]">
                           <p>Doc. No. _____; Page No. _____; Book No. _____; Series of {new Date(effectiveDate).getFullYear()}.</p>
                         </div>
-                        <div className="text-center border-t border-slate-900 w-52 pt-1 font-sans font-semibold text-slate-900 text-[9pt]">
+                        <div className="text-center border-t border-slate-900 w-48 pt-1 font-sans font-semibold text-slate-900 text-[9pt]">
                           {attorneyName}
                           <p className="text-[8.5pt] text-slate-500 font-normal">Notary Public / Attorney-at-Law</p>
                         </div>
@@ -1072,12 +1155,12 @@ export default function ContractBuilderPage() {
                     </div>
                   )}
                 </div>
-              </div>
 
-              {/* Footer */}
-              <div className="flex justify-between items-center text-[9pt] text-slate-400 border-t border-slate-200 pt-3 pb-1 font-sans mt-12">
-                <span>Novaryn Tech Solutions · Client System Development Agreement</span>
-                <span>System Agreement Document</span>
+                {/* Page 4 Footer */}
+                <div className="flex justify-between items-center text-[9pt] text-slate-400 border-t border-slate-200 pt-2 pb-1 font-sans mt-auto">
+                  <span>Novaryn Tech Solutions · Client System Development Agreement</span>
+                  <span>Page 4 of 4</span>
+                </div>
               </div>
             </div>
 
