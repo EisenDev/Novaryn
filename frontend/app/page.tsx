@@ -24,6 +24,12 @@ const EMAIL = "novarynph@gmail.com";
 export default function Home() {
   const [showToast, setShowToast] = useState(false);
   const [consultationOpen, setConsultationOpen] = useState(false);
+  const [consultationMessage, setConsultationMessage] = useState("");
+
+  const openConsultation = (msg: string = "") => {
+    setConsultationMessage(msg);
+    setConsultationOpen(true);
+  };
 
   const triggerToast = () => {
     setShowToast(true);
@@ -36,7 +42,7 @@ export default function Home() {
       <FloatingHeader 
         email={EMAIL} 
         onCopySuccess={triggerToast} 
-        onOpenConsultation={() => setConsultationOpen(true)} 
+        onOpenConsultation={() => openConsultation()} 
       />
 
       {/* Hero Section */}
@@ -63,7 +69,7 @@ export default function Home() {
           {/* Action CTAs */}
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto mt-2">
             <button
-              onClick={() => setConsultationOpen(true)}
+              onClick={() => openConsultation()}
               className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm px-6 py-3.5 rounded-xl transition-all duration-200 shadow-md shadow-emerald-600/10 hover:shadow-emerald-600/20 active:scale-98 w-full sm:w-auto cursor-pointer"
             >
               <span>Book a Free Demo</span>
@@ -472,7 +478,7 @@ export default function Home() {
       </section>
 
       {/* Pricing Section */}
-      <PricingSection email={EMAIL} onOpenConsultation={() => setConsultationOpen(true)} />
+      <PricingSection email={EMAIL} onOpenConsultation={(msg) => openConsultation(msg)} />
 
       {/* FAQ Section */}
       <FAQSection />
@@ -497,7 +503,7 @@ export default function Home() {
 
           <div className="flex flex-col gap-3 shrink-0 z-10 w-full sm:w-auto">
             <button
-              onClick={() => setConsultationOpen(true)}
+              onClick={() => openConsultation()}
               className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm px-6 py-3.5 rounded-xl transition-all duration-200 shadow-md w-full sm:w-auto cursor-pointer"
             >
               <Mail className="w-4 h-4" />
@@ -524,7 +530,7 @@ export default function Home() {
       <Footer email={EMAIL} />
 
       {/* Consultation Popup Modal */}
-      <ConsultationModal isOpen={consultationOpen} onClose={() => setConsultationOpen(false)} />
+      <ConsultationModal isOpen={consultationOpen} onClose={() => setConsultationOpen(false)} initialMessage={consultationMessage} />
 
       {/* Global Toast Notification */}
       {showToast && (
