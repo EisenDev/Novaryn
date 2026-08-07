@@ -3,8 +3,9 @@
 import React, { useState, useEffect, useMemo, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import {
-  Calculator, ChevronDown, ChevronRight,
-  Info, Shield, Server, ArrowRight, Check, Sparkles
+  Calculator, Zap, ChevronDown, ChevronRight,
+  RefreshCw, Info, ToggleLeft, ToggleRight, BadgePercent,
+  AlertCircle, Server, CheckCircle2, X, ArrowRight, FileText
 } from "lucide-react";
 import FloatingHeader from "../components/FloatingHeader";
 import Footer from "../components/Footer";
@@ -13,7 +14,7 @@ import ConsultationModal from "../components/ConsultationModal";
 const EMAIL = "novarynph@gmail.com";
 
 // ─────────────────────────────────────────────────────────────────
-// TYPES & MAPPINGS
+// TYPES
 // ─────────────────────────────────────────────────────────────────
 
 interface DBModule {
@@ -37,9 +38,9 @@ interface DBPlan {
 }
 
 const MODULE_TIERS: Record<string, { tier: "Starter" | "Professional" | "Enterprise"; badgeColor: string }> = {
-  "Custom Brand Website / CMS": { tier: "Starter", badgeColor: "bg-blue-50 text-blue-750 border-blue-100" },
-  "Appointment & Slot Booking": { tier: "Starter", badgeColor: "bg-blue-50 text-blue-750 border-blue-100" },
-  "Standalone POS (Point of Sale)": { tier: "Starter", badgeColor: "bg-blue-50 text-blue-750 border-blue-100" },
+  "Custom Brand Website / CMS": { tier: "Starter", badgeColor: "bg-blue-50 text-blue-700 border-blue-100" },
+  "Appointment & Slot Booking": { tier: "Starter", badgeColor: "bg-blue-50 text-blue-700 border-blue-100" },
+  "Standalone POS (Point of Sale)": { tier: "Starter", badgeColor: "bg-blue-50 text-blue-700 border-blue-100" },
   "Small Inventory System": { tier: "Professional", badgeColor: "bg-amber-50 text-amber-700 border-amber-100" },
   "Customer CRM & Membership Wallet": { tier: "Professional", badgeColor: "bg-amber-50 text-amber-700 border-amber-100" },
   "E-Commerce Online Store": { tier: "Professional", badgeColor: "bg-amber-50 text-amber-700 border-amber-100" },
@@ -50,80 +51,159 @@ const MODULE_TIERS: Record<string, { tier: "Starter" | "Professional" | "Enterpr
   "Enterprise ERP & Legacy Integration": { tier: "Enterprise", badgeColor: "bg-purple-50 text-purple-700 border-purple-100" }
 };
 
-const MODULE_DESCRIPTIONS: Record<string, string> = {
-  "Custom Brand Website / CMS": "Bespoke brand site with CMS for fast updates, blog management, and SEO optimization.",
-  "Appointment & Slot Booking": "Online booking widgets, staff timetables, and SMS confirmation triggers.",
-  "Standalone POS (Point of Sale)": "Cashier checkout portal supporting GCash/Maya and receipt printer integration.",
-  "Small Inventory System": "Track items, variants, SKUs, barcode mappings, and low-stock notification triggers.",
-  "Customer CRM & Membership Wallet": "Customer profiles, prepaid wallets, tier rewards, and QR check-in scanners.",
-  "E-Commerce Online Store": "Shopping cart, payment gateways, and delivery APIs (Lalamove/J&T) sync.",
-  "Venue / Facility Booking Grid": "Court booking grids, peak/off-peak price rule settings, and slot conflict blockers.",
-  "MIS Dashboard & Custom Reports": "KPI summary widgets, department transaction logs, and exportable financial sheets.",
-  "Big Inventory & Supply Chain": "HQ multi-branch supply chain integration and real-time stock sync.",
-  "Franchise & Branch HQ Panel": "Centralized control dashboard orchestrating all active franchise branches.",
-  "Enterprise ERP & Legacy Integration": "Legacy database node synchronization, fleet driver tracking, and accounting APIs."
-};
-
 const MODULE_FEATURES: Record<string, string[]> = {
+  "Custom Brand Website / CMS": [
+    "Fully Custom Figma-to-Code Design",
+    "Mobile-Responsive Layouts",
+    "Easy Content Management (CMS)",
+    "SEO & Meta Tag Configurations",
+    "Secure Contact Form Integration",
+    "Basic Site Traffic Overview (page views, visitor count)",
+    "Monthly Website Performance Summary Report"
+  ],
   "Appointment & Slot Booking": [
-    "Client Online Booking Widget",
-    "Dynamic Staff Timetables",
-    "SMS Booking Confirmations",
-    "Real-time Scheduling Engine"
+    "Client Online Booking Widget (web & mobile)",
+    "Dynamic Scheduling Calendar Grid",
+    "Email & SMS Confirmation & Reminder Alerts",
+    "Services, Staff & Time Slot Directory Setup",
+    "Real-time Availability Sync",
+    "Walk-in & Manual Override Booking by Admin",
+    "Booking Status Tracking (Pending / Confirmed / Cancelled)",
+    "— Analytics & Reports —",
+    "Daily & Weekly Booking Volume Summary",
+    "Cancellation & No-show Rate Tracker",
+    "Staff Utilization Rate Overview",
+    "Monthly Appointment Revenue Summary Report"
   ],
   "Standalone POS (Point of Sale)": [
-    "Thermal Receipt Outputting",
-    "Multi-Gateway Payment Sync",
-    "Void & Shift Audit Logs",
-    "Quick Checkout Interface"
+    "Fast Cashier Checkout Interface",
+    "Thermal Receipt Printer Integration",
+    "GCash, Maya, Cash, and QR Payment Support",
+    "Daily Shift Opening & Cash Closing Logs",
+    "Refunds, Voids & Transaction History",
+    "Product/Service Quick-Add Menu",
+    "Discount & Promo Code Application",
+    "— Analytics & Reports —",
+    "Daily Sales Summary & Cash Flow Report",
+    "Top-Selling Products & Services Ranking",
+    "Shift-by-Shift Revenue Comparison",
+    "Monthly Sales Trend Report (exportable)"
   ],
   "Small Inventory System": [
-    "SKU & Barcode Registrations",
-    "Manual Stock Updates",
-    "Low-Stock Email Notifications",
-    "Supplier Purchase Logs"
+    "Product Catalog with SKU & Barcode Logs",
+    "Manual Stock-In & Stock-Out Entry Logs",
+    "Automated Low-Stock Alert Notifications",
+    "Supplier Directory & Purchase Order Logs",
+    "Category & Variant Management",
+    "Multi-unit Stock Conversion (box → pcs)",
+    "— Analytics & Reports —",
+    "Inventory Valuation & Stock-on-Hand Report",
+    "Stock Movement & Variance Analytics",
+    "Slow-Moving & Dead Stock Identification",
+    "Supplier Purchase History & Lead Time Report",
+    "Monthly Inventory Health Summary (exportable PDF)"
   ],
   "Customer CRM & Membership Wallet": [
-    "Prepaid Wallet Ledger",
-    "Bronze/Silver/Gold Tier Limits",
-    "Points Earning Rules",
-    "QR Membership Access Scans"
+    "Customer Profile Directory & Purchase History",
+    "Tiered Membership Levels (Bronze / Silver / Gold)",
+    "Prepaid Digital Wallet (top-up & deduct)",
+    "Loyalty Points Earn & Redeem Rules Engine",
+    "QR Code Check-in Scanner App",
+    "Birthday & Anniversary Auto-messaging",
+    "Customer Segmentation Tags",
+    "— Analytics & Reports —",
+    "Customer Retention & Churn Rate Report",
+    "Member Activity & Visit Frequency Analytics",
+    "Wallet Top-up & Spending Summary",
+    "Loyalty Points Redemption Trend Report",
+    "Customer Lifetime Value (CLV) Overview Dashboard"
   ],
   "E-Commerce Online Store": [
-    "Shopping Cart & Pay Flow",
-    "Lalamove / J&T API Sync",
-    "Stock Deduct on Order",
-    "Discount Coupon Engine"
+    "Shopping Cart & Secure Checkout Flow",
+    "Product Listings with Filters, Variants & Gallery",
+    "GCash, Maya, Credit/Debit Card Gateways",
+    "Lalamove / J&T Delivery API Sync",
+    "Stock Auto-Deduction on Checkout",
+    "Order Management & Fulfillment Tracker",
+    "Customer Account & Order History Portal",
+    "Coupon & Flash Sale Engine",
+    "— Analytics & Reports —",
+    "Sales Revenue & GMV Analytics Dashboard",
+    "Product Performance & Conversion Rate Reports",
+    "Cart Abandonment Rate Tracking",
+    "Customer Purchase Behavior Insights",
+    "Top Traffic Sources & Channel Attribution",
+    "Monthly E-Commerce Business Report (exportable)"
   ],
   "Venue / Facility Booking Grid": [
-    "Hourly Slot Booking Grid",
-    "Peak Pricing Override Rules",
-    "Visual Layout Matrix Map",
-    "Double Booking Safeguards"
+    "Hourly Asset Booking Grid (courts, rooms, lanes)",
+    "Peak & Off-Peak Dynamic Pricing Rules",
+    "Interactive Floor / Court Layout Map",
+    "Reservation QR Check-in Validation",
+    "Re-scheduling, Cancellation & Refund Workflow",
+    "Walk-in & Admin Manual Override Booking",
+    "Blocked / Maintenance Slot Management",
+    "— Analytics & Reports —",
+    "Facility Utilization Rate per Asset Report",
+    "Revenue per Court / Room / Lane Analytics",
+    "Peak Hours & Off-Peak Demand Heatmap",
+    "Booking Source Breakdown (online vs walk-in)",
+    "Monthly Facility Revenue Trend Summary"
   ],
   "MIS Dashboard & Custom Reports": [
-    "Consolidated KPI Summary",
-    "Excel/PDF Ledger Exports",
-    "Departmental Audit Logs",
-    "Revenue Trends Matrix"
+    "Executive KPI Summary Dashboard (multi-module)",
+    "Role-Based Access Control (RBAC) per department",
+    "Exportable PDF & Excel Financial Reports",
+    "Manager & Staff Activity Audit Logs",
+    "Custom Business Data Filters & Date Ranges",
+    "Real-time Data Feed Across All Modules",
+    "Scheduled Auto-Email Report Delivery",
+    "— Analytics & Reports —",
+    "Cross-Department Revenue & Cost Analytics",
+    "Performance vs Target Comparison Charts",
+    "Operational Efficiency Metrics Dashboard",
+    "Trend Analysis & Month-over-Month Growth Charts",
+    "Custom Report Builder (drag & configure)",
+    "Executive-ready Slide-format Report Exports"
   ],
   "Big Inventory & Supply Chain": [
-    "Real-time Branch Stock Sync",
-    "Inter-Branch stock transfers",
-    "Low Stock Replenish rules",
-    "Damage & Shortage Audit logs"
+    "Multi-Branch Real-time Stock Sync",
+    "Barcode & QR Code Inventory Scanning",
+    "Auto-Replenishment & Purchase Order Automation",
+    "Inter-Branch Stock Transfer with Approval Flow",
+    "Physical Count Adjustment & Variance Logs",
+    "Multi-Warehouse Zone Management",
+    "Perishable & Expiry Date Tracking",
+    "— Analytics & Reports —",
+    "Supply Chain Performance & Lead Time Dashboard",
+    "Demand Forecasting & Reorder Point Analytics",
+    "Vendor Scorecard & Comparison Report",
+    "Loss, Shrinkage & Damage Audit Reports",
+    "COGS & Gross Margin per Product Analytics",
+    "Inventory Aging & Turnover Rate Report",
+    "Multi-Branch Stock Consolidation Summary"
   ],
   "Franchise & Branch HQ Panel": [
-    "Consolidated Branch Dashboards",
-    "Royalty Calculator engine",
-    "Central Product Master catalogs",
-    "Access privilege settings"
+    "Central HQ Control Panel (all branches in one view)",
+    "Consolidated Branch Revenue Comparison Charts",
+    "Central Product Catalog & Pricing Control",
+    "Cross-Branch Audit Logging & Compliance Monitoring",
+    "Royalty Fee Calculation & Billing Module",
+    "Franchisee Onboarding & Access Management",
+    "Announcement & Policy Broadcast System",
+    "— Analytics & Reports —",
+    "Branch Performance Benchmarking Dashboard",
+    "Consolidated Revenue & Expense Analytics",
+    "Operational Performance & Efficiency Benchmarks",
+    "System Usage & Access Compliance Reports",
+    "Royalty Billing & Collection Summary Ledger"
   ],
   "Enterprise ERP & Legacy Integration": [
-    "Legacy DB Bridge synchronization",
-    "Fleet driver tracking utilities",
+    "Legacy DB Bridge Node Synchronization",
+    "Real-time Fleet Driver Logistics sync",
     "Custom accounting API bridges",
-    "Enterprise Single Sign-On Roles"
+    "Enterprise Single Sign-On Roles",
+    "Active Directory Security Groups"
   ]
 };
 
@@ -171,6 +251,10 @@ function PricingEngineComponent() {
   const [enterpriseOpen, setEnterpriseOpen] = useState(true);
   const [hostingOpen, setHostingOpen] = useState(true);
 
+  const [isSlaModalOpen, setIsSlaModalOpen] = useState(false);
+  const [isMobileQuotationOpen, setIsMobileQuotationOpen] = useState(false);
+  const [mobileDrawerModule, setMobileDrawerModule] = useState<DBModule | null>(null);
+
   // USD → PHP Exchange Rate
   const [usdRate, setUsdRate] = useState<number>(57);
   const [rateDate, setRateDate] = useState<string>("");
@@ -180,7 +264,7 @@ function PricingEngineComponent() {
     setTimeout(() => setShowToast(false), 2500);
   };
 
-  // Load plans & modules from public API (dynamic lookup)
+  // Load plans & modules from public API
   const fetchPricingData = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -209,11 +293,10 @@ function PricingEngineComponent() {
           setSelectedHostId(hosts[0].id);
         }
       } else {
-        throw new Error("No custom system plans found.");
+        throw new Error("No custom plans found.");
       }
     } catch (err: any) {
       console.warn("Pricing DB load failed, loading static fallback module configurations.", err);
-      // Fallback
       setPlan(STATIC_PLAN as any);
       const defaults = new Set<string>();
       STATIC_PLAN.modules.forEach((mod) => {
@@ -363,6 +446,9 @@ function PricingEngineComponent() {
     let activeBuildModulesCount = 0;
 
     buildModules.forEach((m) => {
+      // Exclude custom brand from calculations if toggled somehow
+      if (m.name === "Custom Brand Website / CMS") return;
+
       if (enabledModuleIds.has(m.id)) {
         buildTotal += m.build_price;
         maintenanceTotal += m.monthly_price;
@@ -374,27 +460,28 @@ function PricingEngineComponent() {
     const hostMod = hostingModules.find((h) => h.id === selectedHostId);
     const hostCostUsd = hostMod ? hostMod.monthly_price : 0;
     const hostCostPhp = Math.round(hostCostUsd * usdRate);
-    const rawMaintenanceTotal = maintenanceTotal;
 
-    const monthlyTotal = (includeMaintenance ? rawMaintenanceTotal : 0) + hostCostPhp;
+    const monthlyTotal = (includeMaintenance ? maintenanceTotal : 0) + hostCostPhp;
     const complexityAvg = activeBuildModulesCount > 0 ? Math.round(complexitySum / activeBuildModulesCount) : 0;
 
     return {
       buildTotal,
-      rawMaintenanceTotal,
-      maintenanceTotal: includeMaintenance ? rawMaintenanceTotal : 0,
+      rawMaintenanceTotal: maintenanceTotal,
+      maintenanceTotal: includeMaintenance ? maintenanceTotal : 0,
       hostCostUsd,
       hostCostPhp,
       monthlyTotal,
       complexityAvg,
       activeCount: activeBuildModulesCount,
-      totalCount: buildModules.length
+      totalCount: buildModules.length - 1 // Subtract Custom Brand Website/CMS
     };
   }, [buildModules, hostingModules, enabledModuleIds, selectedHostId, usdRate, includeMaintenance]);
 
   const peso = (n: number) => "₱" + n.toLocaleString("en-PH", { minimumFractionDigits: 0 });
+  const usd = (n: number) => `$${n.toLocaleString("en-US", { minimumFractionDigits: 0 })}`;
+  const hostPhp = (usdAmt: number) => Math.round(usdAmt * usdRate);
 
-  // GeneratePrefill Consultation description
+  // Generate Consultation prefill description
   const handleOpenConsultation = () => {
     const selectedNames = Array.from(enabledModuleIds)
       .map((id) => buildModules.find((m) => m.id === id)?.name)
@@ -433,452 +520,600 @@ Let's schedule a call to review these options.`;
         }}
       />
 
-      <main className="flex-grow pt-32 pb-24">
-        <div className="max-w-6xl mx-auto px-6 text-left">
+      <main className="flex-grow pt-32 pb-24 max-w-6xl mx-auto px-6 flex flex-col gap-6 text-left">
+        
+        {/* Page Header (Matches Admin Dashboard structure 1-to-1) */}
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 mb-1">
+              <Calculator className="w-4.5 h-4.5 text-emerald-505 text-emerald-600" />
+              <h1 className="text-lg font-semibold text-slate-900">Custom System Pricing Engine</h1>
+            </div>
+            <p className="text-[12px] text-slate-505 text-slate-500">
+              A modular quotation builder. Toggle systems and select a hosting tier to instantly calculate the total contract value, production launch payment, and monthly installment schedule.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-2 self-start">
+            <Zap className="w-3.5 h-3.5 text-emerald-500 animate-pulse" />
+            <span className="text-[11px] font-semibold text-emerald-700">Custom Module Builder</span>
+          </div>
+        </div>
+
+        {/* Live Summary Bar (Matches Admin Dashboard structure 1-to-1) */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+          <div className="bg-white border border-slate-200/70 rounded-xl p-3 sm:p-4 shadow-sm text-left">
+            <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest text-slate-400">Total Contract Value</p>
+            <p className="text-lg sm:text-2xl font-semibold text-slate-900 mt-1 tracking-tight">{peso(calculations.buildTotal)}</p>
+            <p className="text-[9px] sm:text-[10px] text-slate-400 mt-1">Full project baseline</p>
+          </div>
+          <div className="bg-white border border-slate-200/70 rounded-xl p-3 sm:p-4 shadow-sm text-left">
+            <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest text-slate-400">Production Launch (50%)</p>
+            <p className="text-lg sm:text-2xl font-semibold text-slate-900 mt-1 tracking-tight">
+              {peso(Math.round(calculations.buildTotal * 0.5))}
+            </p>
+            <p className="text-[9px] sm:text-[10px] text-slate-400 mt-1">Paid upon go-live</p>
+          </div>
+          <div className="bg-white border border-slate-200/70 rounded-xl p-3 sm:p-4 shadow-sm text-left">
+            <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest text-slate-400">Cloud Hosting / Mo</p>
+            <p className="text-lg sm:text-2xl font-semibold text-slate-900 mt-1 tracking-tight">
+              {usd(calculations.hostCostUsd)}<span className="text-xs text-slate-400 font-normal">/mo</span>
+            </p>
+            <p className="text-[9px] sm:text-[10px] text-slate-500 mt-1">
+              ≈ {peso(calculations.hostCostPhp)}/mo · ₱{usdRate.toFixed(2)}/$
+            </p>
+          </div>
+          <div className="bg-white border border-slate-200/70 rounded-xl p-3 sm:p-4 shadow-sm bg-emerald-50/20 border-emerald-100 text-left">
+            <p className="text-[8px] sm:text-[9px] font-bold uppercase tracking-widest text-emerald-700">Monthly Installment</p>
+            <p className="text-lg sm:text-2xl font-semibold text-emerald-600 mt-1 tracking-tight">
+              {peso(Math.round(calculations.buildTotal * 0.5 / 12) + calculations.hostCostPhp)}<span className="text-xs text-emerald-700 font-normal">/mo</span>
+            </p>
+            <p className="text-[9px] sm:text-[10px] text-slate-500 mt-1">50% / 12mo (₱) + Cloud ($)</p>
+          </div>
+        </div>
+
+        {/* Main Grid Layout (Clones Admin 1-to-1) */}
+        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-5 items-start">
           
-          {/* Document Header */}
-          <div className="mb-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6 border-b border-slate-200/80 pb-6">
-            <div>
-              <div className="flex items-center gap-2">
-                <Calculator className="w-5 h-5 text-emerald-600 animate-pulse" />
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                  Custom System Pricing Engine
-                </h1>
-              </div>
-              <p className="text-xs sm:text-sm text-slate-500 mt-2 font-medium leading-relaxed max-w-2xl">
-                A modular quotation builder. Toggle systems and select a hosting tier to instantly calculate the total contract value, production launch payment, and monthly installment schedule.
-              </p>
-            </div>
-            
-            <button
-              onClick={handleReset}
-              className="px-4 py-2 border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 text-slate-650 text-xs font-bold rounded-xl transition-all self-start md:self-center"
-            >
-              Reset Configuration
-            </button>
-          </div>
-
-          {/* Dynamic Valuation Metrics Grid (Matches Eisen Admin Dashboard look) */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-            {/* Box 1 */}
-            <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs">
-              <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider block">TOTAL CONTRACT VALUE</span>
-              <span className="text-xl sm:text-2xl font-black text-slate-900 block mt-1.5 leading-none">
-                {peso(calculations.buildTotal)}
-              </span>
-              <span className="text-[10px] text-slate-400 font-semibold block mt-2">Full project baseline</span>
-            </div>
-
-            {/* Box 2 */}
-            <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs">
-              <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider block">PRODUCTION LAUNCH (50%)</span>
-              <span className="text-xl sm:text-2xl font-black text-slate-800 block mt-1.5 leading-none">
-                {peso(Math.round(calculations.buildTotal * 0.50))}
-              </span>
-              <span className="text-[10px] text-slate-450 font-bold block mt-2 text-emerald-600">Paid upon kickoff</span>
-            </div>
-
-            {/* Box 3 */}
-            <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs">
-              <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider block">CLOUD HOSTING / MO</span>
-              <span className="text-xl sm:text-2xl font-black text-slate-700 block mt-1.5 leading-none">
-                {selectedHostId === "none" ? "₱0" : peso(calculations.hostCostPhp)}
-              </span>
-              <span className="text-[10px] text-slate-400 font-semibold block mt-2">
-                {selectedHostId === "none" ? "Client-Managed" : `$${calculations.hostCostUsd}/mo equivalent`}
-              </span>
-            </div>
-
-            {/* Box 4 */}
-            <div className="bg-[#ECFDF5] border border-emerald-100 p-5 rounded-2xl shadow-xs">
-              <span className="text-[9px] font-black text-emerald-600 uppercase tracking-wider block">MONTHLY INSTALLMENT</span>
-              <span className="text-xl sm:text-2xl font-black text-emerald-650 block mt-1.5 leading-none">
-                {peso(Math.round(calculations.buildTotal * 0.50 / 12) + calculations.hostCostPhp + (includeMaintenance ? calculations.maintenanceTotal : 0))}
-                <span className="text-xs text-slate-500 font-normal">/mo</span>
-              </span>
-              <span className="text-[10px] text-slate-450 font-bold block mt-2">50% / 12mo (₱) + Cloud ($)</span>
-            </div>
-          </div>
-
-          {/* Interactive Form & Receipt Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-            
-            {/* Left Panel: Checklist accordions (Spans 2 columns) */}
-            <div className="lg:col-span-2 flex flex-col gap-4">
+          {/* Left panel: Module Selectors */}
+          <div className="flex flex-col gap-4">
+            <div className="bg-white border border-slate-200/70 rounded-2xl overflow-hidden shadow-sm">
               
-              {/* Accordion 1: Starter */}
-              <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
+              {/* Card Header (Matches Admin Dashboard 1-to-1) */}
+              <div className="flex items-center justify-between p-5 border-b border-slate-100">
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900">Select System Modules</h3>
+                  <p className="text-[10px] text-slate-400 mt-0.5">
+                    {calculations.activeCount} modules active · Complexity avg {calculations.complexityAvg}/10
+                  </p>
+                </div>
                 <button
-                  onClick={() => setStarterOpen(!starterOpen)}
-                  className="w-full px-5 py-4 bg-slate-50/50 flex justify-between items-center border-b border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer text-left"
+                  onClick={handleReset}
+                  className="text-[10px] text-emerald-600 hover:text-emerald-700 font-semibold flex items-center gap-1 cursor-pointer bg-transparent border-0 outline-none"
                 >
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-blue-500" />
-                    <span className="text-[11px] font-bold uppercase tracking-widest text-slate-700">
-                      STARTER MODULES (BROCHURE / SMALL BACKEND)
-                    </span>
-                  </div>
-                  {starterOpen ? <ChevronDown className="w-3.5 h-3.5 text-slate-450" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-450" />}
+                  <RefreshCw className="w-3.5 h-3.5" /> Reset Selections
                 </button>
-
-                {starterOpen && (
-                  <div className="p-4 flex flex-col gap-3.5 animate-fade-in">
-                    {categorizedModules.starter.map((m) => {
-                      const selected = enabledModuleIds.has(m.id);
-                      return (
-                        <div
-                          key={m.id}
-                          onClick={() => handleToggleModule(m.id)}
-                          className={`p-4 rounded-xl border transition-all flex items-start gap-4 cursor-pointer select-none bg-white ${
-                            selected ? "border-emerald-500 bg-emerald-50/5" : "border-slate-200 hover:border-slate-350"
-                          }`}
-                        >
-                          <div className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-all ${
-                            selected ? "bg-emerald-600 border-emerald-600 text-white" : "border-slate-300"
-                          }`}>
-                            <Check className="w-3.5 h-3.5" strokeWidth={3.5} />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex justify-between items-start">
-                              <h3 className="text-xs font-black text-slate-800 leading-snug">{m.name}</h3>
-                              <div className="text-right text-[11px] font-bold text-slate-800 leading-tight shrink-0 ml-4">
-                                <span>{peso(m.build_price)} setup</span>
-                                <span className="block text-slate-400 text-[9px] font-semibold mt-0.5">+{peso(m.monthly_price)}/mo support</span>
-                              </div>
-                            </div>
-                            <p className="text-[10px] text-slate-450 mt-1 leading-normal font-semibold max-w-[480px]">
-                              {MODULE_DESCRIPTIONS[m.name] || "Custom dynamic components matching your portal specs."}
-                            </p>
-                            {MODULE_FEATURES[m.name] && (
-                              <div className="mt-3 flex flex-wrap gap-x-3.5 gap-y-1.5 border-t border-slate-100 pt-2.5">
-                                {MODULE_FEATURES[m.name].map((feat) => (
-                                  <span key={feat} className="text-[9px] text-slate-450 font-bold flex items-center gap-1">
-                                    <span className="w-1 h-1 rounded-full bg-emerald-500" />
-                                    {feat}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
               </div>
 
-              {/* Accordion 2: Professional */}
-              <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
-                <button
-                  onClick={() => setProOpen(!proOpen)}
-                  className="w-full px-5 py-4 bg-slate-50/50 flex justify-between items-center border-b border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer text-left"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-                    <span className="text-[11px] font-bold uppercase tracking-widest text-slate-700">
-                      PROFESSIONAL MODULES (MID-TIER OPERATIONS)
+              {/* Modules List Container (Matches Admin 1-to-1) */}
+              <div className="p-5 flex flex-col gap-5">
+                
+                {/* 1. Starter Modules Category (Custom Brand Website/CMS excluded!) */}
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => setStarterOpen(!starterOpen)}
+                    className="flex items-center justify-between text-left pb-1 border-b border-slate-100 cursor-pointer w-full bg-transparent border-0 outline-none"
+                  >
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-blue-700">
+                      Starter Modules (Brochure / Small backend)
                     </span>
-                  </div>
-                  {proOpen ? <ChevronDown className="w-3.5 h-3.5 text-slate-450" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-450" />}
-                </button>
+                    {starterOpen ? <ChevronDown className="w-3.5 h-3.5 text-slate-400" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-400" />}
+                  </button>
+                  {starterOpen && (
+                    <div className="flex flex-col gap-2 mt-1">
+                      {categorizedModules.starter
+                        .filter((mod) => mod.name !== "Custom Brand Website / CMS")
+                        .map((mod) => (
+                          <ModuleRow
+                            key={mod.id}
+                            mod={mod}
+                            enabled={enabledModuleIds.has(mod.id)}
+                            onToggle={handleToggleModule}
+                            onViewFeatures={setMobileDrawerModule}
+                            launchPct={50}
+                          />
+                        ))}
+                    </div>
+                  )}
+                </div>
 
-                {proOpen && (
-                  <div className="p-4 flex flex-col gap-3.5 animate-fade-in">
-                    {categorizedModules.pro.map((m) => {
-                      const selected = enabledModuleIds.has(m.id);
-                      return (
-                        <div
-                          key={m.id}
-                          onClick={() => handleToggleModule(m.id)}
-                          className={`p-4 rounded-xl border transition-all flex items-start gap-4 cursor-pointer select-none bg-white ${
-                            selected ? "border-emerald-500 bg-emerald-50/5" : "border-slate-200 hover:border-slate-355"
-                          }`}
-                        >
-                          <div className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-all ${
-                            selected ? "bg-emerald-600 border-emerald-600 text-white" : "border-slate-300"
-                          }`}>
-                            <Check className="w-3.5 h-3.5" strokeWidth={3.5} />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex justify-between items-start">
-                              <h3 className="text-xs font-black text-slate-800 leading-snug">{m.name}</h3>
-                              <div className="text-right text-[11px] font-bold text-slate-800 leading-tight shrink-0 ml-4">
-                                <span>{peso(m.build_price)} setup</span>
-                                <span className="block text-slate-400 text-[9px] font-semibold mt-0.5">+{peso(m.monthly_price)}/mo support</span>
-                              </div>
-                            </div>
-                            <p className="text-[10px] text-slate-450 mt-1 leading-normal font-semibold max-w-[480px]">
-                              {MODULE_DESCRIPTIONS[m.name] || "Intermediate databases, transaction tools, and customer pipelines."}
-                            </p>
-                            {MODULE_FEATURES[m.name] && (
-                              <div className="mt-3 flex flex-wrap gap-x-3.5 gap-y-1.5 border-t border-slate-100 pt-2.5">
-                                {MODULE_FEATURES[m.name].map((feat) => (
-                                  <span key={feat} className="text-[9px] text-slate-450 font-bold flex items-center gap-1">
-                                    <span className="w-1 h-1 rounded-full bg-emerald-500" />
-                                    {feat}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                {/* 2. Professional Modules Category */}
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => setProOpen(!proOpen)}
+                    className="flex items-center justify-between text-left pb-1 border-b border-slate-100 cursor-pointer w-full bg-transparent border-0 outline-none"
+                  >
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-amber-700">
+                      Professional Modules (Mid-tier operations)
+                    </span>
+                    {proOpen ? <ChevronDown className="w-3.5 h-3.5 text-slate-400" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-400" />}
+                  </button>
+                  {proOpen && (
+                    <div className="flex flex-col gap-2 mt-1">
+                      {categorizedModules.pro.map((mod) => (
+                        <ModuleRow
+                          key={mod.id}
+                          mod={mod}
+                          enabled={enabledModuleIds.has(mod.id)}
+                          onToggle={handleToggleModule}
+                          onViewFeatures={setMobileDrawerModule}
+                          launchPct={50}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* 3. Enterprise Modules Category */}
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => setEnterpriseOpen(!enterpriseOpen)}
+                    className="flex items-center justify-between text-left pb-1 border-b border-slate-100 cursor-pointer w-full bg-transparent border-0 outline-none"
+                  >
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-purple-700">
+                      Enterprise Modules (Large business / 2+ branches)
+                    </span>
+                    {enterpriseOpen ? <ChevronDown className="w-3.5 h-3.5 text-slate-400" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-400" />}
+                  </button>
+                  {enterpriseOpen && (
+                    <div className="flex flex-col gap-2 mt-1">
+                      {categorizedModules.ent.map((mod) => (
+                        <ModuleRow
+                          key={mod.id}
+                          mod={mod}
+                          enabled={enabledModuleIds.has(mod.id)}
+                          onToggle={handleToggleModule}
+                          onViewFeatures={setMobileDrawerModule}
+                          launchPct={50}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+
               </div>
+            </div>
 
-              {/* Accordion 3: Enterprise */}
-              <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
-                <button
-                  onClick={() => setEnterpriseOpen(!enterpriseOpen)}
-                  className="w-full px-5 py-4 bg-slate-50/50 flex justify-between items-center border-b border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer text-left"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-purple-550" />
-                    <span className="text-[11px] font-bold uppercase tracking-widest text-slate-700">
-                      ENTERPRISE MODULES (ADVANCED NETWORKS)
-                    </span>
-                  </div>
-                  {enterpriseOpen ? <ChevronDown className="w-3.5 h-3.5 text-slate-450" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-450" />}
-                </button>
+            {/* Hosting Infrastructure Card (Matches Admin 1-to-1) */}
+            <div className="bg-white border border-slate-200/70 rounded-2xl overflow-hidden shadow-sm p-5">
+              <button
+                onClick={() => setHostingOpen(!hostingOpen)}
+                className="flex items-center justify-between w-full text-left cursor-pointer bg-transparent border-0 outline-none"
+              >
+                <div className="flex items-center gap-2">
+                  <Server className="w-4 h-4 text-emerald-500" />
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-slate-700">
+                    Infrastructure & Database Hosting Plan
+                  </span>
+                </div>
+                {hostingOpen ? <ChevronDown className="w-3.5 h-3.5 text-slate-400" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-400" />}
+              </button>
 
-                {enterpriseOpen && (
-                  <div className="p-4 flex flex-col gap-3.5 animate-fade-in">
-                    {categorizedModules.ent.map((m) => {
-                      const selected = enabledModuleIds.has(m.id);
-                      return (
-                        <div
-                          key={m.id}
-                          onClick={() => handleToggleModule(m.id)}
-                          className={`p-4 rounded-xl border transition-all flex items-start gap-4 cursor-pointer select-none bg-white ${
-                            selected ? "border-emerald-500 bg-emerald-50/5" : "border-slate-200 hover:border-slate-355"
-                          }`}
-                        >
-                          <div className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-all ${
-                            selected ? "bg-emerald-600 border-emerald-600 text-white" : "border-slate-300"
-                          }`}>
-                            <Check className="w-3.5 h-3.5" strokeWidth={3.5} />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex justify-between items-start">
-                              <h3 className="text-xs font-black text-slate-800 leading-snug">{m.name}</h3>
-                              <div className="text-right text-[11px] font-bold text-slate-800 leading-tight shrink-0 ml-4">
-                                <span>{peso(m.build_price)} setup</span>
-                                <span className="block text-slate-400 text-[9px] font-semibold mt-0.5">+{peso(m.monthly_price)}/mo support</span>
-                              </div>
-                            </div>
-                            <p className="text-[10px] text-slate-450 mt-1 leading-normal font-semibold max-w-[480px]">
-                              {MODULE_DESCRIPTIONS[m.name] || "HQ controls, franchise sync, legacy DB structures, and fleet tools."}
-                            </p>
-                            {MODULE_FEATURES[m.name] && (
-                              <div className="mt-3 flex flex-wrap gap-x-3.5 gap-y-1.5 border-t border-slate-100 pt-2.5">
-                                {MODULE_FEATURES[m.name].map((feat) => (
-                                  <span key={feat} className="text-[9px] text-slate-450 font-bold flex items-center gap-1">
-                                    <span className="w-1 h-1 rounded-full bg-emerald-500" />
-                                    {feat}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
+              {hostingOpen && (
+                <div className="mt-4 flex flex-col gap-3">
+                  <p className="text-[11px] text-slate-500">
+                    Who hosts the system? If you handle hosting, we recommend adding this infrastructure charge to cover monthly cloud resource bills.
+                  </p>
+
+                  <div className="grid grid-cols-1 gap-2.5">
+                    {/* Client Managed option */}
+                    <label
+                      className={`flex items-start justify-between p-3 border rounded-xl cursor-pointer transition-all ${
+                        selectedHostId === "none"
+                          ? "border-emerald-500 bg-emerald-50/10"
+                          : "border-slate-200 hover:border-slate-300 bg-white"
+                      }`}
+                    >
+                      <div className="flex items-start gap-2.5">
+                        <input
+                          type="radio"
+                          name="hostingPlanPublic"
+                          checked={selectedHostId === "none"}
+                          onChange={() => setSelectedHostId("none")}
+                          className="mt-0.5 accent-emerald-600 cursor-pointer"
+                        />
+                        <div>
+                          <p className="text-[12px] font-semibold text-slate-700">Client-Managed Hosting</p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">Deploy directly to client's AWS, DigitalOcean, or Vercel account.</p>
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+                      </div>
+                      <span className="text-[12px] font-bold text-slate-805">₱0</span>
+                    </label>
 
-              {/* Accordion 4: Hosting Infrastructures */}
-              <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
-                <button
-                  onClick={() => setHostingOpen(!hostingOpen)}
-                  className="w-full px-5 py-4 bg-slate-50/50 flex justify-between items-center border-b border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer text-left"
-                >
-                  <div className="flex items-center gap-2">
-                    <Server className="w-4 h-4 text-slate-550" />
-                    <span className="text-[11px] font-bold uppercase tracking-widest text-slate-700">
-                      INFRASTRUCTURE & DATABASE HOSTING PLAN
-                    </span>
-                  </div>
-                  {hostingOpen ? <ChevronDown className="w-3.5 h-3.5 text-slate-450" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-450" />}
-                </button>
-
-                {hostingOpen && (
-                  <div className="p-5 flex flex-col gap-3.5 bg-white animate-fade-in">
-                    <p className="text-[10px] text-slate-450 mt-0.5">
-                      Define where system modules run. If you manage the server nodes internally, select Client-Managed Hosting.
-                    </p>
-
-                    <div className="grid grid-cols-1 gap-2.5">
-                      {/* Client Managed radio */}
+                    {/* Dynamic Hosting Options from DB */}
+                    {hostingModules.map((host) => (
                       <label
-                        className={`flex items-start justify-between p-3.5 border.5 rounded-xl cursor-pointer transition-all ${
-                          selectedHostId === "none" ? "border-emerald-500 bg-emerald-50/5" : "border-slate-200 bg-white"
+                        key={host.id}
+                        className={`flex items-start justify-between p-3 border rounded-xl cursor-pointer transition-all ${
+                          selectedHostId === host.id
+                            ? "border-emerald-500 bg-emerald-50/10"
+                            : "border-slate-200 hover:border-slate-300 bg-white"
                         }`}
                       >
-                        <div className="flex items-start gap-3">
+                        <div className="flex items-start gap-2.5">
                           <input
                             type="radio"
                             name="hostingPlanPublic"
-                            checked={selectedHostId === "none"}
-                            onChange={() => setSelectedHostId("none")}
+                            checked={selectedHostId === host.id}
+                            onChange={() => setSelectedHostId(host.id)}
                             className="mt-0.5 accent-emerald-600 cursor-pointer"
                           />
                           <div>
-                            <span className="text-[11px] font-extrabold text-slate-805 block">Client-Managed Hosting</span>
-                            <span className="text-[9px] text-slate-400 block mt-0.5">Deploy directly to client's cloud nodes (AWS, GCP, Vercel).</span>
+                            <p className="text-[12px] font-semibold text-slate-700">{host.name}</p>
+                            <p className="text-[10px] text-slate-400 mt-0.5">Managed deployment with regular monitoring and DB backups.</p>
                           </div>
                         </div>
-                        <span className="text-[11px] font-extrabold text-slate-800">₱0</span>
+                        <div className="text-right shrink-0 ml-3">
+                          <p className="text-[12px] font-bold text-slate-805">{usd(host.monthly_price)}<span className="text-[9px] text-slate-400 font-normal">/mo</span></p>
+                          <p className="text-[9px] text-slate-400">≈ {peso(hostPhp(host.monthly_price))}/mo</p>
+                        </div>
                       </label>
-
-                      {/* DB Hosting options */}
-                      {hostingModules.map((host) => {
-                        const hostCostPhp = Math.round(host.monthly_price * usdRate);
-                        return (
-                          <label
-                            key={host.id}
-                            className={`flex items-start justify-between p-3.5 border.5 rounded-xl cursor-pointer transition-all ${
-                              selectedHostId === host.id ? "border-emerald-500 bg-emerald-50/5" : "border-slate-200 bg-white"
-                            }`}
-                          >
-                            <div className="flex items-start gap-3">
-                              <input
-                                type="radio"
-                                name="hostingPlanPublic"
-                                checked={selectedHostId === host.id}
-                                onChange={() => setSelectedHostId(host.id)}
-                                className="mt-0.5 accent-emerald-600 cursor-pointer"
-                              />
-                              <div>
-                                <span className="text-[11px] font-extrabold text-slate-805 block">{host.name}</span>
-                                <span className="text-[9px] text-slate-400 block mt-0.5">
-                                  Managed deploy (${host.monthly_price}/mo). Live rate locked at {usdRate} ₱/$.
-                                </span>
-                              </div>
-                            </div>
-                            <span className="text-[11px] font-extrabold text-slate-800">
-                              {peso(hostCostPhp)}<span className="text-[9px] text-slate-400 font-normal">/mo</span>
-                            </span>
-                          </label>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Maintenance toggle bar */}
-              <div className="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-200">
-                <div className="flex items-start gap-3">
-                  <Info className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <div>
-                    <h5 className="text-[11px] font-bold text-slate-700">Include Active Support & Maintenance SLA</h5>
-                    <p className="text-[9px] text-slate-450 mt-0.5 leading-relaxed font-semibold">
-                      Covers routine updates, backup checks, security scanning, and hot-fixes. Recommended for business operations.
-                    </p>
+                    ))}
                   </div>
                 </div>
-                <button
-                  onClick={() => setIncludeMaintenance(!includeMaintenance)}
-                  className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                    includeMaintenance ? "bg-emerald-600" : "bg-slate-200"
-                  }`}
-                  aria-label="Toggle support maintenance SLA"
-                >
-                  <span
-                    className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition duration-200 ease-in-out ${
-                      includeMaintenance ? "translate-x-4" : "translate-x-0"
-                    }`}
-                  />
-                </button>
-              </div>
-
-            </div>
-
-            {/* Right Panel: View-Only Sticky Summary Receipt (Replaces Save Quotation Card) */}
-            <div className="sticky top-28 bg-white border border-slate-200 p-6 rounded-3xl shadow-sm flex flex-col gap-6 text-left">
-              <div>
-                <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest block">
-                  Estimate Receipt
-                </span>
-                <h2 className="text-lg font-black text-slate-900 mt-1">Valuation Summary</h2>
-              </div>
-
-              <div className="flex flex-col gap-4.5 text-xs font-semibold">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500 font-bold">System Price</span>
-                  <span className="text-sm font-extrabold text-slate-900">{peso(calculations.buildTotal)}</span>
-                </div>
-
-                <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-                  <span className="text-slate-550 font-bold">Launch Downpayment (50%)</span>
-                  <span className="text-sm font-extrabold text-slate-800">{peso(Math.round(calculations.buildTotal * 0.50))}</span>
-                </div>
-
-                <div className="flex justify-between items-center mt-1">
-                  <span className="text-slate-500 font-bold">Cloud Server Support</span>
-                  <span className="text-sm font-extrabold text-slate-650">{peso(calculations.hostCostPhp)}<span className="text-[10px] text-slate-400 font-normal">/mo</span></span>
-                </div>
-
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500 font-bold">Maintenance Support SLA</span>
-                  <span className="text-sm font-extrabold text-slate-650">
-                    {peso(includeMaintenance ? calculations.rawMaintenanceTotal : 0)}<span className="text-[10px] text-slate-400 font-normal">/mo</span>
-                  </span>
-                </div>
-
-                <div className="flex justify-between items-center border-t border-slate-150 pt-4 mt-2">
-                  <span className="text-slate-900 font-black">Estimated Monthly</span>
-                  <span className="text-base font-black text-emerald-600">
-                    {peso(Math.round(calculations.buildTotal * 0.50 / 12) + calculations.hostCostPhp + (includeMaintenance ? calculations.rawMaintenanceTotal : 0))}
-                    <span className="text-[10px] text-slate-450 font-normal">/mo × 12</span>
-                  </span>
-                </div>
-
-                <div className="flex items-start gap-2.5 leading-relaxed text-[9px] text-slate-450 font-medium bg-slate-50 p-3.5 rounded-xl border border-slate-100 mt-2">
-                  <Shield className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
-                  <span>
-                    No administrative quotation generated. Cost estimates include 12 months free technical security support.
-                  </span>
-                </div>
-              </div>
-
-              <button
-                onClick={handleOpenConsultation}
-                className="w-full py-4.5 rounded-xl bg-slate-900 hover:bg-slate-805 text-white font-bold text-xs transition-all active:scale-98 shadow-md flex items-center justify-center gap-1.5 cursor-pointer uppercase tracking-wider font-sans"
-              >
-                <span>Book Free Consultation</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </button>
+              )}
             </div>
 
           </div>
 
+          {/* Right Panel: Clones Admin Quotation visual receipt style box */}
+          <div className="bg-white border border-slate-200/70 rounded-2xl overflow-hidden shadow-sm sticky top-28">
+            <div className="p-5 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <BadgePercent className="w-4 h-4 text-emerald-500" />
+                <h3 className="text-sm font-semibold text-slate-900">Estimate Summary</h3>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-1 leading-normal">
+                Estimated pricing totals are calculated live based on current selections.
+              </p>
+            </div>
+
+            <div className="p-5 flex flex-col gap-4">
+              
+              {/* SLA Scope Info */}
+              <div className="flex items-center justify-between p-3.5 border border-emerald-100 rounded-xl bg-emerald-50/40">
+                <div className="text-left">
+                  <div className="flex items-center gap-2">
+                    <p className="text-[12px] font-semibold text-emerald-800">3 Months Free Bug Fixes Included</p>
+                    <button
+                      type="button"
+                      onClick={() => setIsSlaModalOpen(true)}
+                      className="text-[10px] font-bold text-emerald-600 hover:text-emerald-700 cursor-pointer underline decoration-dotted bg-transparent border-0 outline-none p-0"
+                    >
+                      View Scope
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-emerald-600 mt-0.5">Year 2+: Pay-as-you-go — ₱0 if no issues occur.</p>
+                </div>
+              </div>
+
+              {/* Price Preview List (Clones Admin Pricing Summary table 1-to-1) */}
+              <div className="bg-slate-50 border border-slate-200/60 rounded-xl p-4 flex flex-col gap-2">
+                <div className="flex justify-between items-center text-[12px] text-left">
+                  <span className="text-slate-500">Total Contract Value (PHP)</span>
+                  <span className="font-semibold text-slate-900">{peso(calculations.buildTotal)}</span>
+                </div>
+                <div className="flex justify-between items-center text-[12px] text-slate-700 text-left">
+                  <span>Production Launch (50%)</span>
+                  <span className="font-semibold">{peso(Math.round(calculations.buildTotal * 0.5))}</span>
+                </div>
+                <div className="flex justify-between items-center text-[12px] border-b border-dashed border-slate-200 pb-2 text-left">
+                  <span className="text-slate-500">Monthly Installment (50% / 12mo)</span>
+                  <span className="font-semibold text-slate-900">{peso(Math.round(calculations.buildTotal * 0.5 / 12))}/mo</span>
+                </div>
+                <div className="flex justify-between items-center text-[12px] border-b border-dashed border-slate-200 pb-2 text-left">
+                  <span className="text-slate-500">Cloud Hosting Fee (USD)</span>
+                  <div className="text-right">
+                    <p className="font-semibold text-slate-900">{usd(calculations.hostCostUsd)}/mo</p>
+                    <p className="text-[9px] text-slate-400">≈ {peso(calculations.hostCostPhp)}/mo</p>
+                  </div>
+                </div>
+                <div className="flex justify-between items-center text-[13px] pt-1 text-left">
+                  <span className="font-semibold text-emerald-800">Total Monthly (₱ Installment + $ Cloud)</span>
+                  <span className="font-bold text-emerald-600">
+                    {peso(Math.round(calculations.buildTotal * 0.5 / 12) + calculations.hostCostPhp)}
+                    <span className="text-[9px] text-slate-400 font-normal">/mo</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Consultation trigger CTA */}
+              <div className="flex gap-2 mt-2">
+                <button
+                  onClick={handleOpenConsultation}
+                  className="flex items-center justify-center gap-2 flex-1 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[12px] font-semibold transition-all cursor-pointer shadow-sm active:scale-95 border-0 outline-none"
+                >
+                  <ArrowRight className="w-3.5 h-3.5" /> Book Free Consultation
+                </button>
+              </div>
+
+            </div>
+          </div>
+
         </div>
+
       </main>
 
-      {/* Public Footer */}
+      {/* Footer */}
       <Footer email={EMAIL} />
 
-      {/* Consultation Modal Integration */}
+      {/* Consultation Modal */}
       <ConsultationModal
         isOpen={consultationOpen}
         onClose={() => setConsultationOpen(false)}
         initialMessage={consultationMessage}
       />
 
+      {/* SLA Scope Modal */}
+      {isSlaModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/25 backdrop-blur-[2px] flex items-center justify-center z-[80] animate-fade-in p-4">
+          <div className="bg-white rounded-2xl border border-slate-250 max-w-[500px] w-full p-6 shadow-xl flex flex-col gap-4 animate-scale-up text-left font-sans">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h3 className="text-sm font-bold text-slate-805 flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Novaryn Maintenance SLA Scope
+              </h3>
+              <button
+                onClick={() => setIsSlaModalOpen(false)}
+                className="text-slate-400 hover:text-slate-650 text-xs font-bold font-mono cursor-pointer bg-transparent border-0 outline-none"
+              >
+                ✕ Close
+              </button>
+            </div>
+            
+            <div className="text-[12px] text-slate-600 flex flex-col gap-3">
+              <div>
+                <p className="font-bold text-emerald-700 uppercase tracking-wide text-[10px] mb-1">✅ What's Included</p>
+                <ul className="list-disc pl-5 space-y-1">
+                  <li><strong>Security Audits & Firewall Patches:</strong> Routine package upgrades to prevent exploits.</li>
+                  <li><strong>Core Database Backups:</strong> Secure daily backups with automated retention configs.</li>
+                  <li><strong>Critical Bug Fixes:</strong> Direct hot-fixes to solve crashes or functional system locks.</li>
+                  <li><strong>Uptime Monitoring:</strong> 24/7 endpoint checks to ensure gateway is active.</li>
+                  <li><strong>Minor Tweaks:</strong> Up to 2 hours of content text/image alterations monthly.</li>
+                </ul>
+              </div>
+              
+              <div className="border-t border-slate-150 pt-3">
+                <p className="font-bold text-red-600 uppercase tracking-wide text-[10px] mb-1">❌ What's NOT Included (Exclusions)</p>
+                <ul className="list-disc pl-5 space-y-1 text-slate-500">
+                  <li><strong className="text-red-500">New Feature Development:</strong> Coding new dashboards, pages, or modular business engines.</li>
+                  <li><strong>Third-Party Integrations Billing:</strong> Subscriptions for SMS gateways, domain names, or mail lists.</li>
+                  <li><strong>Self-Inflicted Damage:</strong> Fixing errors introduced by admin server-level credentials overrides.</li>
+                  <li><strong>On-Site SLA:</strong> Office hardware repairs or dedicated in-person training pipelines.</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div className="flex justify-end pt-2 border-t border-slate-100">
+              <button
+                onClick={() => setIsSlaModalOpen(false)}
+                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-all cursor-pointer border-0 outline-none"
+              >
+                I Understand
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── MOBILE FEATURES BOTTOM DRAWER ── */}
+      {mobileDrawerModule && (
+        <>
+          <div
+            className="fixed inset-0 bg-slate-900/40 z-[60] lg:hidden"
+            onClick={() => setMobileDrawerModule(null)}
+          />
+          <div className="fixed bottom-0 left-0 right-0 z-[70] lg:hidden bg-white rounded-t-2xl shadow-2xl border-t border-slate-200 animate-slide-up text-left">
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-10 h-1 bg-slate-200 rounded-full" />
+            </div>
+            <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100">
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">What's Included</p>
+                <p className="text-[13px] font-bold text-slate-800 mt-0.5">{mobileDrawerModule.name}</p>
+              </div>
+              <button
+                onClick={() => setMobileDrawerModule(null)}
+                className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 cursor-pointer bg-transparent border-0 outline-none"
+              >
+                <X className="w-4.5 h-4.5" />
+              </button>
+            </div>
+            <div className="px-5 pt-3 pb-8 flex flex-col gap-2 max-h-[60vh] overflow-y-auto font-sans">
+              {(MODULE_FEATURES[mobileDrawerModule.name] || []).map((feat, idx) =>
+                feat.startsWith("—") ? (
+                  <div key={idx} className="flex items-center gap-2 mt-3 mb-1">
+                    <div className="flex-1 h-px bg-slate-200" />
+                    <span className="text-[9px] font-black uppercase tracking-widest text-emerald-600 shrink-0">{feat.replace(/^—\s*/, "").replace(/\s*—$/, "")}</span>
+                    <div className="flex-1 h-px bg-slate-200" />
+                  </div>
+                ) : (
+                  <div key={idx} className="flex items-start gap-3 py-1.5 border-b border-slate-50 last:border-0">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                    <span className="text-[13px] text-slate-700 font-medium">{feat}</span>
+                  </div>
+                )
+              )}
+            </div>
+          </div>
+        </>
+      )}
+
       {/* Global Toast */}
       {showToast && (
         <div className="fixed bottom-6 right-6 bg-slate-900 border border-slate-800 text-white text-xs font-semibold px-4 py-3.5 rounded-xl shadow-2xl flex items-center gap-2.5 z-55 animate-in fade-in slide-in-from-bottom-5 duration-250">
           <div className="w-4 h-4 rounded-full bg-emerald-500/20 flex items-center justify-center">
-            <Check className="w-3 h-3 text-emerald-500" />
+            <CheckCircle2 className="w-3 h-3 text-emerald-500" />
           </div>
           <span>Email copied: <strong>{EMAIL}</strong></span>
         </div>
       )}
 
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────
+// SUB-COMPONENTS
+// ─────────────────────────────────────────────────────────────────
+
+interface ModuleRowProps {
+  mod: DBModule;
+  enabled: boolean;
+  onToggle: (id: string) => void;
+  onViewFeatures?: (mod: DBModule) => void;
+  launchPct: number;
+}
+
+function ModuleRow({ mod, enabled, onToggle, onViewFeatures, launchPct }: ModuleRowProps) {
+  const lookup = MODULE_TIERS[mod.name];
+  const features = MODULE_FEATURES[mod.name] || [];
+
+  const peso = (n: number) => "₱" + n.toLocaleString("en-PH", { minimumFractionDigits: 0 });
+
+  return (
+    <div
+      className={`flex flex-col rounded-lg border transition-all select-none ${
+        enabled
+          ? "bg-white border-slate-200/80 shadow-sm"
+          : "bg-slate-50/50 border-transparent opacity-60 hover:opacity-80"
+      }`}
+    >
+      {/* DESKTOP ROW LAYOUT */}
+      <div
+        onClick={() => onToggle(mod.id)}
+        className="hidden sm:flex items-center justify-between py-2.5 px-3 cursor-pointer"
+      >
+        <div className="flex items-center gap-3 flex-1 min-w-0">
+          <div className="shrink-0 text-slate-350 transition-colors">
+            {enabled ? (
+              <ToggleRight className="w-5 h-5 text-emerald-500" />
+            ) : (
+              <ToggleLeft className="w-5 h-5 text-slate-300" />
+            )}
+          </div>
+          <div className="min-w-0 text-left">
+            <div className="flex items-center gap-2">
+              <p className="text-[12px] font-semibold text-slate-700 truncate">{mod.name}</p>
+              {lookup && (
+                <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-full border tracking-wide uppercase shrink-0 ${lookup.badgeColor}`}>
+                  {lookup.tier}
+                </span>
+              )}
+            </div>
+            <ComplexityBar score={mod.complexity_score} />
+          </div>
+        </div>
+        <div className="flex items-center gap-5 shrink-0 text-right">
+          <div>
+            <p className="text-[10px] text-slate-400 uppercase tracking-wide">Build</p>
+            <p className={`text-[12px] font-semibold ${enabled ? "text-slate-800" : "text-slate-400"}`}>
+              {peso(mod.build_price)}
+            </p>
+          </div>
+          <div>
+            <p className="text-[10px] text-slate-400 uppercase tracking-wide">Installment</p>
+            <p className={`text-[12px] font-semibold ${enabled ? "text-slate-800" : "text-slate-400"}`}>
+              +{peso(Math.round(mod.build_price * (1 - launchPct / 100) / 12))}/mo
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* MOBILE ROW LAYOUT */}
+      <div className="sm:hidden flex flex-col">
+        <div
+          onClick={() => onToggle(mod.id)}
+          className="flex items-center gap-3 px-3 pt-3 pb-2 cursor-pointer text-left"
+        >
+          <div className="shrink-0">
+            {enabled ? (
+              <ToggleRight className="w-5 h-5 text-emerald-500" />
+            ) : (
+              <ToggleLeft className="w-5 h-5 text-slate-300" />
+            )}
+          </div>
+          <p className={`text-[13px] font-bold leading-snug flex-1 min-w-0 transition-colors ${
+            enabled ? "text-slate-800" : "text-slate-500"
+          }`}>{mod.name}</p>
+        </div>
+
+        <div
+          onClick={() => onToggle(mod.id)}
+          className="flex items-center justify-between px-3 pb-2 cursor-pointer"
+        >
+          <ComplexityBar score={mod.complexity_score} />
+          {lookup && (
+            <span className={`text-[8px] font-bold px-2 py-0.5 rounded-full border tracking-widest uppercase shrink-0 ${lookup.badgeColor}`}>
+              {lookup.tier}
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between px-3 pb-3 border-t border-slate-100/50 pt-2 bg-slate-50/10 text-left">
+          <div>
+            <span className="text-[9px] text-slate-400 uppercase tracking-wide block">Build Price</span>
+            <span className="text-[12px] font-bold text-slate-700">{peso(mod.build_price)}</span>
+          </div>
+          <div className="text-right">
+            <span className="text-[9px] text-slate-400 uppercase tracking-wide block">Installment</span>
+            <span className="text-[12px] font-bold text-slate-700">+{peso(Math.round(mod.build_price * (1 - launchPct / 100) / 12))}/mo</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Expanded Features List (Desktop only) */}
+      {enabled && features.length > 0 && (
+        <div className="hidden sm:block px-3 pb-3 pt-2.5 border-t border-slate-100 bg-slate-50/20 text-[11px] text-slate-500 animate-fade-in text-left">
+          <p className="font-bold text-slate-700 mb-2">What's Included:</p>
+          <ul className="flex flex-col gap-1.5 mt-1">
+            {features.map((feat, idx) =>
+              feat.startsWith("—") ? (
+                <li key={idx} className="flex items-center gap-2 mt-2 mb-0.5">
+                  <div className="flex-1 h-px bg-slate-200" />
+                  <span className="text-[9px] font-black uppercase tracking-widest text-emerald-600 shrink-0">{feat.replace(/^—\s*/, "").replace(/\s*—$/, "")}</span>
+                  <div className="flex-1 h-px bg-slate-200" />
+                </li>
+              ) : (
+                <li key={idx} className="flex items-center gap-1.5 text-slate-655 text-slate-600">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                  <span>{feat}</span>
+                </li>
+              )
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ComplexityBar({ score }: { score: number }) {
+  return (
+    <div className="flex gap-0.5 items-center mt-0.5">
+      {Array.from({ length: 10 }).map((_, i) => (
+        <div
+          key={i}
+          className={`h-1.5 w-1.5 rounded-full transition-colors ${
+            i < score
+              ? score <= 3
+                ? "bg-emerald-400"
+                : score <= 6
+                ? "bg-amber-400"
+                : "bg-red-400"
+              : "bg-slate-200"
+          }`}
+        />
+      ))}
+      <span className="ml-1 text-[9px] text-slate-400 font-mono">{score}/10</span>
     </div>
   );
 }
