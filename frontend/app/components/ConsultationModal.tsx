@@ -7,10 +7,9 @@ import { motion, AnimatePresence } from "framer-motion";
 interface ConsultationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  initialMessage?: string;
 }
 
-export default function ConsultationModal({ isOpen, onClose, initialMessage }: ConsultationModalProps) {
+export default function ConsultationModal({ isOpen, onClose }: ConsultationModalProps) {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errors, setErrors] = useState<Record<string, string[]>>({});
@@ -20,16 +19,6 @@ export default function ConsultationModal({ isOpen, onClose, initialMessage }: C
     phone: "",
     message: ""
   });
-
-  // Reset or pre-fill message when modal opens
-  React.useEffect(() => {
-    if (isOpen) {
-      setFormData((prev) => ({
-        ...prev,
-        message: initialMessage || ""
-      }));
-    }
-  }, [isOpen, initialMessage]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;

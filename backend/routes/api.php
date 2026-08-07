@@ -35,7 +35,6 @@ Route::prefix('v1')->group(function () {
     // Public Scheduler routes
     Route::get('/public/leads/verify', [PublicController::class, 'verifyLead']);
     Route::post('/public/leads/schedule', [PublicController::class, 'scheduleLead']);
-    Route::get('/public/pricing/plans', [PricingEngineController::class, 'plans']);
 
     // 2. Admin Authentication
     Route::prefix('auth')->group(function () {
